@@ -126,15 +126,17 @@ namespace ReactionStoichiometry
 
                 var zeros = Matrix<double>.Build.Dense(nullity, matrix.Rank());
                 var identity = Matrix<double>.Build.DenseIdentity(nullity);
-                var augmented = reduced.Stack(zeros.Append(identity));
+                var result = reduced.Stack(zeros.Append(identity));
 
-                if (augmented.HasZeroDeterminant())
+                result.CoerceZero(Helpers.FP_TOLERANCE);
+
+                if (result.HasZeroDeterminant())
                 {
-                    diagnostics.AddRange(Helpers.PrettyPrintMatrix("Zero-determinant matrix", augmented.ToArray(), PrettyPrinter));
+                    diagnostics.AddRange(Helpers.PrettyPrintMatrix("Zero-determinant matrix", result.ToArray(), PrettyPrinter));
                     throw new BalancerException("Matrix can't be inverted");
                 }
 
-                return augmented;
+                return result;
             }
 
             Matrix<double> augmented_matrix = GetAugmentedReducedMatrix();

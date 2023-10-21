@@ -32,11 +32,11 @@
             resultMT = new TextBox();
             resultMR = new TextBox();
             dataGridView1 = new DataGridView();
-            containerInput = new Panel();
-            buttonBalance = new Button();
-            textBoxInput = new TextBox();
             Expression = new DataGridViewTextBoxColumn();
             Value = new DataGridViewTextBoxColumn();
+            containerInput = new Panel();
+            textBoxInput = new TextBox();
+            buttonBalance = new Button();
             ((System.ComponentModel.ISupportInitialize) containerOutput).BeginInit();
             containerOutput.Panel1.SuspendLayout();
             containerOutput.Panel2.SuspendLayout();
@@ -107,38 +107,6 @@
             dataGridView1.TabIndex = 2;
             dataGridView1.CellEndEdit += dataGridView1_CellEndEdit;
             // 
-            // containerInput
-            // 
-            containerInput.Controls.Add(buttonBalance);
-            containerInput.Controls.Add(textBoxInput);
-            containerInput.Dock = DockStyle.Top;
-            containerInput.Location = new Point(0, 0);
-            containerInput.Name = "containerInput";
-            containerInput.Size = new Size(1888, 47);
-            containerInput.TabIndex = 7;
-            // 
-            // buttonBalance
-            // 
-            buttonBalance.Dock = DockStyle.Right;
-            buttonBalance.Enabled = false;
-            buttonBalance.Location = new Point(1700, 0);
-            buttonBalance.Name = "buttonBalance";
-            buttonBalance.Size = new Size(188, 47);
-            buttonBalance.TabIndex = 5;
-            buttonBalance.Text = "Balance";
-            buttonBalance.UseVisualStyleBackColor = true;
-            buttonBalance.Click += buttonBalance_Click;
-            // 
-            // textBoxInput
-            // 
-            textBoxInput.Dock = DockStyle.Left;
-            textBoxInput.Location = new Point(0, 0);
-            textBoxInput.Name = "textBoxInput";
-            textBoxInput.Size = new Size(1694, 47);
-            textBoxInput.TabIndex = 4;
-            textBoxInput.Text = "C2H4 + KMnO4 + H2O = CH2OHCH2OH + MnO2 + KOH";
-            textBoxInput.TextChanged += textBoxInput_TextChanged;
-            // 
             // Expression
             // 
             Expression.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
@@ -159,6 +127,38 @@
             Value.ReadOnly = true;
             Value.Resizable = DataGridViewTriState.False;
             // 
+            // containerInput
+            // 
+            containerInput.Controls.Add(textBoxInput);
+            containerInput.Controls.Add(buttonBalance);
+            containerInput.Dock = DockStyle.Top;
+            containerInput.Location = new Point(0, 0);
+            containerInput.Name = "containerInput";
+            containerInput.Size = new Size(1888, 47);
+            containerInput.TabIndex = 7;
+            // 
+            // textBoxInput
+            // 
+            textBoxInput.Dock = DockStyle.Fill;
+            textBoxInput.Location = new Point(0, 0);
+            textBoxInput.Name = "textBoxInput";
+            textBoxInput.Size = new Size(1700, 47);
+            textBoxInput.TabIndex = 4;
+            textBoxInput.Text = "Fe2(SO4)3 + PrTlTe3 + H3PO4 = Fe0.996(H2PO4)2H2O + Tl1.987(SO3)3 + Pr1.998(SO4)3 + Te2O3 + P2O5 + H2S";
+            textBoxInput.TextChanged += textBoxInput_TextChanged;
+            // 
+            // buttonBalance
+            // 
+            buttonBalance.Dock = DockStyle.Right;
+            buttonBalance.Enabled = false;
+            buttonBalance.Location = new Point(1700, 0);
+            buttonBalance.Name = "buttonBalance";
+            buttonBalance.Size = new Size(188, 47);
+            buttonBalance.TabIndex = 5;
+            buttonBalance.Text = "Balance";
+            buttonBalance.UseVisualStyleBackColor = true;
+            buttonBalance.Click += buttonBalance_Click;
+            // 
             // MainForm
             // 
             AutoScaleMode = AutoScaleMode.None;
@@ -170,6 +170,7 @@
             MinimumSize = new Size(1600, 800);
             Name = "MainForm";
             Text = "Balancing algo";
+            WindowState = FormWindowState.Maximized;
             containerOutput.Panel1.ResumeLayout(false);
             containerOutput.Panel1.PerformLayout();
             containerOutput.Panel2.ResumeLayout(false);
