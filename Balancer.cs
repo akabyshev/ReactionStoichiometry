@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace ReactionStoichiometry
 {
-    internal abstract class Balancer<T_RREF>
+    internal abstract class Balancer<T>
     {
         public string Outcome { get; protected set; }
         public string Skeletal { get; init; }
@@ -22,14 +22,14 @@ namespace ReactionStoichiometry
         protected readonly List<string> diagnostics = new();
         public string Diagnostics { get { return string.Join(Environment.NewLine, diagnostics); } }
 
-        public Balancer(string equation)
+        protected Balancer(string equation)
         {
             Outcome = "<FAIL>";
             Skeletal = equation.Replace(" ", "");
             ReactantsCount = Skeletal.Split('=')[0].Split('+').Length;
 
-            string[] chargeSymbols = new string[] { "Qn", "Qp" };
-            var chargeParsingStrings = new string[][]
+            var chargeSymbols = new string[] { "Qn", "Qp" };
+            var chargeParsingRules = new string[][]
             {
                 new string[] { "Qn", @"Qn(\d*)$", "{$1-}" },
                 new string[] { "Qp", @"Qp(\d*)$", "{$1+}" },
@@ -44,22 +44,22 @@ namespace ReactionStoichiometry
                 elements.Add("{e}");
 
                 matrix = Matrix<double>.Build.Dense(elements.Count, fragments.Count);
-                for (int i_r = 0; i_r < elements.Count; i_r++)
+                for (var i_r = 0; i_r < elements.Count; i_r++)
                 {
                     Regex regex = new(REGEX.ElementTemplate.Replace("X", elements[i_r]));
 
-                    for (int i_c = 0; i_c < fragments.Count; i_c++)
+                    for (var i_c = 0; i_c < fragments.Count; i_c++)
                     {
                         string plain_fragment = Helpers.UnfoldFragment(fragments[i_c]);
-                        matrix[i_r, i_c] += regex.Matches(plain_fragment).Cast<Match>().Sum(match => double.Parse(match.Groups[1].Value));
+                        matrix[i_r, i_c] += regex.Matches(plain_fragment).Sum(match => double.Parse(match.Groups[1].Value));
                     }
                 }
 
-                for (int i = 0; i < chargeParsingStrings.Length; i++)
+                foreach (var chargeParsingRule in chargeParsingRules)
                 {
-                    for (int index = 0; index < fragments.Count; index++)
+                    for (var i = 0; i < fragments.Count; i++)
                     {
-                        fragments[index] = Regex.Replace(fragments[index], pattern: chargeParsingStrings[i][1], replacement: chargeParsingStrings[i][2]);
+                        fragments[i] = Regex.Replace(fragments[i], pattern: chargeParsingRule[1], replacement: chargeParsingRule[2]);
                     }
                 }
 
@@ -95,9 +95,9 @@ namespace ReactionStoichiometry
             }
         }
 
-        internal abstract void Balance();
-        protected abstract long[] VectorScaler(T_RREF[] v);
-        protected abstract string PrettyPrinter(T_RREF value);
+        protected abstract void Balance();
+        protected abstract long[] VectorScaler(T[] v);
+        protected abstract string PrettyPrinter(T value);
     }
 
     internal class ThorneBalancer : Balancer<double>
@@ -106,13 +106,13 @@ namespace ReactionStoichiometry
         {
         }
 
-        internal override void Balance()
+        protected override void Balance()
         {
             int nullity = matrix.ColumnCount - matrix.Rank();
 
             Matrix<double> GetAugmentedReducedMatrix()
             {
-                Matrix<double> reduced = matrix.Clone();
+                var reduced = matrix.Clone();
                 if ((matrix.RowCount == matrix.ColumnCount))
                 {
                     var temp = new DoubleMatrixInRREF(matrix);
@@ -137,15 +137,14 @@ namespace ReactionStoichiometry
                 return augmented;
             }
 
-            Matrix<double> AM = GetAugmentedReducedMatrix();
-
-            Matrix<double> IAM = AM.Inverse();
-            details.AddRange(Helpers.PrettyPrintMatrix("Inverse of the augmented matrix", IAM.ToArray(), PrettyPrinter));
+            Matrix<double> augmented_matrix = GetAugmentedReducedMatrix();
+            Matrix<double> inverted_augmented_matrix = augmented_matrix.Inverse();
+            details.AddRange(Helpers.PrettyPrintMatrix("Inverse of the augmented matrix", inverted_augmented_matrix.ToArray(), PrettyPrinter));
 
             List<string> independent_equations = new();
-            foreach (int i in Enumerable.Range(IAM.ColumnCount - nullity, nullity))
+            foreach (int i in Enumerable.Range(inverted_augmented_matrix.ColumnCount - nullity, nullity))
             {
-                var scaled_nsv = VectorScaler(IAM.Column(i).ToArray());
+                var scaled_nsv = VectorScaler(inverted_augmented_matrix.Column(i).ToArray());
                 independent_equations.Add(GetEquationWithCoefficients(scaled_nsv));
 
                 diagnostics.Add(string.Join('\t', scaled_nsv));
@@ -189,7 +188,7 @@ namespace ReactionStoichiometry
         {
         }
 
-        internal override void Balance()
+        protected override void Balance()
         {
             for (int i_c = ReactantsCount; i_c < fragments.Count; i_c++)
             {

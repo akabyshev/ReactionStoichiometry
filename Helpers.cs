@@ -123,7 +123,7 @@ namespace ReactionStoichiometry
                 Vector<double> v = Vector<double>.Build.DenseOfArray(doubles);
                 long[] wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(FP_TOLERANCE).Select(d => (long) d).ToArray();
                 long gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
-                return wholes.Select(x => (long) (x / gcd)).ToArray();
+                return wholes.Select(x => x / gcd).ToArray();
             }
         }
 
