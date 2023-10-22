@@ -5,11 +5,6 @@ using System.Text.RegularExpressions;
 
 namespace ReactionStoichiometry
 {
-    internal class BalancerException : InvalidOperationException
-    {
-        public BalancerException(string message) : base(message) { }
-    }
-
     internal static class Helpers
     {
         public const double FP_TOLERANCE = 1e-10;
