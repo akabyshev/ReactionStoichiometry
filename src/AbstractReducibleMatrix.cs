@@ -1,5 +1,5 @@
-﻿using System.Text;
-using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.LinearAlgebra;
+using System.Text;
 
 namespace ReactionStoichiometry;
 
@@ -50,8 +50,8 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
     {
         var result = new T[RowCount, ColumnCount];
         for (var i_r = 0; i_r < RowCount; i_r++)
-        for (var i_c = 0; i_c < ColumnCount; i_c++)
-            result[i_r, i_c] = _data[i_r, i_c];
+            for (var i_c = 0; i_c < ColumnCount; i_c++)
+                result[i_r, i_c] = _data[i_r, i_c];
 
         return result;
     }

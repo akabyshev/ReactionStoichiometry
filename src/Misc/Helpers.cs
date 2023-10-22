@@ -8,7 +8,7 @@ namespace ReactionStoichiometry
     internal static class Helpers
     {
         public const double FP_TOLERANCE = 1e-10;
-        
+
         public static string PrettyPrintDouble(double value)
         {
             return (value >= 0 ? " " : "") + value.ToString("0.###");
@@ -133,10 +133,10 @@ namespace ReactionStoichiometry
         }
 
         internal static string SimpleStackedOutput<T>(AbstractBalancer<T> b)
-    {
-        return string.Join(
-            Environment.NewLine,
-            new List<string>() {
+        {
+            return string.Join(
+                Environment.NewLine,
+                new List<string>() {
                 "Skeletal:",
                 b.Skeletal,
                 string.Empty,
@@ -148,7 +148,7 @@ namespace ReactionStoichiometry
                 string.Empty,
                 "Diagnostics:",
                 b.Diagnostics
-            });
-    }
+                });
+        }
     }
 }

@@ -1,6 +1,6 @@
-﻿using System.Globalization;
-using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.LinearAlgebra;
 using Rationals;
+using System.Globalization;
 
 namespace ReactionStoichiometry
 {
