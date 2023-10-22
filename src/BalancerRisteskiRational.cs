@@ -3,9 +3,9 @@ using Rationals;
 
 namespace ReactionStoichiometry;
 
-internal class RisteskiBalancer_Rational : RisteskiBalancer<Rational>
+internal class BalancerRisteskiRational : AbstractBalancerRisteski<Rational>
 {
-    public RisteskiBalancer_Rational(string equation) : base(equation)
+    public BalancerRisteskiRational(string equation) : base(equation)
     {
     }
 

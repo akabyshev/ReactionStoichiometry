@@ -32,7 +32,7 @@ namespace ReactionStoichiometry
                 result.Add(string.Join('\t', current_line));
             }
 
-            for (int i_r = 0; i_r < matrix.GetLength(0); i_r++)
+            for (var i_r = 0; i_r < matrix.GetLength(0); i_r++)
             {
                 current_line.Clear();
                 if (rowHeaders != null)
@@ -44,7 +44,7 @@ namespace ReactionStoichiometry
                     current_line.Add($"R#{i_r + 1}");
                 }
 
-                for (int i_c = 0; i_c < matrix.GetLength(1); i_c++)
+                for (var i_c = 0; i_c < matrix.GetLength(1); i_c++)
                 {
                     current_line.Add(printer(matrix[i_r, i_c]));
                 }
@@ -60,36 +60,36 @@ namespace ReactionStoichiometry
             var result = fragment;
 
             {
-                Regex regex = new(REGEX.ElementNoIndex);
+                Regex regex = new(RegexPatterns.ElementNoIndex);
                 while (true)
                 {
-                    Match match = regex.Match(result);
+                    var match = regex.Match(result);
                     if (!match.Success) { break; }
-                    string element = match.Groups[1].Value;
-                    string nextchar = match.Groups[2].Value;
+                    var element = match.Groups[1].Value;
+                    var nextchar = match.Groups[2].Value;
                     result = regex.Replace(result, element + "1" + nextchar, 1);
                 }
             }
             {
-                Regex regex = new(REGEX.ClosingParenthesisNoIndex);
+                Regex regex = new(RegexPatterns.ClosingParenthesisNoIndex);
                 while (true)
                 {
-                    Match match = regex.Match(result);
+                    var match = regex.Match(result);
                     if (!match.Success) { break; }
 
                     result = regex.Replace(result, ")1", 1);
                 }
             }
             {
-                Regex regex = new(REGEX.InnermostParenthesesIndexed);
+                Regex regex = new(RegexPatterns.InnermostParenthesesIndexed);
                 while (true)
                 {
-                    Match match = regex.Match(result);
+                    var match = regex.Match(result);
                     if (!match.Success) { break; }
-                    string token = match.Groups[1].Value;
-                    string index = match.Groups[2].Value;
+                    var token = match.Groups[1].Value;
+                    var index = match.Groups[2].Value;
 
-                    string repeated = string.Join("", Enumerable.Repeat(token, int.Parse(index)));
+                    var repeated = string.Join("", Enumerable.Repeat(token, int.Parse(index)));
                     result = regex.Replace(result, repeated, 1);
                 }
             }
@@ -115,9 +115,9 @@ namespace ReactionStoichiometry
             }
             catch (OverflowException)
             {
-                Vector<double> v = Vector<double>.Build.DenseOfArray(doubles);
-                long[] wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(FP_TOLERANCE).Select(d => (long) d).ToArray();
-                long gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
+                var v = Vector<double>.Build.DenseOfArray(doubles);
+                var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(FP_TOLERANCE).Select(d => (long) d).ToArray();
+                var gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
                 return wholes.Select(x => x / gcd).ToArray();
             }
         }
@@ -132,7 +132,7 @@ namespace ReactionStoichiometry
             return result;
         }
 
-        internal static string SimpleStackedOutput<T>(Balancer<T> b)
+        internal static string SimpleStackedOutput<T>(AbstractBalancer<T> b)
     {
         return string.Join(
             Environment.NewLine,

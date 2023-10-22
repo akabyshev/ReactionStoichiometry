@@ -2,11 +2,11 @@
 
 namespace ReactionStoichiometry;
 
-internal class DoubleMatrix : CoreMatrix<double>
+internal class DoubleMatrix : AbstractReducibleMatrix<double>
 {
     public DoubleMatrix(Matrix<double> matrix) : base(matrix, x => x)
     {
-        Basics = new Basics_<double>
+        Basics = new BasicOperations
         {
             Add = ((a, b) => a + b),
             Subtract = ((a, b) => a - b),

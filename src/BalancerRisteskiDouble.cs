@@ -2,9 +2,9 @@
 
 namespace ReactionStoichiometry;
 
-internal class RisteskiBalancer_Double : RisteskiBalancer<double>
+internal class BalancerRisteskiDouble : AbstractBalancerRisteski<double>
 {
-    public RisteskiBalancer_Double(string equation) : base(equation)
+    public BalancerRisteskiDouble(string equation) : base(equation)
     {
     }
 

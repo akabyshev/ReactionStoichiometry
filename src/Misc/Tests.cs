@@ -10,9 +10,9 @@
             }
         }
 
-        public static void RunParsingTests()
+        public static void PerformParsingTests()
         {
-            string inputFilePath = @"..\..\..\parser_tests.txt";
+            var inputFilePath = @"data\parser_tests.txt";
 
             if (!File.Exists(inputFilePath))
                 return;
@@ -22,20 +22,17 @@
             string? line;
             while ((line = reader.ReadLine()) != null)
             {
-                string[] parts = line.Split("\t");
+                var parts = line.Split("\t");
                 Assert_StringsAreEqual(Helpers.UnfoldFragment(parts[0]), parts[1]);
             }
         }
 
-        public static void RunTestsFromFile()
+        public static void BalanceEquationsFromFile()
         {
-            string inputFilePath = @"..\..\..\data\eqs-input.txt";
-            string outputFilePath = @"..\..\..\data\eqs-output.txt";
+            var inputFilePath = @"data\eqs-input.txt";
+            var outputFilePath = @"data\eqs-output.txt";
 
             if (!File.Exists(inputFilePath))
-                return;
-
-            if (!File.Exists(outputFilePath))
                 return;
 
             using StreamReader reader = new(inputFilePath);
@@ -50,10 +47,10 @@
                 }
                 if (line.StartsWith("EQ: "))
                 {
-                    string eq = line.Replace("EQ:", string.Empty);
-                    writer.WriteLine(Helpers.SimpleStackedOutput(new ThorneBalancer(eq)));
+                    var eq = line.Replace("EQ:", string.Empty);
+                    writer.WriteLine(Helpers.SimpleStackedOutput(new BalancerThorne(eq)));
                     writer.WriteLine("----");
-                    writer.WriteLine(Helpers.SimpleStackedOutput(new RisteskiBalancer_Rational(eq)));
+                    writer.WriteLine(Helpers.SimpleStackedOutput(new BalancerRisteskiRational(eq)));
                     writer.WriteLine("====================================");
                     writer.WriteLine();
                 }

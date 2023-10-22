@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 
 namespace ReactionStoichiometry
 {
-    internal abstract class Balancer<T>
+    internal abstract class AbstractBalancer<T>
     {
         public string Outcome { get; protected set; }
-        public string Skeletal { get; init; }
-        protected int ReactantsCount { get; init; }
+        public string Skeletal { get; }
+        protected int ReactantsCount { get; }
 
         protected readonly List<string> fragments = new();
         protected readonly Matrix<double> matrix;
@@ -21,35 +21,35 @@ namespace ReactionStoichiometry
         protected readonly List<string> diagnostics = new();
         public string Diagnostics { get { return string.Join(Environment.NewLine, diagnostics); } }
 
-        protected Balancer(string equation)
+        protected AbstractBalancer(string equation)
         {
             Outcome = "<FAIL>";
             Skeletal = equation.Replace(" ", "");
             ReactantsCount = Skeletal.Split('=')[0].Split('+').Length;
 
-            var chargeSymbols = new string[] { "Qn", "Qp" };
-            var chargeParsingRules = new string[][]
+            var chargeSymbols = new[] { "Qn", "Qp" };
+            var chargeParsingRules = new[]
             {
-                new string[] { "Qn", @"Qn(\d*)$", "{$1-}" },
-                new string[] { "Qp", @"Qp(\d*)$", "{$1+}" },
+                new[] { "Qn", @"Qn(\d*)$", "{$1-}" },
+                new[] { "Qp", @"Qp(\d*)$", "{$1+}" },
             };
 
-            fragments.AddRange(Regex.Split(Skeletal, REGEX.AllowedDividers));
+            fragments.AddRange(Regex.Split(Skeletal, RegexPatterns.AllowedDividers));
 
             try
             {
                 List<string> elements = new();
-                elements.AddRange(Regex.Matches(Skeletal, REGEX.ElementSymbol).Select(m => m.Value).Concat(chargeSymbols).Distinct());
+                elements.AddRange(Regex.Matches(Skeletal, RegexPatterns.ElementSymbol).Select(m => m.Value).Concat(chargeSymbols).Distinct());
                 elements.Add("{e}");
 
                 matrix = Matrix<double>.Build.Dense(elements.Count, fragments.Count);
                 for (var i_r = 0; i_r < elements.Count; i_r++)
                 {
-                    Regex regex = new(REGEX.ElementTemplate.Replace("X", elements[i_r]));
+                    Regex regex = new(RegexPatterns.ElementTemplate.Replace("X", elements[i_r]));
 
                     for (var i_c = 0; i_c < fragments.Count; i_c++)
                     {
-                        string plain_fragment = Helpers.UnfoldFragment(fragments[i_c]);
+                        var plain_fragment = Helpers.UnfoldFragment(fragments[i_c]);
                         matrix[i_r, i_c] += regex.Matches(plain_fragment).Sum(match => double.Parse(match.Groups[1].Value));
                     }
                 }
@@ -81,14 +81,14 @@ namespace ReactionStoichiometry
             }
             catch (Exception e)
             {
-                throw new BalancerException($"Parsing failed: {e.Message}");
+                throw new ApplicationSpecificException($"Parsing failed: {e.Message}");
             }
 
             try
             {
                 Balance();
             }
-            catch (BalancerException e)
+            catch (ApplicationSpecificException e)
             {
                 diagnostics.Add($"This equation can't be balanced: {e.Message}");
             }

@@ -23,12 +23,7 @@ internal static class Extensions
         return v.Count(IsNonZero);
     }
 
-    public static bool HasZeroDeterminant(this Matrix<double> m)
-    {
-        return Math.Abs(m.Determinant()) < Helpers.FP_TOLERANCE;
-    }
-
-    private static bool IsNonZero(this double d)
+    public static bool IsNonZero(this double d)
     {
         return Math.Abs(d) > Helpers.FP_TOLERANCE;
     }

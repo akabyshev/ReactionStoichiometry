@@ -14,8 +14,8 @@ namespace ReactionStoichiometry
         private void buttonBalance_Click(object sender, EventArgs e)
 #pragma warning restore IDE1006 // Naming Styles
         {
-            resultMT.Text = Helpers.SimpleStackedOutput(new ThorneBalancer(textBoxInput.Text));
-            resultMR.Text = Helpers.SimpleStackedOutput(new RisteskiBalancer_Double(textBoxInput.Text));
+            resultMT.Text = Helpers.SimpleStackedOutput(new BalancerThorne(textBoxInput.Text));
+            resultMR.Text = Helpers.SimpleStackedOutput(new BalancerRisteskiDouble(textBoxInput.Text));
             UpdateTable();
         }
 
@@ -48,7 +48,7 @@ namespace ReactionStoichiometry
         {
             resultMT.Text = string.Empty;
             resultMR.Text = string.Empty;
-            buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text, REGEX.MinimalSkeletalStructure);
+            buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text, RegexPatterns.MinimalSkeletalStructure);
         }
     }
 }

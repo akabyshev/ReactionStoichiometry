@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry
 {
-    internal static class REGEX
+    internal static class RegexPatterns
     {
         public const string MinimalSkeletalStructure = @"^.+\+.+=.+$";
         public const string ElementSymbol = @"[A-Z][a-z]|[A-Z]";
