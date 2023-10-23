@@ -1,10 +1,8 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-
-namespace ReactionStoichiometry;
+﻿namespace ReactionStoichiometry;
 
 internal static class Extensions
 {
-    public static double NonZeroAbsoluteMinimum(this Vector<double> v)
+    public static double NonZeroAbsoluteMinimum(this IEnumerable<double> v)
     {
         var nonZeroAbsValues = v.Where(x => x != 0).Select(Math.Abs);
 
@@ -18,7 +16,7 @@ internal static class Extensions
         }
     }
 
-    public static int CountNonZeroes(this Vector<double> v)
+    public static int CountNonZeroes(this IEnumerable<double> v)
     {
         return v.Count(IsNonZero);
     }

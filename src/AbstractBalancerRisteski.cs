@@ -2,7 +2,7 @@
 
 internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where T : struct, IEquatable<T>, IFormattable
 {
-    public AbstractBalancerRisteski(string equation) : base(equation)
+    protected AbstractBalancerRisteski(string equation) : base(equation)
     {
     }
 
@@ -25,26 +25,28 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
         List<string> expressions = new();
         for (var i_r = 0; i_r < RAM.RowCount; i_r++)
         {
-            var scaled_row = VectorScaler(RAM.GetRow(i_r));
+            var scaled_row = ScaleVectorToIntegers(RAM.GetRow(i_r));
             var pivot_column = Array.FindIndex(scaled_row, i => i != 0);
 
             var expression_parts = new List<string>();
             for (var i_c = pivot_column + 1; i_c < scaled_row.Length; i_c++)
             {
-                if (scaled_row[i_c] != 0)
+                if (scaled_row[i_c] == 0)
                 {
-                    var coef = (-1 * scaled_row[i_c]).ToString();
-                    if (coef == "1")
-                    {
-                        coef = string.Empty;
-                    }
-                    if (coef == "-1")
-                    {
-                        coef = "-";
-                    }
-
-                    expression_parts.Add($"{coef}{Labeller(i_c)}");
+                    continue;
                 }
+
+                var coefficient = (-1 * scaled_row[i_c]).ToString();
+                if (coefficient == "1")
+                {
+                    coefficient = string.Empty;
+                }
+                if (coefficient == "-1")
+                {
+                    coefficient = "-";
+                }
+
+                expression_parts.Add($"{coefficient}{LabelFor(i_c)}");
             }
             var expression = string.Join(" + ", expression_parts).Replace("+ -", "- ");
 
@@ -62,13 +64,12 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
                 expression = "0";
             }
 
-            expressions.Add($"{Labeller(pivot_column)} = {expression}");
+            expressions.Add($"{LabelFor(pivot_column)} = {expression}");
         }
 
-        List<string> generalized_solution = new();
-        generalized_solution.Add(GetEquationWithPlaceholders() + ", where");
+        List<string> generalized_solution = new() { GetEquationWithPlaceholders() + ", where" };
         generalized_solution.AddRange(expressions);
-        generalized_solution.Add("for any {" + string.Join(", ", free_var_indices.Select(Labeller)) + "}");
+        generalized_solution.Add("for any {" + string.Join(", ", free_var_indices.Select(LabelFor)) + "}");
 
         Outcome = string.Join(Environment.NewLine, generalized_solution);
     }
@@ -82,7 +83,7 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
 
         for (var i = 0; i < fragments.Count; i++)
         {
-            var t = Labeller(i) + MULTIPLICATION_SYMBOL + fragments[i];
+            var t = LabelFor(i) + MULTIPLICATION_SYMBOL + fragments[i];
             (i < ReactantsCount ? l : r).Add(t);
         }
 

@@ -1,29 +1,23 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace ReactionStoichiometry;
 
 internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
-    protected struct BasicOperations
-    {
-        internal Func<T, T, T> Add;
-        internal Func<T, T, T> Subtract;
-        internal Func<T, T, T> Multiply;
-        internal Func<T, T, T> Divide;
-        internal Func<T, bool> IsNonZero;
-        internal Func<T, string> AsString;
-    };
-
     private T[,] _data;
-    public int RowCount => _data.GetLength(0);
-    public int ColumnCount => _data.GetLength(1);
 
     protected AbstractReducibleMatrix(Matrix<double> matrix, Func<double, T> convert)
     {
         _data = new T[matrix.RowCount, matrix.ColumnCount];
         CopyValues(_data, matrix.ToArray(), convert);
     }
+
+    public int RowCount => _data.GetLength(0);
+    public int ColumnCount => _data.GetLength(1);
+
+    protected BasicOperations Basics { get; init; }
 
     private int CountNonZeroesInRow(int i_r)
     {
@@ -38,10 +32,7 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
     public T[] GetRow(int i_r)
     {
         var result = new T[ColumnCount];
-        for (var i_c = 0; i_c < ColumnCount; i_c++)
-        {
-            result[i_c] = _data[i_r, i_c];
-        }
+        for (var i_c = 0; i_c < ColumnCount; i_c++) result[i_c] = _data[i_r, i_c];
 
         return result;
     }
@@ -50,8 +41,8 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
     {
         var result = new T[RowCount, ColumnCount];
         for (var i_r = 0; i_r < RowCount; i_r++)
-            for (var i_c = 0; i_c < ColumnCount; i_c++)
-                result[i_r, i_c] = _data[i_r, i_c];
+        for (var i_c = 0; i_c < ColumnCount; i_c++)
+            result[i_r, i_c] = _data[i_r, i_c];
 
         return result;
     }
@@ -65,11 +56,9 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
             for (var i_c = 0; i_c < ColumnCount; i_c++)
             {
                 sb.Append(Basics.AsString(_data[i_r, i_c]));
-                if (i_c < ColumnCount - 1)
-                {
-                    sb.Append('\t');
-                }
+                if (i_c < ColumnCount - 1) sb.Append('\t');
             }
+
             sb.Append('\n');
         }
 
@@ -84,66 +73,53 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
     private static void CopyValues<T2>(T[,] array, T2[,] source, Func<T2, T> convert)
     {
         for (var r = 0; r < array.GetLength(0); r++)
-        {
-            for (var c = 0; c < array.GetLength(1); c++)
-            {
-                array[r, c] = convert(source[r, c]);
-            }
-        }
+        for (var c = 0; c < array.GetLength(1); c++)
+            array[r, c] = convert(source[r, c]);
     }
-
-    protected BasicOperations Basics { get; init; }
 
     protected void ReduceToTrimmedRREF()
     {
-        var lead = 0;
-        for (var r = 0; r < RowCount; r++)
+        var i_c_lead = 0;
+        for (var i_r = 0; i_r < RowCount; i_r++)
         {
-            if (ColumnCount <= lead)
+            if (ColumnCount <= i_c_lead)
                 break;
 
-            var i = r;
+            var i = i_r;
 
-            while (!Basics.IsNonZero(_data[i, lead]))
+            while (!Basics.IsNonZero(_data[i, i_c_lead]))
             {
                 i++;
 
-                if (i >= RowCount)
-                {
-                    i = r;
+                if (i < RowCount)
+                    continue;
 
-                    if (lead < ColumnCount - 1)
-                        lead++;
-                    else break;
-                }
+                i = i_r;
+
+                if (i_c_lead < ColumnCount - 1)
+                    i_c_lead++;
+                else
+                    break;
             }
 
-            if (i != r)
-            {
+            if (i != i_r)
                 for (var i_c = 0; i_c < ColumnCount; i_c++)
-                {
-                    (_data[r, i_c], _data[i, i_c]) = (_data[i, i_c], _data[r, i_c]);
-                }
-            }
+                    (_data[i_r, i_c], _data[i, i_c]) = (_data[i, i_c], _data[i_r, i_c]);
 
-            var div = _data[r, lead];
+            var div = _data[i_r, i_c_lead];
             if (Basics.IsNonZero(div))
-            {
-                for (var j = 0; j < ColumnCount; j++)
-                    _data[r, j] = Basics.Divide(_data[r, j], div);
-            }
+                for (var i_c = 0; i_c < ColumnCount; i_c++)
+                    _data[i_r, i_c] = Basics.Divide(_data[i_r, i_c], div);
 
             for (var j = 0; j < RowCount; j++)
-            {
-                if (j != r)
+                if (j != i_r)
                 {
-                    var sub = _data[j, lead];
+                    var sub = _data[j, i_c_lead];
                     for (var k = 0; k < ColumnCount; k++)
-                        _data[j, k] = Basics.Subtract(_data[j, k], Basics.Multiply(sub, _data[r, k]));
+                        _data[j, k] = Basics.Subtract(_data[j, k], Basics.Multiply(sub, _data[i_r, k]));
                 }
-            }
 
-            lead++;
+            i_c_lead++;
         }
 
         while (CountNonZeroesInRow(RowCount - 1) == 0)
@@ -152,5 +128,15 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
             CopyValues(newData, _data, r => r);
             _data = newData;
         }
+    }
+
+    protected struct BasicOperations
+    {
+        internal Func<T, T, T> Add;
+        internal Func<T, T, T> Subtract;
+        internal Func<T, T, T> Multiply;
+        internal Func<T, T, T> Divide;
+        internal Func<T, bool> IsNonZero;
+        internal Func<T, string> AsString;
     }
 }

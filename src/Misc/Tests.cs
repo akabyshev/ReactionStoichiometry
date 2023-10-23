@@ -1,60 +1,56 @@
-﻿namespace ReactionStoichiometry
+﻿namespace ReactionStoichiometry;
+
+internal static class Tests
 {
-    internal static class Tests
+    private static void Assert_StringsAreEqual(string lhs, string rhs)
     {
-        private static void Assert_StringsAreEqual(string lhs, string rhs)
+        if (lhs != rhs)
         {
-            if (lhs != rhs)
-            {
-                throw new Exception($"{lhs} is not equal to {rhs}");
-            }
+            throw new Exception($"{lhs} is not equal to {rhs}");
         }
+    }
 
-        public static void PerformParsingTests()
+    public static void PerformParsingTests()
+    {
+        const string inputFilePath = @"data\parser_tests.txt";
+
+        if (!File.Exists(inputFilePath))
+            return;
+
+        using StreamReader reader = new(inputFilePath);
+
+        while (reader.ReadLine() is { } line)
         {
-            var inputFilePath = @"data\parser_tests.txt";
-
-            if (!File.Exists(inputFilePath))
-                return;
-
-            using StreamReader reader = new(inputFilePath);
-
-            string? line;
-            while ((line = reader.ReadLine()) != null)
-            {
-                var parts = line.Split("\t");
-                Assert_StringsAreEqual(Helpers.UnfoldFragment(parts[0]), parts[1]);
-            }
+            var parts = line.Split("\t");
+            Assert_StringsAreEqual(Helpers.UnfoldFragment(parts[0]), parts[1]);
         }
+    }
 
-        public static void BalanceEquationsFromFile()
+    public static void BalanceEquationsFromFile()
+    {
+        const string inputFilePath = @"data\eqs-input.txt";
+        const string outputFilePath = @"data\eqs-output.txt";
+
+        if (!File.Exists(inputFilePath))
+            return;
+
+        using StreamReader reader = new(inputFilePath);
+        using StreamWriter writer = new(outputFilePath);
+
+        while (reader.ReadLine() is { } line)
         {
-            var inputFilePath = @"data\eqs-input.txt";
-            var outputFilePath = @"data\eqs-output.txt";
+            if (line.StartsWith("@"))
+                writer.WriteLine(line);
 
-            if (!File.Exists(inputFilePath))
-                return;
+            if (!line.StartsWith("EQ: "))
+                continue;
 
-            using StreamReader reader = new(inputFilePath);
-            using StreamWriter writer = new(outputFilePath);
-            string? line;
-
-            while ((line = reader.ReadLine()) != null)
-            {
-                if (line.StartsWith("@"))
-                {
-                    writer.WriteLine(line);
-                }
-                if (line.StartsWith("EQ: "))
-                {
-                    var eq = line.Replace("EQ:", string.Empty);
-                    writer.WriteLine(Helpers.SimpleStackedOutput(new BalancerThorne(eq)));
-                    writer.WriteLine("----");
-                    writer.WriteLine(Helpers.SimpleStackedOutput(new BalancerRisteskiRational(eq)));
-                    writer.WriteLine("====================================");
-                    writer.WriteLine();
-                }
-            }
+            var eq = line.Replace("EQ:", string.Empty);
+            writer.WriteLine(Helpers.SimpleStackedOutput(new BalancerThorne(eq)));
+            writer.WriteLine("----");
+            writer.WriteLine(Helpers.SimpleStackedOutput(new BalancerRisteskiRational(eq)));
+            writer.WriteLine("====================================");
+            writer.WriteLine();
         }
     }
 }

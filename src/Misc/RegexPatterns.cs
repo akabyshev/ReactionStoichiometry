@@ -1,14 +1,13 @@
-﻿namespace ReactionStoichiometry
-{
-    internal static class RegexPatterns
-    {
-        public const string MinimalSkeletalStructure = @"^.+\+.+=.+$";
-        public const string ElementSymbol = @"[A-Z][a-z]|[A-Z]";
-        public const string ElementNoIndex = @"([A-Z][a-z]|[A-Z])([A-Z][a-z]|[A-Z]|\(|\)|$)";
-        public const string ClosingParenthesisNoIndex = @"\)(?!\d)";
-        public const string InnermostParenthesesIndexed = @"\(([^\(\)]+)\)(\d+)";
+﻿namespace ReactionStoichiometry;
 
-        public const string AllowedDividers = @"\+|=";
-        public const string ElementTemplate = @"X(\d+(\.\d+)*)";
-    }
+internal static class RegexPatterns
+{
+    public const string MinimalSkeletalStructure = @"^.+\+.+=.+$";
+    public const string ElementSymbol = @"[A-Z][a-z]|[A-Z]";
+    public const string ElementNoIndex = @"([A-Z][a-z]|[A-Z])([A-Z][a-z]|[A-Z]|\(|\)|$)";
+    public const string ClosingParenthesisNoIndex = @"\)(?!\d)";
+    public const string InnermostParenthesesIndexed = @"\(([^\(\)]+)\)(\d+)";
+
+    public const string FragmentDividers = @"\+|=";
+    public const string ElementTemplate = @"X(\d+(\.\d+)*)";
 }

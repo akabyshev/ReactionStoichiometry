@@ -8,15 +8,15 @@ internal class BalancerRisteskiDouble : AbstractBalancerRisteski<double>
     {
     }
 
-    protected override long[] VectorScaler(double[] v)
+    protected override long[] ScaleVectorToIntegers(double[] v)
     {
         return Helpers.ScaleDoubles(v);
     }
 
     protected override DoubleMatrixInRREF GetReducedAugmentedMatrix()
     {
-        var AM = matrix.Append(Matrix<double>.Build.Dense(matrix.RowCount, 1));
-        return new DoubleMatrixInRREF(AM);
+        var augmented_matrix = matrix.Append(Matrix<double>.Build.Dense(matrix.RowCount, 1));
+        return new DoubleMatrixInRREF(augmented_matrix);
     }
 
     protected override string PrettyPrinter(double value)
