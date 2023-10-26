@@ -19,7 +19,7 @@ internal class BalancerThorne : AbstractBalancer<double>
         List<string> independent_equations = new();
         foreach (var i in Enumerable.Range(inverted_augmented_matrix.ColumnCount - nullity, nullity))
         {
-            var scaled_nsv = ScaleVectorToIntegers(inverted_augmented_matrix.Column(i).ToArray());
+            var scaled_nsv = ScaleToIntegers(inverted_augmented_matrix.Column(i).ToArray());
             independent_equations.Add(GetEquationWithCoefficients(scaled_nsv));
 
             diagnostics.Add(string.Join('\t', scaled_nsv));
@@ -52,7 +52,7 @@ internal class BalancerThorne : AbstractBalancer<double>
         return result;
     }
 
-    protected override long[] ScaleVectorToIntegers(double[] v)
+    protected override long[] ScaleToIntegers(double[] v)
     {
         return Helpers.ScaleDoubles(v);
     }

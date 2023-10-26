@@ -122,7 +122,7 @@ internal static class Helpers
         return wholes.Select(x => (long) (x / divisor)).ToArray();
     }
 
-    internal static string SimpleStackedOutput<T>(AbstractBalancer<T> b)
+    internal static string SimpleStackedOutput(IBalancer b)
     {
         return string.Join(
             Environment.NewLine,

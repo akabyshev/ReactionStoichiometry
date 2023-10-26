@@ -16,7 +16,7 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
         var RAM = GetReducedAugmentedMatrix();
         details.AddRange(Helpers.PrettyPrintMatrix("RREF-data augmented matrix", RAM.ToArray(), PrettyPrinter));
 
-        var free_var_indices = Enumerable.Range(0, RAM.ColumnCount).Where(i_c => RAM.CountNonZeroesInColumn(i_c) > 1);
+        var free_var_indices = Enumerable.Range(0, RAM.ColumnCount).Where(i_c => RAM.CountNonZeroesInColumn(i_c) > 1).ToList();
         if (!free_var_indices.Any())
         {
             throw new ApplicationSpecificException("This SLE is unsolvable");
@@ -25,7 +25,7 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
         List<string> expressions = new();
         for (var i_r = 0; i_r < RAM.RowCount; i_r++)
         {
-            var scaled_row = ScaleVectorToIntegers(RAM.GetRow(i_r));
+            var scaled_row = ScaleToIntegers(RAM.GetRow(i_r));
             var pivot_column = Array.FindIndex(scaled_row, i => i != 0);
 
             var expression_parts = new List<string>();

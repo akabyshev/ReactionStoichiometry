@@ -8,7 +8,7 @@ internal class BalancerRisteskiDouble : AbstractBalancerRisteski<double>
     {
     }
 
-    protected override long[] ScaleVectorToIntegers(double[] v)
+    protected override long[] ScaleToIntegers(double[] v)
     {
         return Helpers.ScaleDoubles(v);
     }

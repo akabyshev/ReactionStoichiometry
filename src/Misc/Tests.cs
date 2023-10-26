@@ -1,4 +1,6 @@
-﻿namespace ReactionStoichiometry;
+﻿using System;
+
+namespace ReactionStoichiometry;
 
 internal static class Tests
 {
@@ -12,7 +14,7 @@ internal static class Tests
 
     public static void PerformParsingTests()
     {
-        const string inputFilePath = @"data\parser_tests.txt";
+        const string inputFilePath = @"..\..\..\data\parser_tests.txt";
 
         if (!File.Exists(inputFilePath))
             return;
@@ -28,29 +30,29 @@ internal static class Tests
 
     public static void BalanceEquationsFromFile()
     {
-        const string inputFilePath = @"data\eqs-input.txt";
-        const string outputFilePath = @"data\eqs-output.txt";
-
+        const string inputFilePath = @"..\..\..\data\OnLaunch.txt";
         if (!File.Exists(inputFilePath))
             return;
 
-        using StreamReader reader = new(inputFilePath);
-        using StreamWriter writer = new(outputFilePath);
+        var balancers = new Type[] { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
 
-        while (reader.ReadLine() is { } line)
+        foreach (var type in balancers)
         {
-            if (line.StartsWith("@"))
-                writer.WriteLine(line);
+            using StreamReader reader = new(inputFilePath);
 
-            if (!line.StartsWith("EQ: "))
-                continue;
+            var path = @"..\..\..\data\output-" + type.Name + ".txt";
+            var writer = new OutputWriter(path);
 
-            var eq = line.Replace("EQ:", string.Empty);
-            writer.WriteLine(Helpers.SimpleStackedOutput(new BalancerThorne(eq)));
-            writer.WriteLine("----");
-            writer.WriteLine(Helpers.SimpleStackedOutput(new BalancerRisteskiRational(eq)));
-            writer.WriteLine("====================================");
-            writer.WriteLine();
+            while (reader.ReadLine() is { } line)
+            {
+                if (!line.StartsWith("EQ: "))
+                    continue;
+                var arguments = new object[] { line.Replace("EQ:", string.Empty) };
+                var balancer = (IBalancer) Activator.CreateInstance(type, arguments)!;
+                writer.WritePlainText(balancer);
+                writer.WriteLine("====================================");
+            }
+            writer.Save();
         }
     }
 }

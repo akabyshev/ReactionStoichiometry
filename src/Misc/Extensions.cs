@@ -4,7 +4,7 @@ internal static class Extensions
 {
     public static double NonZeroAbsoluteMinimum(this IEnumerable<double> v)
     {
-        var nonZeroAbsValues = v.Where(x => x != 0).Select(Math.Abs);
+        var nonZeroAbsValues = v.Where(x => x != 0).Select(Math.Abs).ToList();
 
         if (nonZeroAbsValues.Any())
         {

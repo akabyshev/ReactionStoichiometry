@@ -9,7 +9,7 @@ internal class BalancerRisteskiRational : AbstractBalancerRisteski<Rational>
     {
     }
 
-    protected override long[] ScaleVectorToIntegers(Rational[] v)
+    protected override long[] ScaleToIntegers(Rational[] v)
     {
         return Helpers.ScaleRationals(v);
     }

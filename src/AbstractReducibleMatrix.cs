@@ -1,6 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using MathNet.Numerics.LinearAlgebra;
 using System.Text;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace ReactionStoichiometry;
 

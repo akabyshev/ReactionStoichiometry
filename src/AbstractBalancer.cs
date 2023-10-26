@@ -3,7 +3,15 @@ using System.Text.RegularExpressions;
 
 namespace ReactionStoichiometry;
 
-internal abstract class AbstractBalancer<T>
+internal interface IBalancer
+{
+    string Skeletal { get; }
+    string Details { get; }
+    string Outcome { get; }
+    string Diagnostics { get; }
+}
+
+internal abstract class AbstractBalancer<T> : IBalancer
 {
     public string Outcome { get; protected set; }
     public string Skeletal { get; }
@@ -100,6 +108,6 @@ internal abstract class AbstractBalancer<T>
     }
 
     protected abstract void Balance();
-    protected abstract long[] ScaleVectorToIntegers(T[] v);
+    protected abstract long[] ScaleToIntegers(T[] v);
     protected abstract string PrettyPrinter(T value);
 }
