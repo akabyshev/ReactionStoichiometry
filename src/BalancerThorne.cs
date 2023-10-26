@@ -41,7 +41,7 @@ internal class BalancerThorne : AbstractBalancer<double>
         var identity = Matrix<double>.Build.DenseIdentity(nullity);
         var result = reduced.Stack(zeros.Append(identity));
 
-        result.CoerceZero(Helpers.FP_TOLERANCE);
+        result.CoerceZero(Program.DOUBLE_PSEUDOZERO);
 
         if (!result.Determinant().IsNonZero())
         {
@@ -68,7 +68,7 @@ internal class BalancerThorne : AbstractBalancer<double>
                 continue;
 
             var value = Math.Abs(coefficients[i]);
-            var t = ((value == 1) ? "" : value.ToString() + MULTIPLICATION_SYMBOL) + fragments[i];
+            var t = ((value == 1) ? "" : value.ToString() + Program.MULTIPLICATION_SYMBOL) + fragments[i];
             (coefficients[i] < 0 ? l : r).Add(t);
         }
 

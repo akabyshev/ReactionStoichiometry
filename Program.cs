@@ -4,6 +4,10 @@ namespace ReactionStoichiometry;
 
 internal static class Program
 {
+    public const double DOUBLE_PSEUDOZERO = 1e-10;
+    public const int LETTER_LABEL_THRESHOLD = 7;
+    public const string MULTIPLICATION_SYMBOL = "·";
+
     /// <summary>
     ///  The main entry point for the application.
     /// </summary>
@@ -14,7 +18,7 @@ internal static class Program
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
         Tests.PerformParsingTests();
-        Tests.BalanceEquationsFromFile();
+        Tests.PerformOnLaunchBatchTests();
         Application.Run(new MainForm());
     }
 }

@@ -14,8 +14,8 @@ public partial class MainForm : Form
     private void buttonBalance_Click(object sender, EventArgs e)
 #pragma warning restore IDE1006 // Naming Styles
     {
-        resultMT.Text = Helpers.SimpleStackedOutput(new BalancerThorne(textBoxInput.Text));
-        resultMR.Text = Helpers.SimpleStackedOutput(new BalancerRisteskiDouble(textBoxInput.Text));
+        resultMT.Text = new BalancerThorne(textBoxInput.Text).SimpleStackedOutput();
+        resultMR.Text = new BalancerRisteskiDouble(textBoxInput.Text).SimpleStackedOutput();
         UpdateTable();
     }
 

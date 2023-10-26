@@ -3,14 +3,6 @@ using System.Text.RegularExpressions;
 
 namespace ReactionStoichiometry;
 
-internal interface IBalancer
-{
-    string Skeletal { get; }
-    string Details { get; }
-    string Outcome { get; }
-    string Diagnostics { get; }
-}
-
 internal abstract class AbstractBalancer<T> : IBalancer
 {
     public string Outcome { get; protected set; }
@@ -20,8 +12,7 @@ internal abstract class AbstractBalancer<T> : IBalancer
     protected readonly List<string> fragments = new();
     protected readonly Matrix<double> matrix;
 
-    protected const string MULTIPLICATION_SYMBOL = "·";
-    protected Func<int, string> LabelFor => fragments.Count <= 7 ? Helpers.LetterLabel : Helpers.GenericLabel;
+    protected Func<int, string> LabelFor => fragments.Count <= Program.LETTER_LABEL_THRESHOLD ? Helpers.LetterLabel : Helpers.GenericLabel;
 
     protected readonly List<string> details = new();
     public string Details => string.Join(Environment.NewLine, details);

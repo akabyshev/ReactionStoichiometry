@@ -83,7 +83,7 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
 
         for (var i = 0; i < fragments.Count; i++)
         {
-            var t = LabelFor(i) + MULTIPLICATION_SYMBOL + fragments[i];
+            var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + fragments[i];
             (i < ReactantsCount ? l : r).Add(t);
         }
 

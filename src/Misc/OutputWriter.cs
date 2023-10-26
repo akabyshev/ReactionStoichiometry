@@ -17,7 +17,7 @@
 
         internal void WritePlainText(IBalancer balancer)
         {
-            WriteLine(Helpers.SimpleStackedOutput(balancer));
+            WriteLine(balancer.SimpleStackedOutput());
         }
 
         internal void WriteLine(string line)

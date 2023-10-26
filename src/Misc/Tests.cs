@@ -1,40 +1,37 @@
-﻿using System;
-
-namespace ReactionStoichiometry;
+﻿namespace ReactionStoichiometry;
 
 internal static class Tests
 {
-    private static void Assert_StringsAreEqual(string lhs, string rhs)
-    {
-        if (lhs != rhs)
-        {
-            throw new Exception($"{lhs} is not equal to {rhs}");
-        }
-    }
-
     public static void PerformParsingTests()
     {
         const string inputFilePath = @"..\..\..\data\parser_tests.txt";
 
         if (!File.Exists(inputFilePath))
             return;
-
+        
         using StreamReader reader = new(inputFilePath);
-
         while (reader.ReadLine() is { } line)
         {
             var parts = line.Split("\t");
-            Assert_StringsAreEqual(Helpers.UnfoldFragment(parts[0]), parts[1]);
+            AssertStringsAreEqual(Helpers.UnfoldFragment(parts[0]), parts[1]);
+        }
+
+        return;
+
+        static void AssertStringsAreEqual(string lhs, string rhs)
+        {
+            if (lhs != rhs)
+                throw new Exception($"{lhs} is not equal to {rhs}");
         }
     }
 
-    public static void BalanceEquationsFromFile()
+    public static void PerformOnLaunchBatchTests()
     {
-        const string inputFilePath = @"..\..\..\data\OnLaunch.txt";
+        const string inputFilePath = @"..\..\..\data\OnLaunchBatch.txt";
         if (!File.Exists(inputFilePath))
             return;
 
-        var balancers = new Type[] { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
+        var balancers = new[] { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
 
         foreach (var type in balancers)
         {
@@ -42,7 +39,7 @@ internal static class Tests
 
             var path = @"..\..\..\data\output-" + type.Name + ".txt";
             var writer = new OutputWriter(path);
-
+            
             while (reader.ReadLine() is { } line)
             {
                 if (!line.StartsWith("EQ: "))
@@ -52,6 +49,7 @@ internal static class Tests
                 writer.WritePlainText(balancer);
                 writer.WriteLine("====================================");
             }
+            
             writer.Save();
         }
     }

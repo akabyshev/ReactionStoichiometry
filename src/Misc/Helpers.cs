@@ -7,8 +7,6 @@ namespace ReactionStoichiometry;
 
 internal static class Helpers
 {
-    public const double FP_TOLERANCE = 1e-10;
-
     public static string PrettyPrintDouble(double value)
     {
         return (value >= 0 ? " " : "") + value.ToString("0.###");
@@ -103,12 +101,12 @@ internal static class Helpers
     {
         try
         {
-            return ScaleRationals(doubles.Select(x => Rational.Approximate(x, FP_TOLERANCE)).ToArray());
+            return ScaleRationals(doubles.Select(x => Rational.Approximate(x, Program.DOUBLE_PSEUDOZERO)).ToArray());
         }
         catch (OverflowException)
         {
             var v = Vector<double>.Build.DenseOfArray(doubles);
-            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(FP_TOLERANCE).Select(d => (long) d).ToArray();
+            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (long) d).ToArray();
             var gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
             return wholes.Select(x => x / gcd).ToArray();
         }
@@ -120,24 +118,5 @@ internal static class Helpers
         var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
         var divisor = wholes.Aggregate(Euclid.GreatestCommonDivisor);
         return wholes.Select(x => (long) (x / divisor)).ToArray();
-    }
-
-    internal static string SimpleStackedOutput(IBalancer b)
-    {
-        return string.Join(
-            Environment.NewLine,
-            new List<string>() {
-                "Skeletal:",
-                b.Skeletal,
-                string.Empty,
-                "Details:",
-                b.Details,
-                string.Empty,
-                "Outcome:",
-                b.Outcome,
-                string.Empty,
-                "Diagnostics:",
-                b.Diagnostics
-            });
     }
 }
