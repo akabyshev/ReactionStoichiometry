@@ -24,7 +24,7 @@ internal class BalancerThorne : AbstractBalancer<double>
             var coefficients = ScaleToIntegers(invertedAugmentedMatrix.Column(i).ToArray());
             independentEquations.Add(GetEquationWithCoefficients(coefficients));
 
-            diagnostics.Add(string.Join(Environment.NewLine, coefficients));
+            diagnostics.Add(string.Join('\t', coefficients));
         }
 
         Outcome = string.Join(Environment.NewLine, independentEquations);
@@ -33,7 +33,7 @@ internal class BalancerThorne : AbstractBalancer<double>
     private Matrix<double> GetAugmentedMatrix(int nullity)
     {
         var reduced = matrix.RowCount == matrix.ColumnCount
-            ? new ReducedMatrixOfDouble(matrix).ToMatrix()
+            ? ReducedMatrixOfDouble.CreateInstance(matrix).ToMatrix()
             : matrix.Clone();
 
         if (reduced.RowCount == reduced.ColumnCount)

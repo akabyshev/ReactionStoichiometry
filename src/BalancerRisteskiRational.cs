@@ -17,7 +17,7 @@ internal class BalancerRisteskiRational : AbstractBalancerRisteski<Rational>
     protected override ReducedMatrixOfRational GetReducedAugmentedMatrix()
     {
         var augmentedMatrix = matrix.Append(Matrix<double>.Build.Dense(matrix.RowCount, 1));
-        return new ReducedMatrixOfRational(augmentedMatrix);
+        return ReducedMatrixOfRational.CreateInstance(augmentedMatrix);
     }
 
     protected override string PrettyPrinter(Rational value)

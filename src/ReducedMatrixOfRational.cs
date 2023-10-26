@@ -4,8 +4,14 @@ namespace ReactionStoichiometry;
 
 internal class ReducedMatrixOfRational : MatrixOfRational
 {
-    public ReducedMatrixOfRational(Matrix<double> matrix) : base(matrix)
+    private ReducedMatrixOfRational(Matrix<double> matrix) : base(matrix)
     {
-        Reduce();
+    }
+
+    internal static ReducedMatrixOfRational CreateInstance(Matrix<double> matrix)
+    {
+        var result = new ReducedMatrixOfRational(matrix);
+        result.Reduce();
+        return result;
     }
 }

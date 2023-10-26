@@ -16,7 +16,7 @@ internal class BalancerRisteskiDouble : AbstractBalancerRisteski<double>
     protected override ReducedMatrixOfDouble GetReducedAugmentedMatrix()
     {
         var augmentedMatrix = matrix.Append(Matrix<double>.Build.Dense(matrix.RowCount, 1));
-        return new ReducedMatrixOfDouble(augmentedMatrix);
+        return ReducedMatrixOfDouble.CreateInstance(augmentedMatrix);
     }
 
     protected override string PrettyPrinter(double value)

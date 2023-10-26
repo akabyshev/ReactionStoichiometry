@@ -4,8 +4,14 @@ namespace ReactionStoichiometry;
 
 internal class ReducedMatrixOfDouble : MatrixOfDouble
 {
-    public ReducedMatrixOfDouble(Matrix<double> matrix) : base(matrix)
+    private ReducedMatrixOfDouble(Matrix<double> matrix) : base(matrix)
     {
-        Reduce();
+    }
+
+    internal static ReducedMatrixOfDouble CreateInstance(Matrix<double> matrix)
+    {
+        var result = new ReducedMatrixOfDouble(matrix);
+        result.Reduce();
+        return result;
     }
 }
