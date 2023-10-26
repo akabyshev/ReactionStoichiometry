@@ -8,7 +8,7 @@ internal static class Tests
 
         if (!File.Exists(inputFilePath))
             return;
-        
+
         using StreamReader reader = new(inputFilePath);
         while (reader.ReadLine() is { } line)
         {
@@ -31,26 +31,27 @@ internal static class Tests
         if (!File.Exists(inputFilePath))
             return;
 
-        var balancers = new[] { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
+        var balancers = new[]
+            { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
 
         foreach (var type in balancers)
         {
             using StreamReader reader = new(inputFilePath);
 
             var path = @"..\..\..\data\output-" + type.Name + ".txt";
-            var writer = new OutputWriter(path);
-            
+            var writer = new OutputWriter();
+
             while (reader.ReadLine() is { } line)
             {
                 if (!line.StartsWith("EQ: "))
                     continue;
                 var arguments = new object[] { line.Replace("EQ:", string.Empty) };
-                var balancer = (IBalancer) Activator.CreateInstance(type, arguments)!;
+                var balancer = (IBalancer)Activator.CreateInstance(type, arguments)!;
                 writer.WritePlainText(balancer);
                 writer.WriteLine("====================================");
             }
-            
-            writer.Save();
+
+            writer.SaveTo(path);
         }
     }
 }

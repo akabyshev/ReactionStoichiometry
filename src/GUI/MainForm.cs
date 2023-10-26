@@ -33,9 +33,7 @@ public partial class MainForm : Form
         UpdateTable();
     }
 
-#pragma warning disable CA1822 // Mark members as static
-    private void UpdateTable()
-#pragma warning restore CA1822 // Mark members as static
+    private static void UpdateTable()
     {
         //const string EXCEL_LIKE_UNDEF = "#VALUE!";
     }
@@ -44,6 +42,6 @@ public partial class MainForm : Form
     {
         resultMT.Text = string.Empty;
         resultMR.Text = string.Empty;
-        buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text, RegexPatterns.MinimalSkeletalStructure);
+        buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text, RegexPatterns.MINIMAL_SKELETAL_STRUCTURE);
     }
 }

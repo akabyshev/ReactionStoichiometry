@@ -1,5 +1,5 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-using System.Text;
+﻿using System.Text;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace ReactionStoichiometry;
 
@@ -7,31 +7,34 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
 {
     private T[,] _data;
 
+    public int RowCount => _data.GetLength(0);
+    public int ColumnCount => _data.GetLength(1);
+
+    protected BasicOperations Basics { get; init; }
+
     protected AbstractReducibleMatrix(Matrix<double> matrix, Func<double, T> convert)
     {
         _data = new T[matrix.RowCount, matrix.ColumnCount];
         CopyValues(_data, matrix.ToArray(), convert);
     }
 
-    public int RowCount => _data.GetLength(0);
-    public int ColumnCount => _data.GetLength(1);
-
-    protected BasicOperations Basics { get; init; }
-
-    private int CountNonZeroesInRow(int i_r)
+    private int CountNonZeroesInRow(int r)
     {
-        return Enumerable.Range(0, ColumnCount).Count(i => Basics.IsNonZero(_data[i_r, i]));
+        return Enumerable.Range(0, ColumnCount).Count(i => Basics.IsNonZero(_data[r, i]));
     }
 
-    internal int CountNonZeroesInColumn(int i_c)
+    internal int CountNonZeroesInColumn(int c)
     {
-        return Enumerable.Range(0, RowCount).Count(i => Basics.IsNonZero(_data[i, i_c]));
+        return Enumerable.Range(0, RowCount).Count(i => Basics.IsNonZero(_data[i, c]));
     }
 
-    public T[] GetRow(int i_r)
+    public T[] GetRow(int r)
     {
         var result = new T[ColumnCount];
-        for (var i_c = 0; i_c < ColumnCount; i_c++) result[i_c] = _data[i_r, i_c];
+        for (var c = 0; c < ColumnCount; c++)
+        {
+            result[c] = _data[r, c];
+        }
 
         return result;
     }
@@ -39,23 +42,25 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
     public T[,] ToArray()
     {
         var result = new T[RowCount, ColumnCount];
-        for (var i_r = 0; i_r < RowCount; i_r++)
-        for (var i_c = 0; i_c < ColumnCount; i_c++)
-            result[i_r, i_c] = _data[i_r, i_c];
+        for (var r = 0; r < RowCount; r++)
+        for (var c = 0; c < ColumnCount; c++)
+        {
+            result[r, c] = _data[r, c];
+        }
 
         return result;
     }
 
     public override string ToString()
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new();
 
-        for (var i_r = 0; i_r < RowCount; i_r++)
+        for (var r = 0; r < RowCount; r++)
         {
-            for (var i_c = 0; i_c < ColumnCount; i_c++)
+            for (var c = 0; c < ColumnCount; c++)
             {
-                sb.Append(Basics.AsString(_data[i_r, i_c]));
-                if (i_c < ColumnCount - 1) sb.Append('\t');
+                sb.Append(Basics.AsString(_data[r, c]));
+                if (c < ColumnCount - 1) sb.Append('\t');
             }
 
             sb.Append('\n');
@@ -73,52 +78,62 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
     {
         for (var r = 0; r < array.GetLength(0); r++)
         for (var c = 0; c < array.GetLength(1); c++)
+        {
             array[r, c] = convert(source[r, c]);
+        }
     }
 
-    protected void ReduceToTrimmedRREF()
+    protected void Reduce()
     {
-        var i_c_lead = 0;
-        for (var i_r = 0; i_r < RowCount; i_r++)
+        var leadColumnIndex = 0;
+        for (var r = 0; r < RowCount; r++)
         {
-            if (ColumnCount <= i_c_lead)
+            if (ColumnCount <= leadColumnIndex)
                 break;
 
-            var i = i_r;
+            var i = r;
 
-            while (!Basics.IsNonZero(_data[i, i_c_lead]))
+            while (!Basics.IsNonZero(_data[i, leadColumnIndex]))
             {
                 i++;
 
                 if (i < RowCount)
                     continue;
 
-                i = i_r;
+                i = r;
 
-                if (i_c_lead < ColumnCount - 1)
-                    i_c_lead++;
+                if (leadColumnIndex < ColumnCount - 1)
+                    leadColumnIndex++;
                 else
                     break;
             }
 
-            if (i != i_r)
-                for (var i_c = 0; i_c < ColumnCount; i_c++)
-                    (_data[i_r, i_c], _data[i, i_c]) = (_data[i, i_c], _data[i_r, i_c]);
-
-            var div = _data[i_r, i_c_lead];
-            if (Basics.IsNonZero(div))
-                for (var i_c = 0; i_c < ColumnCount; i_c++)
-                    _data[i_r, i_c] = Basics.Divide(_data[i_r, i_c], div);
-
-            for (var j = 0; j < RowCount; j++)
-                if (j != i_r)
+            if (i != r)
+                for (var c = 0; c < ColumnCount; c++)
                 {
-                    var sub = _data[j, i_c_lead];
-                    for (var k = 0; k < ColumnCount; k++)
-                        _data[j, k] = Basics.Subtract(_data[j, k], Basics.Multiply(sub, _data[i_r, k]));
+                    (_data[r, c], _data[i, c]) = (_data[i, c], _data[r, c]);
                 }
 
-            i_c_lead++;
+            var div = _data[r, leadColumnIndex];
+            if (Basics.IsNonZero(div))
+                for (var c = 0; c < ColumnCount; c++)
+                {
+                    _data[r, c] = Basics.Divide(_data[r, c], div);
+                }
+
+            for (var j = 0; j < RowCount; j++)
+            {
+                if (j == r)
+                    continue;
+                
+                var sub = _data[j, leadColumnIndex];
+                for (var k = 0; k < ColumnCount; k++)
+                {
+                    _data[j, k] = Basics.Subtract(_data[j, k], Basics.Multiply(sub, _data[r, k]));
+                }
+            }
+
+            leadColumnIndex++;
         }
 
         while (CountNonZeroesInRow(RowCount - 1) == 0)

@@ -1,7 +1,8 @@
-﻿using MathNet.Numerics;
+﻿using System.Text.RegularExpressions;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
-using System.Text.RegularExpressions;
+using ReactionStoichiometry.Extensions;
 
 namespace ReactionStoichiometry;
 
@@ -17,29 +18,30 @@ internal static class Helpers
         return value.ToString("C");
     }
 
-    public static IEnumerable<string> PrettyPrintMatrix<T>(string title, in T[,] matrix, Func<T, string> printer, List<string>? columnHeaders = null, List<string>? rowHeaders = null)
+    public static IEnumerable<string> PrettyPrintMatrix<T>(string title, in T[,] matrix, Func<T, string> printer,
+        List<string>? columnHeaders = null, List<string>? rowHeaders = null)
     {
         List<string> result = new() { $"[[{title}]]" };
 
-        List<string> current_line = new();
+        List<string> line = new();
         if (columnHeaders != null)
         {
-            current_line.Add(string.Empty);
-            current_line.AddRange(columnHeaders);
-            result.Add(string.Join('\t', current_line));
+            line.Add(string.Empty);
+            line.AddRange(columnHeaders);
+            result.Add(string.Join('\t', line));
         }
 
-        for (var i_r = 0; i_r < matrix.GetLength(0); i_r++)
+        for (var r = 0; r < matrix.GetLength(0); r++)
         {
-            current_line.Clear();
-            current_line.Add(rowHeaders != null ? rowHeaders[i_r] : $"R#{i_r + 1}");
+            line.Clear();
+            line.Add(rowHeaders != null ? rowHeaders[r] : $"R#{r + 1}");
 
-            for (var i_c = 0; i_c < matrix.GetLength(1); i_c++)
+            for (var c = 0; c < matrix.GetLength(1); c++)
             {
-                current_line.Add(printer(matrix[i_r, i_c]));
+                line.Add(printer(matrix[r, c]));
             }
 
-            result.Add(string.Join('\t', current_line));
+            result.Add(string.Join('\t', line));
         }
 
         return result;
@@ -50,32 +52,32 @@ internal static class Helpers
         var result = fragment;
 
         {
-            Regex regex = new(RegexPatterns.ElementNoIndex);
+            Regex regex = new(RegexPatterns.ELEMENT_NO_INDEX);
             while (true)
             {
                 var match = regex.Match(result);
-                if (!match.Success) { break; }
+                if (!match.Success) break;
                 var element = match.Groups[1].Value;
                 var rest = match.Groups[2].Value;
                 result = regex.Replace(result, element + "1" + rest, 1);
             }
         }
         {
-            Regex regex = new(RegexPatterns.ClosingParenthesisNoIndex);
+            Regex regex = new(RegexPatterns.CLOSING_PARENTHESIS_NO_INDEX);
             while (true)
             {
                 var match = regex.Match(result);
-                if (!match.Success) { break; }
+                if (!match.Success) break;
 
                 result = regex.Replace(result, ")1", 1);
             }
         }
         {
-            Regex regex = new(RegexPatterns.InnermostParenthesesIndexed);
+            Regex regex = new(RegexPatterns.INNERMOST_PARENTHESES_INDEXED);
             while (true)
             {
                 var match = regex.Match(result);
-                if (!match.Success) { break; }
+                if (!match.Success) break;
                 var token = match.Groups[1].Value;
                 var index = match.Groups[2].Value;
 
@@ -89,7 +91,7 @@ internal static class Helpers
 
     public static string LetterLabel(int n)
     {
-        return ((char) ('a' + n)).ToString();
+        return ((char)('a' + n)).ToString();
     }
 
     public static string GenericLabel(int n)
@@ -106,7 +108,8 @@ internal static class Helpers
         catch (OverflowException)
         {
             var v = Vector<double>.Build.DenseOfArray(doubles);
-            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (long) d).ToArray();
+            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (long)d)
+                .ToArray();
             var gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
             return wholes.Select(x => x / gcd).ToArray();
         }
@@ -117,6 +120,6 @@ internal static class Helpers
         var multiple = rationals.Select(r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
         var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
         var divisor = wholes.Aggregate(Euclid.GreatestCommonDivisor);
-        return wholes.Select(x => (long) (x / divisor)).ToArray();
+        return wholes.Select(x => (long)(x / divisor)).ToArray();
     }
 }

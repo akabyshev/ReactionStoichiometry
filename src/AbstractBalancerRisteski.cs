@@ -8,85 +8,55 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
 
     protected override void Balance()
     {
-        for (var i_c = ReactantsCount; i_c < fragments.Count; i_c++)
+        for (var c = ReactantsCount; c < fragments.Count; c++)
         {
-            matrix.SetColumn(i_c, matrix.Column(i_c).Multiply(-1));
+            matrix.SetColumn(c, matrix.Column(c).Multiply(-1));
         }
 
-        var RAM = GetReducedAugmentedMatrix();
-        details.AddRange(Helpers.PrettyPrintMatrix("RREF-data augmented matrix", RAM.ToArray(), PrettyPrinter));
+        var ram = GetReducedAugmentedMatrix();
+        details.AddRange(Helpers.PrettyPrintMatrix("RREF-data augmented matrix", ram.ToArray(), PrettyPrinter));
 
-        var free_var_indices = Enumerable.Range(0, RAM.ColumnCount).Where(i_c => RAM.CountNonZeroesInColumn(i_c) > 1).ToList();
-        if (!free_var_indices.Any())
-        {
-            throw new ApplicationSpecificException("This SLE is unsolvable");
-        }
+        var freeVarIndices =
+            Enumerable.Range(0, ram.ColumnCount).Where(c => ram.CountNonZeroesInColumn(c) > 1).ToList();
+        if (!freeVarIndices.Any()) throw new ApplicationSpecificException("This SLE is unsolvable");
 
         List<string> expressions = new();
-        for (var i_r = 0; i_r < RAM.RowCount; i_r++)
+        for (var r = 0; r < ram.RowCount; r++)
         {
-            var scaled_row = ScaleToIntegers(RAM.GetRow(i_r));
-            var pivot_column = Array.FindIndex(scaled_row, i => i != 0);
+            var coefficients = ScaleToIntegers(ram.GetRow(r));
+            var pivotColumnIndex = Array.FindIndex(coefficients, i => i != 0);
 
-            var expression_parts = new List<string>();
-            for (var i_c = pivot_column + 1; i_c < scaled_row.Length; i_c++)
+            var parts = new List<string>();
+            for (var c = pivotColumnIndex + 1; c < coefficients.Length; c++)
             {
-                if (scaled_row[i_c] == 0)
-                {
-                    continue;
-                }
+                if (coefficients[c] == 0) continue;
 
-                var coefficient = (-1 * scaled_row[i_c]).ToString();
-                if (coefficient == "1")
-                {
-                    coefficient = string.Empty;
-                }
-                if (coefficient == "-1")
-                {
-                    coefficient = "-";
-                }
+                var coefficient = (-1 * coefficients[c]).ToString();
+                if (coefficient == "1") coefficient = string.Empty;
+                if (coefficient == "-1") coefficient = "-";
 
-                expression_parts.Add($"{coefficient}{LabelFor(i_c)}");
-            }
-            var expression = string.Join(" + ", expression_parts).Replace("+ -", "- ");
-
-            if (scaled_row[pivot_column] != 1)
-            {
-                if (expression_parts.Count > 1)
-                {
-                    expression = $"({expression})";
-                }
-                expression = $"{expression}/{scaled_row[pivot_column]}";
+                parts.Add($"{coefficient}{LabelFor(c)}");
             }
 
-            if (expression == string.Empty)
+            var expression = string.Join(" + ", parts).Replace("+ -", "- ");
+
+            if (coefficients[pivotColumnIndex] != 1)
             {
-                expression = "0";
+                if (parts.Count > 1) expression = $"({expression})";
+                expression = $"{expression}/{coefficients[pivotColumnIndex]}";
             }
 
-            expressions.Add($"{LabelFor(pivot_column)} = {expression}");
+            if (expression == string.Empty) expression = "0";
+
+            expressions.Add($"{LabelFor(pivotColumnIndex)} = {expression}");
         }
 
-        List<string> generalized_solution = new() { GetEquationWithPlaceholders() + ", where" };
-        generalized_solution.AddRange(expressions);
-        generalized_solution.Add("for any {" + string.Join(", ", free_var_indices.Select(LabelFor)) + "}");
+        List<string> generalizedSolution = new() { GetEquationWithPlaceholders() + ", where" };
+        generalizedSolution.AddRange(expressions);
+        generalizedSolution.Add("for any {" + string.Join(", ", freeVarIndices.Select(LabelFor)) + "}");
 
-        Outcome = string.Join(Environment.NewLine, generalized_solution);
+        Outcome = string.Join(Environment.NewLine, generalizedSolution);
     }
 
     protected abstract AbstractReducibleMatrix<T> GetReducedAugmentedMatrix();
-
-    private string GetEquationWithPlaceholders()
-    {
-        List<string> l = new();
-        List<string> r = new();
-
-        for (var i = 0; i < fragments.Count; i++)
-        {
-            var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + fragments[i];
-            (i < ReactantsCount ? l : r).Add(t);
-        }
-
-        return string.Join(" + ", l) + " = " + string.Join(" + ", r);
-    }
 }
