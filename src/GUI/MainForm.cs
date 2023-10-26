@@ -14,8 +14,8 @@ public partial class MainForm : Form
     private void buttonBalance_Click(object sender, EventArgs e)
 #pragma warning restore IDE1006 // Naming Styles
     {
-        resultMT.Text = new BalancerThorne(textBoxInput.Text).SimpleStackedOutput();
-        resultMR.Text = new BalancerRisteskiDouble(textBoxInput.Text).SimpleStackedOutput();
+        resultMT.Text = new BalancerThorne(textBoxInput.Text).ToString();
+        resultMR.Text = new BalancerRisteskiDouble(textBoxInput.Text).ToString();
         UpdateTable();
     }
 
@@ -42,6 +42,6 @@ public partial class MainForm : Form
     {
         resultMT.Text = string.Empty;
         resultMR.Text = string.Empty;
-        buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text, RegexPatterns.MINIMAL_SKELETAL_STRUCTURE);
+        buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text, Parsing.MINIMAL_SKELETAL_STRUCTURE);
     }
 }

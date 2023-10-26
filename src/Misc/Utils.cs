@@ -1,12 +1,11 @@
-﻿using System.Text.RegularExpressions;
-using MathNet.Numerics;
+﻿using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 using ReactionStoichiometry.Extensions;
 
 namespace ReactionStoichiometry;
 
-internal static class Helpers
+internal static class Utils
 {
     public static string PrettyPrintDouble(double value)
     {
@@ -42,48 +41,6 @@ internal static class Helpers
             }
 
             result.Add(string.Join('\t', line));
-        }
-
-        return result;
-    }
-
-    public static string UnfoldFragment(in string fragment)
-    {
-        var result = fragment;
-
-        {
-            Regex regex = new(RegexPatterns.ELEMENT_NO_INDEX);
-            while (true)
-            {
-                var match = regex.Match(result);
-                if (!match.Success) break;
-                var element = match.Groups[1].Value;
-                var rest = match.Groups[2].Value;
-                result = regex.Replace(result, element + "1" + rest, 1);
-            }
-        }
-        {
-            Regex regex = new(RegexPatterns.CLOSING_PARENTHESIS_NO_INDEX);
-            while (true)
-            {
-                var match = regex.Match(result);
-                if (!match.Success) break;
-
-                result = regex.Replace(result, ")1", 1);
-            }
-        }
-        {
-            Regex regex = new(RegexPatterns.INNERMOST_PARENTHESES_INDEXED);
-            while (true)
-            {
-                var match = regex.Match(result);
-                if (!match.Success) break;
-                var token = match.Groups[1].Value;
-                var index = match.Groups[2].Value;
-
-                var repeated = string.Join("", Enumerable.Repeat(token, int.Parse(index)));
-                result = regex.Replace(result, repeated, 1);
-            }
         }
 
         return result;

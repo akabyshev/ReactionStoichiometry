@@ -11,17 +11,17 @@ internal class BalancerRisteskiRational : AbstractBalancerRisteski<Rational>
 
     protected override long[] ScaleToIntegers(Rational[] v)
     {
-        return Helpers.ScaleRationals(v);
+        return Utils.ScaleRationals(v);
     }
 
     protected override ReducedMatrixOfRational GetReducedAugmentedMatrix()
     {
-        var augmentedMatrix = matrix.Append(Matrix<double>.Build.Dense(matrix.RowCount, 1));
+        var augmentedMatrix = M.Append(Matrix<double>.Build.Dense(M.RowCount, 1));
         return ReducedMatrixOfRational.CreateInstance(augmentedMatrix);
     }
 
     protected override string PrettyPrinter(Rational value)
     {
-        return Helpers.PrettyPrintRational(value);
+        return Utils.PrettyPrintRational(value);
     }
 }

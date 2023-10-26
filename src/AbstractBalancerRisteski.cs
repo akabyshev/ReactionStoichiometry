@@ -8,13 +8,13 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
 
     protected override void Balance()
     {
-        for (var c = ReactantsCount; c < fragments.Count; c++)
+        for (var c = ReactantsCount; c < Fragments.Count; c++)
         {
-            matrix.SetColumn(c, matrix.Column(c).Multiply(-1));
+            M.SetColumn(c, M.Column(c).Multiply(-1));
         }
 
         var ram = GetReducedAugmentedMatrix();
-        details.AddRange(Helpers.PrettyPrintMatrix("RREF-data augmented matrix", ram.ToArray(), PrettyPrinter));
+        Details.AddRange(Utils.PrettyPrintMatrix("RREF-data augmented matrix", ram.ToArray(), PrettyPrinter));
 
         var freeVarIndices =
             Enumerable.Range(0, ram.ColumnCount).Where(c => ram.CountNonZeroesInColumn(c) > 1).ToList();

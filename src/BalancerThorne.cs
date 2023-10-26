@@ -11,11 +11,11 @@ internal class BalancerThorne : AbstractBalancer<double>
 
     protected override void Balance()
     {
-        var nullity = matrix.ColumnCount - matrix.Rank();
+        var nullity = M.ColumnCount - M.Rank();
 
         var augmentedMatrix = GetAugmentedMatrix(nullity);
         var invertedAugmentedMatrix = augmentedMatrix.Inverse();
-        details.AddRange(Helpers.PrettyPrintMatrix("Inverse of the augmented matrix", invertedAugmentedMatrix.ToArray(),
+        Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", invertedAugmentedMatrix.ToArray(),
             PrettyPrinter));
 
         List<string> independentEquations = new();
@@ -24,7 +24,7 @@ internal class BalancerThorne : AbstractBalancer<double>
             var coefficients = ScaleToIntegers(invertedAugmentedMatrix.Column(i).ToArray());
             independentEquations.Add(GetEquationWithCoefficients(coefficients));
 
-            diagnostics.Add(string.Join('\t', coefficients));
+            Diagnostics.Add(string.Join('\t', coefficients));
         }
 
         Outcome = string.Join(Environment.NewLine, independentEquations);
@@ -32,14 +32,14 @@ internal class BalancerThorne : AbstractBalancer<double>
 
     private Matrix<double> GetAugmentedMatrix(int nullity)
     {
-        var reduced = matrix.RowCount == matrix.ColumnCount
-            ? ReducedMatrixOfDouble.CreateInstance(matrix).ToMatrix()
-            : matrix.Clone();
+        var reduced = M.RowCount == M.ColumnCount
+            ? ReducedMatrixOfDouble.CreateInstance(M).ToMatrix()
+            : M.Clone();
 
         if (reduced.RowCount == reduced.ColumnCount)
             throw new ApplicationSpecificException("Matrix in RREF is still square");
 
-        var zeros = Matrix<double>.Build.Dense(nullity, matrix.Rank());
+        var zeros = Matrix<double>.Build.Dense(nullity, M.Rank());
         var identity = Matrix<double>.Build.DenseIdentity(nullity);
         var result = reduced.Stack(zeros.Append(identity));
 
@@ -48,13 +48,13 @@ internal class BalancerThorne : AbstractBalancer<double>
         if (result.Determinant().IsNonZero())
             return result;
 
-        diagnostics.AddRange(Helpers.PrettyPrintMatrix("Zero-determinant matrix", result.ToArray(), PrettyPrinter));
+        Diagnostics.AddRange(Utils.PrettyPrintMatrix("Zero-determinant matrix", result.ToArray(), PrettyPrinter));
         throw new ApplicationSpecificException("Matrix can't be inverted");
     }
 
     protected override long[] ScaleToIntegers(double[] v)
     {
-        return Helpers.ScaleDoubles(v);
+        return Utils.ScaleDoubles(v);
     }
 
     private string GetEquationWithCoefficients(in long[] coefficients)
@@ -62,13 +62,13 @@ internal class BalancerThorne : AbstractBalancer<double>
         List<string> l = new();
         List<string> r = new();
 
-        for (var i = 0; i < fragments.Count; i++)
+        for (var i = 0; i < Fragments.Count; i++)
         {
             if (coefficients[i] == 0)
                 continue;
 
             var value = Math.Abs(coefficients[i]);
-            var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + fragments[i];
+            var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + Fragments[i];
             (coefficients[i] < 0 ? l : r).Add(t);
         }
 
@@ -77,6 +77,6 @@ internal class BalancerThorne : AbstractBalancer<double>
 
     protected override string PrettyPrinter(double value)
     {
-        return Helpers.PrettyPrintDouble(value);
+        return Utils.PrettyPrintDouble(value);
     }
 }

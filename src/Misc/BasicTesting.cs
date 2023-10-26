@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
-internal static class Tests
+internal static class BasicTesting
 {
     public static void PerformParsingTests()
     {
@@ -13,7 +13,7 @@ internal static class Tests
         while (reader.ReadLine() is { } line)
         {
             var parts = line.Split("\t");
-            AssertStringsAreEqual(Helpers.UnfoldFragment(parts[0]), parts[1]);
+            AssertStringsAreEqual(Parsing.UnfoldFragment(parts[0]), parts[1]);
         }
 
         return;
@@ -36,22 +36,19 @@ internal static class Tests
 
         foreach (var type in balancers)
         {
-            using StreamReader reader = new(inputFilePath);
-
             var path = @"..\..\..\data\output-" + type.Name + ".txt";
-            var writer = new OutputWriter();
+            using StreamWriter writer = new(path);
+            using StreamReader reader = new(inputFilePath);
 
             while (reader.ReadLine() is { } line)
             {
                 if (!line.StartsWith("EQ: "))
                     continue;
                 var arguments = new object[] { line.Replace("EQ:", string.Empty) };
-                var balancer = (IBalancer)Activator.CreateInstance(type, arguments)!;
-                writer.WritePlainText(balancer);
+                var balancer = (ISpecialToString)Activator.CreateInstance(type, arguments)!;
+                writer.WriteLine(balancer.ToString(ISpecialToString.OutputFormat.Plain));
                 writer.WriteLine("====================================");
             }
-
-            writer.SaveTo(path);
         }
     }
 }
