@@ -1,26 +1,18 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿namespace ReactionStoichiometry;
 
-namespace ReactionStoichiometry;
-
-internal class BalancerRisteskiDouble : AbstractBalancerRisteski<double>
+internal class BalancerRisteskiDouble : AbstractBalancerRisteski<Double>
 {
-    public BalancerRisteskiDouble(string equation) : base(equation)
+    public BalancerRisteskiDouble(String equation) : base(equation)
     {
     }
 
-    protected override long[] ScaleToIntegers(double[] v)
-    {
-        return Utils.ScaleDoubles(v);
-    }
+    protected override Int64[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
 
     protected override ReducedMatrixOfDouble GetReducedAugmentedMatrix()
     {
-        var augmentedMatrix = M.Append(Matrix<double>.Build.Dense(M.RowCount, 1));
+        var augmentedMatrix = M.Append(MathNet.Numerics.LinearAlgebra.Matrix<Double>.Build.Dense(M.RowCount, 1));
         return ReducedMatrixOfDouble.CreateInstance(augmentedMatrix);
     }
 
-    protected override string PrettyPrinter(double value)
-    {
-        return Utils.PrettyPrintDouble(value);
-    }
+    protected override String PrettyPrinter(Double value) => Utils.PrettyPrintDouble(value);
 }

@@ -1,24 +1,22 @@
-﻿using System.Text.RegularExpressions;
-
-namespace ReactionStoichiometry;
+﻿namespace ReactionStoichiometry;
 
 internal static class Parsing
 {
-    public const string MINIMAL_SKELETAL_STRUCTURE = @"^.+\+.+=.+$";
-    public const string ELEMENT_SYMBOL = @"[A-Z][a-z]|[A-Z]";
-    private const string ElementNoIndex = @"([A-Z][a-z]|[A-Z])([A-Z][a-z]|[A-Z]|\(|\)|$)";
-    private const string ClosingParenthesisNoIndex = @"\)(?!\d)";
-    private const string InnermostParenthesesIndexed = @"\(([^\(\)]+)\)(\d+)";
+    public const String MINIMAL_SKELETAL_STRUCTURE = @"^.+\+.+=.+$";
+    public const String ELEMENT_SYMBOL = @"[A-Z][a-z]|[A-Z]";
+    private const String ElementNoIndex = @"([A-Z][a-z]|[A-Z])([A-Z][a-z]|[A-Z]|\(|\)|$)";
+    private const String ClosingParenthesisNoIndex = @"\)(?!\d)";
+    private const String InnermostParenthesesIndexed = @"\(([^\(\)]+)\)(\d+)";
 
-    public const string FRAGMENT_DIVIDERS = @"\+|=";
-    public const string ELEMENT_TEMPLATE = @"X(\d+(\.\d+)*)";
+    public const String FRAGMENT_DIVIDERS = @"\+|=";
+    public const String ELEMENT_TEMPLATE = @"X(\d+(\.\d+)*)";
 
-    internal static string UnfoldFragment(in string fragment)
+    internal static String UnfoldFragment(in String fragment)
     {
         var result = fragment;
 
         {
-            Regex regex = new(ElementNoIndex);
+            System.Text.RegularExpressions.Regex regex = new(ElementNoIndex);
             while (true)
             {
                 var match = regex.Match(result);
@@ -29,7 +27,7 @@ internal static class Parsing
             }
         }
         {
-            Regex regex = new(ClosingParenthesisNoIndex);
+            System.Text.RegularExpressions.Regex regex = new(ClosingParenthesisNoIndex);
             while (true)
             {
                 var match = regex.Match(result);
@@ -39,7 +37,7 @@ internal static class Parsing
             }
         }
         {
-            Regex regex = new(InnermostParenthesesIndexed);
+            System.Text.RegularExpressions.Regex regex = new(InnermostParenthesesIndexed);
             while (true)
             {
                 var match = regex.Match(result);
@@ -47,7 +45,7 @@ internal static class Parsing
                 var token = match.Groups[1].Value;
                 var index = match.Groups[2].Value;
 
-                var repeated = string.Join("", Enumerable.Repeat(token, int.Parse(index)));
+                var repeated = String.Join("", Enumerable.Repeat(token, Int32.Parse(index)));
                 result = regex.Replace(result, repeated, 1);
             }
         }

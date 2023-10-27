@@ -1,24 +1,18 @@
-﻿using System.Text.RegularExpressions;
-using MathNet.Numerics.LinearAlgebra;
-using ReactionStoichiometry.Extensions;
-
-namespace ReactionStoichiometry;
+﻿namespace ReactionStoichiometry;
 
 internal abstract class AbstractBalancer<T> : ISpecialToString
 {
-    protected readonly List<string> Details = new();
-    protected readonly List<string> Diagnostics = new();
-    protected readonly List<string> Fragments = new();
-    protected readonly Matrix<double> M;
-    protected readonly int ReactantsCount;
-    protected readonly string Skeletal;
-    protected string Outcome = "<FAIL>";
+    protected readonly List<String> Details = new();
+    protected readonly List<String> Diagnostics = new();
+    protected readonly List<String> Fragments = new();
+    protected readonly MathNet.Numerics.LinearAlgebra.Matrix<Double> M;
+    protected readonly Int32 ReactantsCount;
+    protected readonly String Skeletal;
+    protected String Outcome = "<FAIL>";
 
-    protected Func<int, string> LabelFor => Fragments.Count <= Program.LETTER_LABEL_THRESHOLD
-        ? Utils.LetterLabel
-        : Utils.GenericLabel;
+    protected Func<Int32, String> LabelFor => Fragments.Count <= Program.LETTER_LABEL_THRESHOLD ? Utils.LetterLabel : Utils.GenericLabel;
 
-    protected AbstractBalancer(string equation)
+    protected AbstractBalancer(String equation)
     {
         try
         {
@@ -26,28 +20,24 @@ internal abstract class AbstractBalancer<T> : ISpecialToString
             ReactantsCount = Skeletal.Split('=')[0].Split('+').Length;
 
             var chargeSymbols = new[] { "Qn", "Qp" };
-            var chargeParsingRules = new[]
-            {
-                new[] { "Qn", @"Qn(\d*)$", "{$1-}" },
-                new[] { "Qp", @"Qp(\d*)$", "{$1+}" }
-            };
+            var chargeParsingRules = new[] { new[] { "Qn", @"Qn(\d*)$", "{$1-}" }, new[] { "Qp", @"Qp(\d*)$", "{$1+}" } };
 
-            Fragments.AddRange(Regex.Split(Skeletal, Parsing.FRAGMENT_DIVIDERS));
+            Fragments.AddRange(System.Text.RegularExpressions.Regex.Split(Skeletal, Parsing.FRAGMENT_DIVIDERS));
 
-            List<string> elements = new();
-            elements.AddRange(Regex.Matches(Skeletal, Parsing.ELEMENT_SYMBOL).Select(m => m.Value)
-                .Concat(chargeSymbols).Distinct());
+            List<String> elements = new();
+            elements.AddRange(System.Text.RegularExpressions.Regex.Matches(Skeletal, Parsing.ELEMENT_SYMBOL).Select(m => m.Value).Concat(chargeSymbols)
+                                    .Distinct());
             elements.Add("{e}");
 
-            M = Matrix<double>.Build.Dense(elements.Count, Fragments.Count);
+            M = MathNet.Numerics.LinearAlgebra.Matrix<Double>.Build.Dense(elements.Count, Fragments.Count);
             for (var r = 0; r < elements.Count; r++)
             {
-                Regex regex = new(Parsing.ELEMENT_TEMPLATE.Replace("X", elements[r]));
+                System.Text.RegularExpressions.Regex regex = new(Parsing.ELEMENT_TEMPLATE.Replace("X", elements[r]));
 
                 for (var c = 0; c < Fragments.Count; c++)
                 {
                     var fragment = Parsing.UnfoldFragment(Fragments[c]);
-                    M[r, c] += regex.Matches(fragment).Sum(match => double.Parse(match.Groups[1].Value));
+                    M[r, c] += regex.Matches(fragment).Sum(match => Double.Parse(match.Groups[1].Value));
                 }
             }
 
@@ -55,15 +45,14 @@ internal abstract class AbstractBalancer<T> : ISpecialToString
             {
                 for (var i = 0; i < Fragments.Count; i++)
                 {
-                    Fragments[i] = Regex.Replace(Fragments[i], chargeParsingRule[1],
-                        chargeParsingRule[2]);
+                    Fragments[i] = System.Text.RegularExpressions.Regex.Replace(Fragments[i], chargeParsingRule[1], chargeParsingRule[2]);
                 }
             }
 
             var totalCharge = M.Row(elements.IndexOf("Qp")) - M.Row(elements.IndexOf("Qn"));
             M.SetRow(elements.IndexOf("{e}"), totalCharge);
 
-            if (totalCharge.CountNonZeroes() == 0)
+            if (ReactionStoichiometry.Extensions.DoubleExtensions.CountNonZeroes(totalCharge) == 0)
             {
                 M = M.RemoveRow(elements.IndexOf("{e}"));
                 elements.Remove("{e}");
@@ -74,12 +63,9 @@ internal abstract class AbstractBalancer<T> : ISpecialToString
             M = M.RemoveRow(elements.IndexOf("Qp"));
             elements.Remove("Qp");
 
-            Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(),
-                Utils.PrettyPrintDouble, Fragments, elements));
-            Details.Add(
-                $"RxC: {M.RowCount}x{M.ColumnCount}, rank = {M.Rank()}, nullity = {M.Nullity()}");
-        }
-        catch (Exception e)
+            Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(), Utils.PrettyPrintDouble, Fragments, elements));
+            Details.Add($"RxC: {M.RowCount}x{M.ColumnCount}, rank = {M.Rank()}, nullity = {M.Nullity()}");
+        } catch (Exception e)
         {
             throw new ApplicationSpecificException($"Parsing failed: {e.Message}");
         }
@@ -87,37 +73,13 @@ internal abstract class AbstractBalancer<T> : ISpecialToString
         try
         {
             Balance();
-        }
-        catch (ApplicationSpecificException e)
+        } catch (ApplicationSpecificException e)
         {
             Diagnostics.Add($"This equation can't be balanced: {e.Message}");
         }
     }
 
-    protected abstract void Balance();
-    protected abstract long[] ScaleToIntegers(T[] v);
-    protected abstract string PrettyPrinter(T value);
-
-    protected string GetEquationWithPlaceholders()
-    {
-        List<string> l = new();
-        List<string> r = new();
-
-        for (var i = 0; i < Fragments.Count; i++)
-        {
-            var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + Fragments[i];
-            (i < ReactantsCount ? l : r).Add(t);
-        }
-
-        return string.Join(" + ", l) + " = " + string.Join(" + ", r);
-    }
-
-    public override string ToString()
-    {
-        return ToString(ISpecialToString.OutputFormat.Plain);
-    }
-
-    public string ToString(ISpecialToString.OutputFormat format)
+    public String ToString(ISpecialToString.OutputFormat format)
     {
         return format switch
         {
@@ -126,13 +88,30 @@ internal abstract class AbstractBalancer<T> : ISpecialToString
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 
-        string Fill(string template)
+        String Fill(String template)
         {
-            return template
-                .Replace("%Skeletal%", Skeletal)
-                .Replace("%Details%", string.Join(Environment.NewLine, Details))
-                .Replace("%Outcome%", Outcome)
-                .Replace("%Diagnostics%", string.Join(Environment.NewLine, Diagnostics));
+            return template.Replace("%Skeletal%", Skeletal).Replace("%Details%", String.Join(Environment.NewLine, Details)).Replace("%Outcome%", Outcome)
+                           .Replace("%Diagnostics%", String.Join(Environment.NewLine, Diagnostics));
         }
     }
+
+    protected abstract void Balance();
+    protected abstract Int64[] ScaleToIntegers(T[] v);
+    protected abstract String PrettyPrinter(T value);
+
+    protected String GetEquationWithPlaceholders()
+    {
+        List<String> l = new();
+        List<String> r = new();
+
+        for (var i = 0; i < Fragments.Count; i++)
+        {
+            var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + Fragments[i];
+            (i < ReactantsCount ? l : r).Add(t);
+        }
+
+        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
+    }
+
+    public override String ToString() => ToString(ISpecialToString.OutputFormat.Plain);
 }

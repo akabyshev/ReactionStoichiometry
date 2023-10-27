@@ -1,12 +1,10 @@
-using ReactionStoichiometry.GUI;
-
 namespace ReactionStoichiometry;
 
 internal static class Program
 {
-    public const double DOUBLE_PSEUDOZERO = 1e-10;
-    public const int LETTER_LABEL_THRESHOLD = 7;
-    public const string MULTIPLICATION_SYMBOL = "·";
+    public const Double DOUBLE_PSEUDOZERO = 1e-10;
+    public const Int32 LETTER_LABEL_THRESHOLD = 7;
+    public const String MULTIPLICATION_SYMBOL = "·";
 
     /// <summary>
     ///     The main entry point for the application.
@@ -19,6 +17,6 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         BasicTesting.PerformParsingTests();
         BasicTesting.PerformOnLaunchBatchTests();
-        Application.Run(new MainForm());
+        Application.Run(new ReactionStoichiometry.GUI.MainForm());
     }
 }

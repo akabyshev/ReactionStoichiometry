@@ -2,7 +2,7 @@
 
 internal class ApplicationSpecificException : InvalidOperationException
 {
-    public ApplicationSpecificException(string message) : base(message)
+    public ApplicationSpecificException(String message) : base(message)
     {
     }
 }

@@ -4,10 +4,9 @@ internal static class BasicTesting
 {
     public static void PerformParsingTests()
     {
-        const string inputFilePath = @"..\..\..\data\parser_tests.txt";
+        const String inputFilePath = @"..\..\..\data\parser_tests.txt";
 
-        if (!File.Exists(inputFilePath))
-            return;
+        if (!File.Exists(inputFilePath)) return;
 
         using StreamReader reader = new(inputFilePath);
         while (reader.ReadLine() is { } line)
@@ -18,21 +17,18 @@ internal static class BasicTesting
 
         return;
 
-        static void AssertStringsAreEqual(string lhs, string rhs)
+        static void AssertStringsAreEqual(String lhs, String rhs)
         {
-            if (lhs != rhs)
-                throw new Exception($"{lhs} is not equal to {rhs}");
+            if (lhs != rhs) throw new Exception($"{lhs} is not equal to {rhs}");
         }
     }
 
     public static void PerformOnLaunchBatchTests()
     {
-        const string inputFilePath = @"..\..\..\data\OnLaunchBatch.txt";
-        if (!File.Exists(inputFilePath))
-            return;
+        const String inputFilePath = @"..\..\..\data\OnLaunchBatch.txt";
+        if (!File.Exists(inputFilePath)) return;
 
-        var balancers = new[]
-            { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
+        var balancers = new[] { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
 
         foreach (var type in balancers)
         {
@@ -42,9 +38,8 @@ internal static class BasicTesting
 
             while (reader.ReadLine() is { } line)
             {
-                if (line.StartsWith("#") || line.Length == 0)
-                    continue;
-                var arguments = new object[] { line };
+                if (line.StartsWith("#") || line.Length == 0) continue;
+                var arguments = new Object[] { line };
                 var balancer = (ISpecialToString)Activator.CreateInstance(type, arguments)!;
                 writer.WriteLine(balancer.ToString(ISpecialToString.OutputFormat.Plain));
                 writer.WriteLine("====================================");

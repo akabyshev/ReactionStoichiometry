@@ -2,7 +2,7 @@
 
 internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where T : struct, IEquatable<T>, IFormattable
 {
-    protected AbstractBalancerRisteski(string equation) : base(equation)
+    protected AbstractBalancerRisteski(String equation) : base(equation)
     {
     }
 
@@ -16,28 +16,24 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
         var reducedAugmentedMatrix = GetReducedAugmentedMatrix();
         Details.AddRange(Utils.PrettyPrintMatrix("RREF-data augmented matrix", reducedAugmentedMatrix.ToArray(), PrettyPrinter));
 
-        var freeVarIndices = Enumerable.Range(0, reducedAugmentedMatrix.ColumnCount)
-            .Where(c => reducedAugmentedMatrix.CountNonZeroesInColumn(c) > 1).ToList();
+        var freeVarIndices = Enumerable.Range(0, reducedAugmentedMatrix.ColumnCount).Where(c => reducedAugmentedMatrix.CountNonZeroesInColumn(c) > 1).ToList();
         if (!freeVarIndices.Any()) throw new ApplicationSpecificException("This SLE is unsolvable");
 
-        var generalizedEquation = new List<string>() { GetEquationWithPlaceholders() + ", where" };
+        var generalizedEquation = new List<String> { GetEquationWithPlaceholders() + ", where" };
         for (var r = 0; r < reducedAugmentedMatrix.RowCount; r++)
         {
             var coefficients = ScaleToIntegers(reducedAugmentedMatrix.GetRow(r));
             var pivotColumnIndex = Array.FindIndex(coefficients, i => i != 0);
 
-            var parts = Enumerable.Range(pivotColumnIndex + 1, coefficients.Length - (pivotColumnIndex + 1))
-                .Where(c => coefficients[c] != 0)
-                .Select(c =>
-                {
-                    var coefficient = (-1 * coefficients[c]).ToString();
-                    if (coefficient == "1") coefficient = string.Empty;
-                    if (coefficient == "-1") coefficient = "-";
-                    return $"{coefficient}{LabelFor(c)}";
-                })
-                .ToList();
+            var parts = Enumerable.Range(pivotColumnIndex + 1, coefficients.Length - (pivotColumnIndex + 1)).Where(c => coefficients[c] != 0).Select(c =>
+                    {
+                        var coefficient = (-1 * coefficients[c]).ToString();
+                        if (coefficient == "1") coefficient = String.Empty;
+                        if (coefficient == "-1") coefficient = "-";
+                        return $"{coefficient}{LabelFor(c)}";
+                    }).ToList();
 
-            var expression = string.Join(" + ", parts).Replace("+ -", "- ");
+            var expression = String.Join(" + ", parts).Replace("+ -", "- ");
 
             if (coefficients[pivotColumnIndex] != 1)
             {
@@ -45,14 +41,14 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
                 expression = $"{expression}/{coefficients[pivotColumnIndex]}";
             }
 
-            if (expression == string.Empty) expression = "0";
+            if (expression == String.Empty) expression = "0";
 
             generalizedEquation.Add($"{LabelFor(pivotColumnIndex)} = {expression}");
         }
 
-        generalizedEquation.Add("for any {" + string.Join(", ", freeVarIndices.Select(LabelFor)) + "}");
+        generalizedEquation.Add("for any {" + String.Join(", ", freeVarIndices.Select(LabelFor)) + "}");
 
-        Outcome = string.Join(Environment.NewLine, generalizedEquation);
+        Outcome = String.Join(Environment.NewLine, generalizedEquation);
     }
 
     protected abstract AbstractReducibleMatrix<T> GetReducedAugmentedMatrix();

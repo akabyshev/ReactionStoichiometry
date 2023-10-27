@@ -1,11 +1,8 @@
-﻿using MathNet.Numerics.LinearAlgebra;
-using ReactionStoichiometry.Extensions;
+﻿namespace ReactionStoichiometry;
 
-namespace ReactionStoichiometry;
-
-internal class BalancerThorne : AbstractBalancer<double>
+internal class BalancerThorne : AbstractBalancer<Double>
 {
-    public BalancerThorne(string equation) : base(equation)
+    public BalancerThorne(String equation) : base(equation)
     {
     }
 
@@ -15,64 +12,53 @@ internal class BalancerThorne : AbstractBalancer<double>
         var invertedAugmentedMatrix = GetAugmentedMatrix().Inverse();
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", invertedAugmentedMatrix.ToArray(), PrettyPrinter));
 
-        var independentEquations = new List<string>();
+        var independentEquations = new List<String>();
         for (var c = invertedAugmentedMatrix.ColumnCount - originalMatrixNullity; c < invertedAugmentedMatrix.ColumnCount; c++)
         {
             var coefficients = ScaleToIntegers(invertedAugmentedMatrix.Column(c).ToArray());
             independentEquations.Add(GetEquationWithCoefficients(coefficients));
         }
 
-        Outcome = string.Join(Environment.NewLine, independentEquations);
+        Outcome = String.Join(Environment.NewLine, independentEquations);
     }
 
-    private Matrix<double> GetAugmentedMatrix()
+    private MathNet.Numerics.LinearAlgebra.Matrix<Double> GetAugmentedMatrix()
     {
-        var reduced = M.RowCount == M.ColumnCount
-            ? ReducedMatrixOfDouble.CreateInstance(M).ToMatrix()
-            : M.Clone();
+        var reduced = M.RowCount == M.ColumnCount ? ReducedMatrixOfDouble.CreateInstance(M).ToMatrix() : M.Clone();
 
-        if (reduced.RowCount == reduced.ColumnCount)
-            throw new ApplicationSpecificException("Matrix in RREF is still square");
+        if (reduced.RowCount == reduced.ColumnCount) throw new ApplicationSpecificException("Matrix in RREF is still square");
 
         var nullity = reduced.ColumnCount - reduced.Rank();
-        var submatrixLeftZeroes = Matrix<double>.Build.Dense(nullity, reduced.ColumnCount - nullity);
-        var submatrixRightIdentity = Matrix<double>.Build.DenseIdentity(nullity);
+        var submatrixLeftZeroes = MathNet.Numerics.LinearAlgebra.Matrix<Double>.Build.Dense(nullity, reduced.ColumnCount - nullity);
+        var submatrixRightIdentity = MathNet.Numerics.LinearAlgebra.Matrix<Double>.Build.DenseIdentity(nullity);
         var result = reduced.Stack(submatrixLeftZeroes.Append(submatrixRightIdentity));
 
         result.CoerceZero(Program.DOUBLE_PSEUDOZERO);
 
-        if (result.Determinant().IsNonZero())
-            return result;
+        if (ReactionStoichiometry.Extensions.DoubleExtensions.IsNonZero(result.Determinant())) return result;
 
         Diagnostics.AddRange(Utils.PrettyPrintMatrix("Zero-determinant matrix", result.ToArray(), PrettyPrinter));
         throw new ApplicationSpecificException("Matrix can't be inverted");
     }
 
-    protected override long[] ScaleToIntegers(double[] v)
-    {
-        return Utils.ScaleDoubles(v);
-    }
+    protected override Int64[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
 
-    private string GetEquationWithCoefficients(in long[] coefficients)
+    private String GetEquationWithCoefficients(in Int64[] coefficients)
     {
-        List<string> l = new();
-        List<string> r = new();
+        List<String> l = new();
+        List<String> r = new();
 
         for (var i = 0; i < Fragments.Count; i++)
         {
-            if (coefficients[i] == 0)
-                continue;
+            if (coefficients[i] == 0) continue;
 
             var value = Math.Abs(coefficients[i]);
             var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + Fragments[i];
             (coefficients[i] < 0 ? l : r).Add(t);
         }
 
-        return string.Join(" + ", l) + " = " + string.Join(" + ", r);
+        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
 
-    protected override string PrettyPrinter(double value)
-    {
-        return Utils.PrettyPrintDouble(value);
-    }
+    protected override String PrettyPrinter(Double value) => Utils.PrettyPrintDouble(value);
 }
