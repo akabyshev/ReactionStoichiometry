@@ -42,9 +42,9 @@ internal static class BasicTesting
 
             while (reader.ReadLine() is { } line)
             {
-                if (!line.StartsWith("EQ: "))
+                if (line.StartsWith("#") || line.Length == 0)
                     continue;
-                var arguments = new object[] { line.Replace("EQ:", string.Empty) };
+                var arguments = new object[] { line };
                 var balancer = (ISpecialToString)Activator.CreateInstance(type, arguments)!;
                 writer.WriteLine(balancer.ToString(ISpecialToString.OutputFormat.Plain));
                 writer.WriteLine("====================================");

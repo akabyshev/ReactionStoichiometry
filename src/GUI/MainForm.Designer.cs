@@ -144,7 +144,7 @@
             textBoxInput.Name = "textBoxInput";
             textBoxInput.Size = new Size(1700, 47);
             textBoxInput.TabIndex = 4;
-            textBoxInput.Text = "Fe2(SO4)3 + PrTlTe3 + H3PO4 = Fe0.996(H2PO4)2H2O + Tl1.987(SO3)3 + Pr1.998(SO4)3 + Te2O3 + P2O5 + H2S";
+            textBoxInput.Text = "CO+CO2+H2=CH4+H2O";
             textBoxInput.TextChanged += textBoxInput_TextChanged;
             // 
             // buttonBalance

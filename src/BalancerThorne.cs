@@ -11,26 +11,21 @@ internal class BalancerThorne : AbstractBalancer<double>
 
     protected override void Balance()
     {
-        var nullity = M.ColumnCount - M.Rank();
+        var originalMatrixNullity = M.ColumnCount - M.Rank();
+        var invertedAugmentedMatrix = GetAugmentedMatrix().Inverse();
+        Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", invertedAugmentedMatrix.ToArray(), PrettyPrinter));
 
-        var augmentedMatrix = GetAugmentedMatrix(nullity);
-        var invertedAugmentedMatrix = augmentedMatrix.Inverse();
-        Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", invertedAugmentedMatrix.ToArray(),
-            PrettyPrinter));
-
-        List<string> independentEquations = new();
-        foreach (var i in Enumerable.Range(invertedAugmentedMatrix.ColumnCount - nullity, nullity))
+        var independentEquations = new List<string>();
+        for (var c = invertedAugmentedMatrix.ColumnCount - originalMatrixNullity; c < invertedAugmentedMatrix.ColumnCount; c++)
         {
-            var coefficients = ScaleToIntegers(invertedAugmentedMatrix.Column(i).ToArray());
+            var coefficients = ScaleToIntegers(invertedAugmentedMatrix.Column(c).ToArray());
             independentEquations.Add(GetEquationWithCoefficients(coefficients));
-
-            Diagnostics.Add(string.Join('\t', coefficients));
         }
 
         Outcome = string.Join(Environment.NewLine, independentEquations);
     }
 
-    private Matrix<double> GetAugmentedMatrix(int nullity)
+    private Matrix<double> GetAugmentedMatrix()
     {
         var reduced = M.RowCount == M.ColumnCount
             ? ReducedMatrixOfDouble.CreateInstance(M).ToMatrix()
@@ -39,9 +34,10 @@ internal class BalancerThorne : AbstractBalancer<double>
         if (reduced.RowCount == reduced.ColumnCount)
             throw new ApplicationSpecificException("Matrix in RREF is still square");
 
-        var zeros = Matrix<double>.Build.Dense(nullity, M.Rank());
-        var identity = Matrix<double>.Build.DenseIdentity(nullity);
-        var result = reduced.Stack(zeros.Append(identity));
+        var nullity = reduced.ColumnCount - reduced.Rank();
+        var submatrixLeftZeroes = Matrix<double>.Build.Dense(nullity, reduced.ColumnCount - nullity);
+        var submatrixRightIdentity = Matrix<double>.Build.DenseIdentity(nullity);
+        var result = reduced.Stack(submatrixLeftZeroes.Append(submatrixRightIdentity));
 
         result.CoerceZero(Program.DOUBLE_PSEUDOZERO);
 

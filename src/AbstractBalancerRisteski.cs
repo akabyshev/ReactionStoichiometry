@@ -13,30 +13,29 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
             M.SetColumn(c, M.Column(c).Multiply(-1));
         }
 
-        var ram = GetReducedAugmentedMatrix();
-        Details.AddRange(Utils.PrettyPrintMatrix("RREF-data augmented matrix", ram.ToArray(), PrettyPrinter));
+        var reducedAugmentedMatrix = GetReducedAugmentedMatrix();
+        Details.AddRange(Utils.PrettyPrintMatrix("RREF-data augmented matrix", reducedAugmentedMatrix.ToArray(), PrettyPrinter));
 
-        var freeVarIndices =
-            Enumerable.Range(0, ram.ColumnCount).Where(c => ram.CountNonZeroesInColumn(c) > 1).ToList();
+        var freeVarIndices = Enumerable.Range(0, reducedAugmentedMatrix.ColumnCount)
+            .Where(c => reducedAugmentedMatrix.CountNonZeroesInColumn(c) > 1).ToList();
         if (!freeVarIndices.Any()) throw new ApplicationSpecificException("This SLE is unsolvable");
 
-        List<string> expressions = new();
-        for (var r = 0; r < ram.RowCount; r++)
+        var generalizedEquation = new List<string>() { GetEquationWithPlaceholders() + ", where" };
+        for (var r = 0; r < reducedAugmentedMatrix.RowCount; r++)
         {
-            var coefficients = ScaleToIntegers(ram.GetRow(r));
+            var coefficients = ScaleToIntegers(reducedAugmentedMatrix.GetRow(r));
             var pivotColumnIndex = Array.FindIndex(coefficients, i => i != 0);
 
-            var parts = new List<string>();
-            for (var c = pivotColumnIndex + 1; c < coefficients.Length; c++)
-            {
-                if (coefficients[c] == 0) continue;
-
-                var coefficient = (-1 * coefficients[c]).ToString();
-                if (coefficient == "1") coefficient = string.Empty;
-                if (coefficient == "-1") coefficient = "-";
-
-                parts.Add($"{coefficient}{LabelFor(c)}");
-            }
+            var parts = Enumerable.Range(pivotColumnIndex + 1, coefficients.Length - (pivotColumnIndex + 1))
+                .Where(c => coefficients[c] != 0)
+                .Select(c =>
+                {
+                    var coefficient = (-1 * coefficients[c]).ToString();
+                    if (coefficient == "1") coefficient = string.Empty;
+                    if (coefficient == "-1") coefficient = "-";
+                    return $"{coefficient}{LabelFor(c)}";
+                })
+                .ToList();
 
             var expression = string.Join(" + ", parts).Replace("+ -", "- ");
 
@@ -48,14 +47,12 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
 
             if (expression == string.Empty) expression = "0";
 
-            expressions.Add($"{LabelFor(pivotColumnIndex)} = {expression}");
+            generalizedEquation.Add($"{LabelFor(pivotColumnIndex)} = {expression}");
         }
 
-        List<string> generalizedSolution = new() { GetEquationWithPlaceholders() + ", where" };
-        generalizedSolution.AddRange(expressions);
-        generalizedSolution.Add("for any {" + string.Join(", ", freeVarIndices.Select(LabelFor)) + "}");
+        generalizedEquation.Add("for any {" + string.Join(", ", freeVarIndices.Select(LabelFor)) + "}");
 
-        Outcome = string.Join(Environment.NewLine, generalizedSolution);
+        Outcome = string.Join(Environment.NewLine, generalizedEquation);
     }
 
     protected abstract AbstractReducibleMatrix<T> GetReducedAugmentedMatrix();
