@@ -12,8 +12,8 @@ public partial class MainForm : Form
     private void buttonBalance_Click(Object sender, EventArgs e)
 #pragma warning restore IDE1006 // Naming Styles
     {
-        resultMT.Text = new BalancerThorne(textBoxInput.Text).ToString(ISpecialToString.OutputFormat.Html);
-        resultMR.Text = new BalancerRisteskiDouble(textBoxInput.Text).ToString();
+        resultMT.Text = new BalancerThorne(textBoxInput.Text).Balance().ToString(ISpecialToString.OutputFormat.Html);
+        resultMR.Text = new BalancerRisteskiDouble(textBoxInput.Text).Balance().ToString(ISpecialToString.OutputFormat.Plain);
         UpdateTable();
     }
 

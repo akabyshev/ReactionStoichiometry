@@ -6,7 +6,7 @@ internal class BalancerThorne : AbstractBalancer<Double>
     {
     }
 
-    protected override void Balance()
+    protected override void BalanceImplementation()
     {
         var originalMatrixNullity = M.ColumnCount - M.Rank();
         var invertedAugmentedMatrix = GetAugmentedMatrix().Inverse();

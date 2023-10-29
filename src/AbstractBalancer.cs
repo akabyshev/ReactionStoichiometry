@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
-internal abstract class AbstractBalancer<T> : ISpecialToString
+internal abstract class AbstractBalancer<T>
 {
     protected readonly List<String> Details = new();
     protected readonly List<String> Diagnostics = new();
@@ -69,33 +69,46 @@ internal abstract class AbstractBalancer<T> : ISpecialToString
         {
             throw new ApplicationSpecificException($"Parsing failed: {e.Message}");
         }
+    }
 
+    internal class BalancingResult : ISpecialToString
+    {
+        private readonly AbstractBalancer<T> _balancer;
+
+        public BalancingResult(AbstractBalancer<T> b) => _balancer = b;
+
+        public String ToString(ISpecialToString.OutputFormat format)
+        {
+            return format switch
+            {
+                ISpecialToString.OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
+                ISpecialToString.OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
+                _ => throw new ArgumentOutOfRangeException(nameof(format))
+            };
+
+            String Fill(String template)
+            {
+                return template.Replace("%Skeletal%", _balancer.Skeletal).Replace("%Details%", String.Join(Environment.NewLine, _balancer.Details)).Replace("%Outcome%", _balancer.Outcome)
+                               .Replace("%Diagnostics%", String.Join(Environment.NewLine, _balancer.Diagnostics));
+            }
+        }
+    }
+
+    protected abstract void BalanceImplementation();
+    public BalancingResult Balance()
+    {
         try
         {
-            Balance();
-        } catch (ApplicationSpecificException e)
+            BalanceImplementation();
+        }
+        catch (ApplicationSpecificException e)
         {
             Diagnostics.Add($"This equation can't be balanced: {e.Message}");
         }
+
+        return new BalancingResult(this);
     }
 
-    public String ToString(ISpecialToString.OutputFormat format)
-    {
-        return format switch
-        {
-            ISpecialToString.OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
-            ISpecialToString.OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
-            _ => throw new ArgumentOutOfRangeException(nameof(format))
-        };
-
-        String Fill(String template)
-        {
-            return template.Replace("%Skeletal%", Skeletal).Replace("%Details%", String.Join(Environment.NewLine, Details)).Replace("%Outcome%", Outcome)
-                           .Replace("%Diagnostics%", String.Join(Environment.NewLine, Diagnostics));
-        }
-    }
-
-    protected abstract void Balance();
     protected abstract Int64[] ScaleToIntegers(T[] v);
     protected abstract String PrettyPrinter(T value);
 
@@ -112,6 +125,4 @@ internal abstract class AbstractBalancer<T> : ISpecialToString
 
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
-
-    public override String ToString() => ToString(ISpecialToString.OutputFormat.Plain);
 }

@@ -6,7 +6,7 @@ internal abstract class AbstractBalancerRisteski<T> : AbstractBalancer<T> where 
     {
     }
 
-    protected override void Balance()
+    protected override void BalanceImplementation()
     {
         for (var c = ReactantsCount; c < Fragments.Count; c++)
         {
