@@ -1,5 +1,7 @@
 namespace ReactionStoichiometry;
 
+using GUI;
+
 internal static class Program
 {
     public const Double DOUBLE_PSEUDOZERO = 1e-10;
@@ -17,6 +19,6 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         BasicTesting.PerformParsingTests();
         BasicTesting.PerformOnLaunchBatchTests();
-        Application.Run(new ReactionStoichiometry.GUI.MainForm());
+        Application.Run(new MainForm());
     }
 }

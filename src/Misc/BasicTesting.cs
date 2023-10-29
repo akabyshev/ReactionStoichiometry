@@ -39,11 +39,9 @@ internal static class BasicTesting
             while (reader.ReadLine() is { } line)
             {
                 if (line.StartsWith("#") || line.Length == 0) continue;
-                var arguments = new Object[] { line };
-                var balancer = Activator.CreateInstance(type, arguments)!;
-                var method = balancer.GetType().GetMethod("Balance");
-                var result = (ISpecialToString)method!.Invoke(balancer, null)!;
-                writer.WriteLine(result.ToString(ISpecialToString.OutputFormat.Plain));
+                var eq = new Object[] { line };
+                var balancer = (ProtoBalancer)Activator.CreateInstance(type, eq)!;
+                writer.WriteLine(balancer.ToString(ProtoBalancer.OutputFormat.Plain));
                 writer.WriteLine("====================================");
             }
         }

@@ -1,38 +1,38 @@
 ﻿namespace ReactionStoichiometry;
 
-internal abstract class AbstractBalancer<T>
+using System.Text.RegularExpressions;
+using Extensions;
+using MathNet.Numerics.LinearAlgebra;
+
+internal abstract partial class AbstractBalancer<T> : ProtoBalancer
 {
     protected readonly List<String> Details = new();
     protected readonly List<String> Diagnostics = new();
     protected readonly List<String> Fragments = new();
-    protected readonly MathNet.Numerics.LinearAlgebra.Matrix<Double> M;
+    protected readonly Matrix<Double> M;
     protected readonly Int32 ReactantsCount;
-    protected readonly String Skeletal;
-    protected String Outcome = "<FAIL>";
 
-    protected Func<Int32, String> LabelFor => Fragments.Count <= Program.LETTER_LABEL_THRESHOLD ? Utils.LetterLabel : Utils.GenericLabel;
+    internal Func<Int32, String> LabelFor => Fragments.Count <= Program.LETTER_LABEL_THRESHOLD ? Utils.LetterLabel : Utils.GenericLabel;
 
-    protected AbstractBalancer(String equation)
+    protected AbstractBalancer(String equation) : base(equation.Replace(" ", ""))
     {
         try
         {
-            Skeletal = equation.Replace(" ", "");
-            ReactantsCount = Skeletal.Split('=')[0].Split('+').Length;
+            ReactantsCount = OriginalSkeletal.Split('=')[0].Split('+').Length;
 
             var chargeSymbols = new[] { "Qn", "Qp" };
             var chargeParsingRules = new[] { new[] { "Qn", @"Qn(\d*)$", "{$1-}" }, new[] { "Qp", @"Qp(\d*)$", "{$1+}" } };
 
-            Fragments.AddRange(System.Text.RegularExpressions.Regex.Split(Skeletal, Parsing.FRAGMENT_DIVIDERS));
+            Fragments.AddRange(Regex.Split(OriginalSkeletal, Parsing.FRAGMENT_DIVIDERS));
 
             List<String> elements = new();
-            elements.AddRange(System.Text.RegularExpressions.Regex.Matches(Skeletal, Parsing.ELEMENT_SYMBOL).Select(m => m.Value).Concat(chargeSymbols)
-                                    .Distinct());
+            elements.AddRange(Regex.Matches(OriginalSkeletal, Parsing.ELEMENT_SYMBOL).Select(m => m.Value).Concat(chargeSymbols).Distinct());
             elements.Add("{e}");
 
-            M = MathNet.Numerics.LinearAlgebra.Matrix<Double>.Build.Dense(elements.Count, Fragments.Count);
+            M = Matrix<Double>.Build.Dense(elements.Count, Fragments.Count);
             for (var r = 0; r < elements.Count; r++)
             {
-                System.Text.RegularExpressions.Regex regex = new(Parsing.ELEMENT_TEMPLATE.Replace("X", elements[r]));
+                Regex regex = new(Parsing.ELEMENT_TEMPLATE.Replace("X", elements[r]));
 
                 for (var c = 0; c < Fragments.Count; c++)
                 {
@@ -45,14 +45,14 @@ internal abstract class AbstractBalancer<T>
             {
                 for (var i = 0; i < Fragments.Count; i++)
                 {
-                    Fragments[i] = System.Text.RegularExpressions.Regex.Replace(Fragments[i], chargeParsingRule[1], chargeParsingRule[2]);
+                    Fragments[i] = Regex.Replace(Fragments[i], chargeParsingRule[1], chargeParsingRule[2]);
                 }
             }
 
             var totalCharge = M.Row(elements.IndexOf("Qp")) - M.Row(elements.IndexOf("Qn"));
             M.SetRow(elements.IndexOf("{e}"), totalCharge);
 
-            if (ReactionStoichiometry.Extensions.DoubleExtensions.CountNonZeroes(totalCharge) == 0)
+            if (DoubleExtensions.CountNonZeroes(totalCharge) == 0)
             {
                 M = M.RemoveRow(elements.IndexOf("{e}"));
                 elements.Remove("{e}");
@@ -67,48 +67,19 @@ internal abstract class AbstractBalancer<T>
             Details.Add($"RxC: {M.RowCount}x{M.ColumnCount}, rank = {M.Rank()}, nullity = {M.Nullity()}");
         } catch (Exception e)
         {
-            throw new ApplicationSpecificException($"Parsing failed: {e.Message}");
+            throw new BalancerException($"Parsing failed: {e.Message}");
         }
-    }
 
-    internal class BalancingResult : ISpecialToString
-    {
-        private readonly AbstractBalancer<T> _balancer;
-
-        public BalancingResult(AbstractBalancer<T> b) => _balancer = b;
-
-        public String ToString(ISpecialToString.OutputFormat format)
-        {
-            return format switch
-            {
-                ISpecialToString.OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
-                ISpecialToString.OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
-                _ => throw new ArgumentOutOfRangeException(nameof(format))
-            };
-
-            String Fill(String template)
-            {
-                return template.Replace("%Skeletal%", _balancer.Skeletal).Replace("%Details%", String.Join(Environment.NewLine, _balancer.Details)).Replace("%Outcome%", _balancer.Outcome)
-                               .Replace("%Diagnostics%", String.Join(Environment.NewLine, _balancer.Diagnostics));
-            }
-        }
-    }
-
-    protected abstract void BalanceImplementation();
-    public BalancingResult Balance()
-    {
         try
         {
-            BalanceImplementation();
-        }
-        catch (ApplicationSpecificException e)
+            Balance();
+        } catch (BalancerException e)
         {
             Diagnostics.Add($"This equation can't be balanced: {e.Message}");
         }
-
-        return new BalancingResult(this);
     }
 
+    protected abstract void Balance();
     protected abstract Int64[] ScaleToIntegers(T[] v);
     protected abstract String PrettyPrinter(T value);
 
@@ -124,5 +95,23 @@ internal abstract class AbstractBalancer<T>
         }
 
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);
+    }
+
+    internal override String ToString(OutputFormat format)
+    {
+        return format switch
+        {
+            OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
+            OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
+            _ => throw new ArgumentOutOfRangeException(nameof(format))
+        };
+
+        String Fill(String template)
+        {
+            return template.Replace("%Skeletal%", OriginalSkeletal)
+                           .Replace("%Details%", String.Join(Environment.NewLine, Details))
+                           .Replace("%Outcome%", Outcome)
+                           .Replace("%Diagnostics%", String.Join(Environment.NewLine, Diagnostics));
+        }
     }
 }

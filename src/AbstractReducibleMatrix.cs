@@ -1,5 +1,8 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Text;
+using MathNet.Numerics.LinearAlgebra;
+
 internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
     private T[,] _data;
@@ -9,7 +12,7 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
 
     protected BasicOperations Basics { get; init; }
 
-    protected AbstractReducibleMatrix(MathNet.Numerics.LinearAlgebra.Matrix<Double> matrix, Func<Double, T> convert)
+    protected AbstractReducibleMatrix(Matrix<Double> matrix, Func<Double, T> convert)
     {
         _data = new T[matrix.RowCount, matrix.ColumnCount];
         CopyValues(_data, matrix.ToArray(), convert);
@@ -46,7 +49,7 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
 
     public override String ToString()
     {
-        System.Text.StringBuilder sb = new();
+        StringBuilder sb = new();
 
         for (var r = 0; r < RowCount; r++)
         {
@@ -62,7 +65,7 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
         return sb.ToString();
     }
 
-    public MathNet.Numerics.LinearAlgebra.Matrix<T> ToMatrix() => MathNet.Numerics.LinearAlgebra.Matrix<T>.Build.DenseOfArray(_data);
+    public Matrix<T> ToMatrix() => Matrix<T>.Build.DenseOfArray(_data);
 
     private static void CopyValues<T2>(T[,] array, T2[,] source, Func<T2, T> convert)
     {

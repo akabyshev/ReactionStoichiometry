@@ -1,44 +1,54 @@
 ﻿namespace ReactionStoichiometry;
 
+using Extensions;
+using MathNet.Numerics.LinearAlgebra;
+
 internal class BalancerThorne : AbstractBalancer<Double>
 {
+    private List<Int64[]>? _independentEquations;
+
+    private protected override String Outcome
+    {
+        get
+        {
+            if (_independentEquations == null) return "<FAIL>";
+
+            return String.Join(Environment.NewLine, _independentEquations.Select(c => GetEquationWithCoefficients(c)));
+        }
+    }
+
     public BalancerThorne(String equation) : base(equation)
     {
     }
 
-    protected override void BalanceImplementation()
+    protected override void Balance()
     {
-        var originalMatrixNullity = M.ColumnCount - M.Rank();
+        var originalMatrixNullity = M.Nullity();
         var invertedAugmentedMatrix = GetAugmentedMatrix().Inverse();
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", invertedAugmentedMatrix.ToArray(), PrettyPrinter));
 
-        var independentEquations = new List<String>();
-        for (var c = invertedAugmentedMatrix.ColumnCount - originalMatrixNullity; c < invertedAugmentedMatrix.ColumnCount; c++)
-        {
-            var coefficients = ScaleToIntegers(invertedAugmentedMatrix.Column(c).ToArray());
-            independentEquations.Add(GetEquationWithCoefficients(coefficients));
-        }
-
-        Outcome = String.Join(Environment.NewLine, independentEquations);
+        _independentEquations = Enumerable.Range(invertedAugmentedMatrix.ColumnCount - originalMatrixNullity, originalMatrixNullity)
+                                          .Select(c => ScaleToIntegers(invertedAugmentedMatrix.Column(c).ToArray()))
+                                          .ToList();
     }
 
-    private MathNet.Numerics.LinearAlgebra.Matrix<Double> GetAugmentedMatrix()
+    private Matrix<Double> GetAugmentedMatrix()
     {
         var reduced = M.RowCount == M.ColumnCount ? ReducedMatrixOfDouble.CreateInstance(M).ToMatrix() : M.Clone();
 
-        if (reduced.RowCount == reduced.ColumnCount) throw new ApplicationSpecificException("Matrix in RREF is still square");
+        if (reduced.RowCount == reduced.ColumnCount) throw new BalancerException("Matrix in RREF is still square");
 
-        var nullity = reduced.ColumnCount - reduced.Rank();
-        var submatrixLeftZeroes = MathNet.Numerics.LinearAlgebra.Matrix<Double>.Build.Dense(nullity, reduced.ColumnCount - nullity);
-        var submatrixRightIdentity = MathNet.Numerics.LinearAlgebra.Matrix<Double>.Build.DenseIdentity(nullity);
+        var nullity = reduced.Nullity();
+        var submatrixLeftZeroes = Matrix<Double>.Build.Dense(nullity, reduced.ColumnCount - nullity);
+        var submatrixRightIdentity = Matrix<Double>.Build.DenseIdentity(nullity);
         var result = reduced.Stack(submatrixLeftZeroes.Append(submatrixRightIdentity));
 
         result.CoerceZero(Program.DOUBLE_PSEUDOZERO);
 
-        if (ReactionStoichiometry.Extensions.DoubleExtensions.IsNonZero(result.Determinant())) return result;
+        if (DoubleExtensions.IsNonZero(result.Determinant())) return result;
 
         Diagnostics.AddRange(Utils.PrettyPrintMatrix("Zero-determinant matrix", result.ToArray(), PrettyPrinter));
-        throw new ApplicationSpecificException("Matrix can't be inverted");
+        throw new BalancerException("Matrix can't be inverted");
     }
 
     protected override Int64[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);

@@ -1,15 +1,19 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Globalization;
+using Extensions;
+using MathNet.Numerics.LinearAlgebra;
+
 internal class MatrixOfDouble : AbstractReducibleMatrix<Double>
 {
-    protected MatrixOfDouble(MathNet.Numerics.LinearAlgebra.Matrix<Double> matrix) : base(matrix, x => x) =>
+    protected MatrixOfDouble(Matrix<Double> matrix) : base(matrix, x => x) =>
         Basics = new BasicOperations
                  {
                      Add = (a, b) => a + b,
                      Subtract = (a, b) => a - b,
                      Multiply = (a, b) => a * b,
                      Divide = (a, b) => a / b,
-                     IsNonZero = ReactionStoichiometry.Extensions.DoubleExtensions.IsNonZero,
-                     AsString = d => d.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                     IsNonZero = DoubleExtensions.IsNonZero,
+                     AsString = d => d.ToString(CultureInfo.InvariantCulture)
                  };
 }

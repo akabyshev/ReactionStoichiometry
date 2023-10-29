@@ -1,5 +1,7 @@
 namespace ReactionStoichiometry.GUI;
 
+using System.Text.RegularExpressions;
+
 public partial class MainForm : Form
 {
     public MainForm()
@@ -12,8 +14,8 @@ public partial class MainForm : Form
     private void buttonBalance_Click(Object sender, EventArgs e)
 #pragma warning restore IDE1006 // Naming Styles
     {
-        resultMT.Text = new BalancerThorne(textBoxInput.Text).Balance().ToString(ISpecialToString.OutputFormat.Html);
-        resultMR.Text = new BalancerRisteskiDouble(textBoxInput.Text).Balance().ToString(ISpecialToString.OutputFormat.Plain);
+        resultMT.Text = new BalancerThorne(textBoxInput.Text).ToString(ProtoBalancer.OutputFormat.Html);
+        resultMR.Text = new BalancerRisteskiDouble(textBoxInput.Text).ToString(ProtoBalancer.OutputFormat.Plain);
         UpdateTable();
     }
 
@@ -40,6 +42,6 @@ public partial class MainForm : Form
     {
         resultMT.Text = String.Empty;
         resultMR.Text = String.Empty;
-        buttonBalance.Enabled = System.Text.RegularExpressions.Regex.IsMatch(textBoxInput.Text, Parsing.MINIMAL_SKELETAL_STRUCTURE);
+        buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text, Parsing.MINIMAL_SKELETAL_STRUCTURE);
     }
 }

@@ -1,5 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Text.RegularExpressions;
+
 internal static class Parsing
 {
     public const String MINIMAL_SKELETAL_STRUCTURE = @"^.+\+.+=.+$";
@@ -16,7 +18,7 @@ internal static class Parsing
         var result = fragment;
 
         {
-            System.Text.RegularExpressions.Regex regex = new(ElementNoIndex);
+            Regex regex = new(ElementNoIndex);
             while (true)
             {
                 var match = regex.Match(result);
@@ -27,7 +29,7 @@ internal static class Parsing
             }
         }
         {
-            System.Text.RegularExpressions.Regex regex = new(ClosingParenthesisNoIndex);
+            Regex regex = new(ClosingParenthesisNoIndex);
             while (true)
             {
                 var match = regex.Match(result);
@@ -37,7 +39,7 @@ internal static class Parsing
             }
         }
         {
-            System.Text.RegularExpressions.Regex regex = new(InnermostParenthesesIndexed);
+            Regex regex = new(InnermostParenthesesIndexed);
             while (true)
             {
                 var match = regex.Match(result);

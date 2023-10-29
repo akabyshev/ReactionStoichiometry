@@ -1,6 +1,8 @@
 ﻿namespace ReactionStoichiometry;
 
-internal class BalancerRisteskiDouble : AbstractBalancerRisteski<Double>
+using MathNet.Numerics.LinearAlgebra;
+
+internal class BalancerRisteskiDouble : BalancerRisteskiGeneric<Double>
 {
     public BalancerRisteskiDouble(String equation) : base(equation)
     {
@@ -10,7 +12,7 @@ internal class BalancerRisteskiDouble : AbstractBalancerRisteski<Double>
 
     protected override ReducedMatrixOfDouble GetReducedAugmentedMatrix()
     {
-        var augmentedMatrix = M.Append(MathNet.Numerics.LinearAlgebra.Matrix<Double>.Build.Dense(M.RowCount, 1));
+        var augmentedMatrix = M.Append(Matrix<Double>.Build.Dense(M.RowCount, 1));
         return ReducedMatrixOfDouble.CreateInstance(augmentedMatrix);
     }
 

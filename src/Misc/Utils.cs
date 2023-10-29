@@ -1,10 +1,15 @@
 ﻿namespace ReactionStoichiometry;
 
+using Extensions;
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
+using Rationals;
+
 internal static class Utils
 {
     public static String PrettyPrintDouble(Double value) => (value >= 0 ? " " : "") + value.ToString("0.###");
 
-    public static String PrettyPrintRational(Rationals.Rational value) => value.ToString("C");
+    public static String PrettyPrintRational(Rational value) => value.ToString("C");
 
     public static IEnumerable<String> PrettyPrintMatrix<T>(String title,
                                                            in T[,] matrix,
@@ -46,22 +51,21 @@ internal static class Utils
     {
         try
         {
-            return ScaleRationals(doubles.Select(x => Rationals.Rational.Approximate(x, Program.DOUBLE_PSEUDOZERO)).ToArray());
+            return ScaleRationals(doubles.Select(x => Rational.Approximate(x, Program.DOUBLE_PSEUDOZERO)).ToArray());
         } catch (OverflowException)
         {
-            var v = MathNet.Numerics.LinearAlgebra.Vector<Double>.Build.DenseOfArray(doubles);
-            var wholes = v.Divide(ReactionStoichiometry.Extensions.DoubleExtensions.NonZeroAbsoluteMinimum(v)).Divide(Program.DOUBLE_PSEUDOZERO)
-                          .Select(d => (Int64)d).ToArray();
-            var gcd = wholes.Aggregate(MathNet.Numerics.Euclid.GreatestCommonDivisor);
+            var v = Vector<Double>.Build.DenseOfArray(doubles);
+            var wholes = v.Divide(DoubleExtensions.NonZeroAbsoluteMinimum(v)).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (Int64)d).ToArray();
+            var gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
             return wholes.Select(x => x / gcd).ToArray();
         }
     }
 
-    public static Int64[] ScaleRationals(Rationals.Rational[] rationals)
+    public static Int64[] ScaleRationals(Rational[] rationals)
     {
-        var multiple = rationals.Select(r => r.Denominator).Aggregate(MathNet.Numerics.Euclid.LeastCommonMultiple);
+        var multiple = rationals.Select(r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
         var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
-        var divisor = wholes.Aggregate(MathNet.Numerics.Euclid.GreatestCommonDivisor);
+        var divisor = wholes.Aggregate(Euclid.GreatestCommonDivisor);
         return wholes.Select(x => (Int64)(x / divisor)).ToArray();
     }
 }

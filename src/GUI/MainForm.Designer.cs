@@ -161,6 +161,7 @@
             // 
             // MainForm
             // 
+            AcceptButton = buttonBalance;
             AutoScaleMode = AutoScaleMode.None;
             ClientSize = new Size(1888, 992);
             Controls.Add(containerOutput);
