@@ -114,7 +114,7 @@
             textBoxInput.Name = "textBoxInput";
             textBoxInput.Size = new Size(2180, 47);
             textBoxInput.TabIndex = 4;
-            textBoxInput.Text = "C2H4+KMnO4+H2O=CH2OHCH2OH+MnO2+KOH";
+            textBoxInput.Text = "IO4Qn+IQn=IO3Qn+I3Qn+H2O+OHQn";
             textBoxInput.TextChanged += On_textBoxInput_TextChanged;
             // 
             // buttonBalance

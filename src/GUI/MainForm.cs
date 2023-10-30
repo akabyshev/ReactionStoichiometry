@@ -9,6 +9,7 @@ public partial class MainForm : Form
     public MainForm()
     {
         InitializeComponent();
+        textBoxInput.Text = "H2+O2=H2O+O3+H5O3";
         SyncControls();
     }
 
@@ -24,10 +25,7 @@ public partial class MainForm : Form
         _risteskiInstantiatorForm.Show();
     }
 
-    private void On_textBoxInput_TextChanged(Object sender, EventArgs e)
-    {
-        SyncControls();
-    }
+    private void On_textBoxInput_TextChanged(Object sender, EventArgs e) => SyncControls();
 
     private void SyncControls()
     {

@@ -2,18 +2,17 @@
 
 internal abstract class BalancerRisteskiGeneric<T> : AbstractBalancer<T> where T : struct, IEquatable<T>, IFormattable
 {
-    private List<Int64[]>? _dependentCoefficientExpressions;
-    private Int32[]? _freeCoefficientIndices;
+    private readonly Dictionary<Int32, Int64[]> _dependentCoefficientExpressions = new();
+    private List<Int32> _freeCoefficientIndices;
 
     private protected override String Outcome
     {
         get
         {
-            if (_dependentCoefficientExpressions == null) return "<FAIL>";
-            if (_freeCoefficientIndices == null) throw new InvalidOperationException("This should never ever happen");
+            if (_dependentCoefficientExpressions.Count == 0) return Program.FAILED_BALANCING_OUTCOME;
 
             List<String> lines = new() { GetEquationWithPlaceholders() + ", where" };
-            lines.AddRange(_dependentCoefficientExpressions.Select(GetExpressionAsString));
+            lines.AddRange(_dependentCoefficientExpressions.Keys.Select(i => $"{LabelFor(i)} = {GetCoefficientString(i)}"));
             lines.Add("for any {" + String.Join(", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
 
             return String.Join(Environment.NewLine, lines);
@@ -24,14 +23,13 @@ internal abstract class BalancerRisteskiGeneric<T> : AbstractBalancer<T> where T
     {
     }
 
-    internal String GetCoefficientString(Int32 index) =>
-        (_freeCoefficientIndices ?? Array.Empty<Int32>()).Contains(index) ? String.Empty : GetExpressionAsString(_dependentCoefficientExpressions![index]);
-
-    private String GetExpressionAsString(Int64[] expression)
+    internal String GetCoefficientString(Int32 index)
     {
-        var pivotIndex = Array.FindIndex(expression, i => i != 0);
+        if (!_dependentCoefficientExpressions.ContainsKey(index)) return String.Empty;
 
-        var numeratorParts = Enumerable.Range(pivotIndex + 1, expression.Length - (pivotIndex + 1))
+        var expression = _dependentCoefficientExpressions[index];
+
+        var numeratorParts = Enumerable.Range(index + 1, expression.Length - (index + 1))
                                        .Where(i => expression[i] != 0)
                                        .Select(i =>
                                                {
@@ -44,15 +42,15 @@ internal abstract class BalancerRisteskiGeneric<T> : AbstractBalancer<T> where T
 
         var result = String.Join(" + ", numeratorParts).Replace("+ -", "- ");
 
-        if (expression[pivotIndex] != 1)
+        if (expression[index] != 1)
         {
             if (numeratorParts.Count > 1) result = $"({result})";
-            result = $"{result}/{expression[pivotIndex]}";
+            result = $"{result}/{expression[index]}";
         }
 
         if (result == String.Empty) result = "0";
 
-        return $"{LabelFor(pivotIndex)} = {result}";
+        return result;
     }
 
     protected override void Balance()
@@ -67,42 +65,41 @@ internal abstract class BalancerRisteskiGeneric<T> : AbstractBalancer<T> where T
 
         _freeCoefficientIndices = Enumerable.Range(0, reducedAugmentedMatrix.ColumnCount)
                                             .Where(c => reducedAugmentedMatrix.CountNonZeroesInColumn(c) > 1)
-                                            .ToArray();
-        if (!_freeCoefficientIndices.Any()) throw new BalancerException("This SLE is unsolvable");
+                                            .ToList();
+        if (_freeCoefficientIndices.Count == 0) throw new BalancerException("This SLE is unsolvable");
 
-        _dependentCoefficientExpressions = Enumerable.Range(0, reducedAugmentedMatrix.RowCount)
-                                                     .Select(r => ScaleToIntegers(reducedAugmentedMatrix.GetRow(r)))
-                                                     .ToList();
+        for (var r = 0; r < reducedAugmentedMatrix.RowCount; r++)
+        {
+            var row = ScaleToIntegers(reducedAugmentedMatrix.GetRow(r));
+            var pivotIndex = Array.FindIndex(row, i => i != 0);
+            _dependentCoefficientExpressions.Add(pivotIndex, row);
+        }
     }
 
     protected abstract AbstractReducibleMatrix<T> GetReducedAugmentedMatrix();
 
     internal String Instantiate(Int64[] parameters)
     {
-        if (_freeCoefficientIndices == null || _dependentCoefficientExpressions == null)
-            throw new InvalidOperationException("This call should have never happened");
-
-        if (parameters.Length != _freeCoefficientIndices.Length) throw new ArgumentOutOfRangeException(nameof(parameters), "Parameters array size mismatch");
+        if (parameters.Length != _freeCoefficientIndices.Count) throw new ArgumentOutOfRangeException(nameof(parameters), "Parameters array size mismatch");
 
         var coefficients = new Int64[Fragments.Count];
 
-        for (var i = 0; i < _freeCoefficientIndices.Length; i++)
+        for (var i = 0; i < _freeCoefficientIndices.Count; i++)
         {
             coefficients[_freeCoefficientIndices[i]] = parameters[i];
         }
 
-        for (var j = 0; j < _dependentCoefficientExpressions.Count; j++)
+        foreach (var kvp in _dependentCoefficientExpressions)
         {
-            var expression = _dependentCoefficientExpressions[j];
-            var calculated = _freeCoefficientIndices.Sum(t => coefficients[t] * expression[t]);
+            var calculated = _freeCoefficientIndices.Sum(t => coefficients[t] * kvp.Value[t]);
 
-            if (calculated % expression[j] != 0) throw new InvalidOperationException("Non-integer coefficient, try other SLE params");
+            if (calculated % kvp.Value[kvp.Key] != 0) throw new InvalidOperationException("Non-integer coefficient, try other SLE params");
 
-            calculated /= expression[j];
+            calculated /= kvp.Value[kvp.Key];
 
-            if (j >= ReactantsCount) calculated *= -1;
+            if (kvp.Key >= ReactantsCount) calculated *= -1;
 
-            coefficients[j] = calculated;
+            coefficients[kvp.Key] = calculated;
         }
 
         return GetEquationWithCoefficients(coefficients);

@@ -114,6 +114,10 @@ internal abstract partial class AbstractBalancer<T> : ProtoBalancer
             (coefficients[i] < 0 ? l : r).Add(t);
         }
 
+        if (l.Count == 0 || r.Count == 0)
+        {
+            return "Invalid coefficients";
+        }
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
 

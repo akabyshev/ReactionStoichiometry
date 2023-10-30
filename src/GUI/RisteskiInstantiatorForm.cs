@@ -24,7 +24,7 @@ public partial class RisteskiInstantiatorForm : Form
             }
             else
             {
-                dataGridView1.Rows[i].Cells["Value"].Value = "=" + Balancer.GetCoefficientString(i).Split(" = ")[1];
+                dataGridView1.Rows[i].Cells["Value"].Value = Balancer.GetCoefficientString(i);
                 dataGridView1.Rows[i].Cells["IsFreeVariable"].Value = false;
             }
         }
