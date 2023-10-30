@@ -11,6 +11,7 @@ internal abstract partial class AbstractBalancer<T> : ProtoBalancer
     protected readonly List<String> Fragments = new();
     protected readonly Matrix<Double> M;
     protected readonly Int32 ReactantsCount;
+    internal Int32 FragmentsCount => Fragments.Count;
 
     internal Func<Int32, String> LabelFor => Fragments.Count <= Program.LETTER_LABEL_THRESHOLD ? Utils.LetterLabel : Utils.GenericLabel;
 
@@ -52,7 +53,7 @@ internal abstract partial class AbstractBalancer<T> : ProtoBalancer
             var totalCharge = M.Row(elements.IndexOf("Qp")) - M.Row(elements.IndexOf("Qn"));
             M.SetRow(elements.IndexOf("{e}"), totalCharge);
 
-            if (DoubleExtensions.CountNonZeroes(totalCharge) == 0)
+            if (totalCharge.CountNonZeroes() == 0)
             {
                 M = M.RemoveRow(elements.IndexOf("{e}"));
                 elements.Remove("{e}");
@@ -79,6 +80,8 @@ internal abstract partial class AbstractBalancer<T> : ProtoBalancer
         }
     }
 
+    internal String Fragment(Int32 i) => Fragments[i];
+
     protected abstract void Balance();
     protected abstract Int64[] ScaleToIntegers(T[] v);
     protected abstract String PrettyPrinter(T value);
@@ -92,6 +95,23 @@ internal abstract partial class AbstractBalancer<T> : ProtoBalancer
         {
             var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + Fragments[i];
             (i < ReactantsCount ? l : r).Add(t);
+        }
+
+        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
+    }
+
+    protected String GetEquationWithCoefficients(in Int64[] coefficients)
+    {
+        List<String> l = new();
+        List<String> r = new();
+
+        for (var i = 0; i < Fragments.Count; i++)
+        {
+            if (coefficients[i] == 0) continue;
+
+            var value = Math.Abs(coefficients[i]);
+            var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + Fragments[i];
+            (coefficients[i] < 0 ? l : r).Add(t);
         }
 
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);

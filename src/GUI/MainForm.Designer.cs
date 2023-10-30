@@ -30,10 +30,8 @@
         {
             containerOutput = new SplitContainer();
             resultMT = new TextBox();
+            statusStrip1 = new StatusStrip();
             resultMR = new TextBox();
-            dataGridView1 = new DataGridView();
-            Expression = new DataGridViewTextBoxColumn();
-            Value = new DataGridViewTextBoxColumn();
             containerInput = new Panel();
             textBoxInput = new TextBox();
             buttonBalance = new Button();
@@ -41,7 +39,6 @@
             containerOutput.Panel1.SuspendLayout();
             containerOutput.Panel2.SuspendLayout();
             containerOutput.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize) dataGridView1).BeginInit();
             containerInput.SuspendLayout();
             SuspendLayout();
             // 
@@ -57,10 +54,10 @@
             // 
             // containerOutput.Panel2
             // 
+            containerOutput.Panel2.Controls.Add(statusStrip1);
             containerOutput.Panel2.Controls.Add(resultMR);
-            containerOutput.Panel2.Controls.Add(dataGridView1);
-            containerOutput.Size = new Size(1888, 945);
-            containerOutput.SplitterDistance = 969;
+            containerOutput.Size = new Size(2368, 1465);
+            containerOutput.SplitterDistance = 1215;
             containerOutput.SplitterWidth = 8;
             containerOutput.TabIndex = 6;
             // 
@@ -73,9 +70,19 @@
             resultMT.Name = "resultMT";
             resultMT.ReadOnly = true;
             resultMT.ScrollBars = ScrollBars.Both;
-            resultMT.Size = new Size(969, 945);
+            resultMT.Size = new Size(1215, 1465);
             resultMT.TabIndex = 6;
             resultMT.WordWrap = false;
+            // 
+            // statusStrip1
+            // 
+            statusStrip1.ImageScalingSize = new Size(40, 40);
+            statusStrip1.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            statusStrip1.Location = new Point(0, 1443);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.Size = new Size(1145, 22);
+            statusStrip1.TabIndex = 3;
+            statusStrip1.Text = "statusStrip1";
             // 
             // resultMR
             // 
@@ -86,46 +93,9 @@
             resultMR.Name = "resultMR";
             resultMR.ReadOnly = true;
             resultMR.ScrollBars = ScrollBars.Both;
-            resultMR.Size = new Size(911, 474);
+            resultMR.Size = new Size(1145, 1465);
             resultMR.TabIndex = 1;
             resultMR.WordWrap = false;
-            // 
-            // dataGridView1
-            // 
-            dataGridView1.AllowUserToAddRows = false;
-            dataGridView1.AllowUserToDeleteRows = false;
-            dataGridView1.AllowUserToResizeRows = false;
-            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Expression, Value });
-            dataGridView1.Dock = DockStyle.Bottom;
-            dataGridView1.Location = new Point(0, 474);
-            dataGridView1.Name = "dataGridView1";
-            dataGridView1.RowHeadersWidth = 102;
-            dataGridView1.RowTemplate.Height = 49;
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.CellSelect;
-            dataGridView1.Size = new Size(911, 471);
-            dataGridView1.TabIndex = 2;
-            dataGridView1.CellEndEdit += dataGridView1_CellEndEdit;
-            // 
-            // Expression
-            // 
-            Expression.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            Expression.HeaderText = "Expression";
-            Expression.MinimumWidth = 12;
-            Expression.Name = "Expression";
-            Expression.ReadOnly = true;
-            Expression.Resizable = DataGridViewTriState.False;
-            Expression.SortMode = DataGridViewColumnSortMode.NotSortable;
-            Expression.Width = 165;
-            // 
-            // Value
-            // 
-            Value.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Value.HeaderText = "Value";
-            Value.MinimumWidth = 12;
-            Value.Name = "Value";
-            Value.ReadOnly = true;
-            Value.Resizable = DataGridViewTriState.False;
             // 
             // containerInput
             // 
@@ -134,7 +104,7 @@
             containerInput.Dock = DockStyle.Top;
             containerInput.Location = new Point(0, 0);
             containerInput.Name = "containerInput";
-            containerInput.Size = new Size(1888, 47);
+            containerInput.Size = new Size(2368, 47);
             containerInput.TabIndex = 7;
             // 
             // textBoxInput
@@ -142,43 +112,41 @@
             textBoxInput.Dock = DockStyle.Fill;
             textBoxInput.Location = new Point(0, 0);
             textBoxInput.Name = "textBoxInput";
-            textBoxInput.Size = new Size(1700, 47);
+            textBoxInput.Size = new Size(2180, 47);
             textBoxInput.TabIndex = 4;
-            textBoxInput.Text = "CO+CO2+H2=CH4+H2O";
-            textBoxInput.TextChanged += textBoxInput_TextChanged;
+            textBoxInput.Text = "C2H4+KMnO4+H2O=CH2OHCH2OH+MnO2+KOH";
+            textBoxInput.TextChanged += On_textBoxInput_TextChanged;
             // 
             // buttonBalance
             // 
             buttonBalance.Dock = DockStyle.Right;
             buttonBalance.Enabled = false;
-            buttonBalance.Location = new Point(1700, 0);
+            buttonBalance.Location = new Point(2180, 0);
             buttonBalance.Name = "buttonBalance";
             buttonBalance.Size = new Size(188, 47);
             buttonBalance.TabIndex = 5;
             buttonBalance.Text = "Balance";
             buttonBalance.UseVisualStyleBackColor = true;
-            buttonBalance.Click += buttonBalance_Click;
+            buttonBalance.Click += On_buttonBalance_Click;
             // 
             // MainForm
             // 
             AcceptButton = buttonBalance;
             AutoScaleMode = AutoScaleMode.None;
-            ClientSize = new Size(1888, 992);
+            ClientSize = new Size(2368, 1512);
             Controls.Add(containerOutput);
             Controls.Add(containerInput);
             DoubleBuffered = true;
             MaximizeBox = false;
-            MinimumSize = new Size(1600, 800);
+            MinimumSize = new Size(2400, 1600);
             Name = "MainForm";
             Text = "Balancing algo";
-            WindowState = FormWindowState.Maximized;
             containerOutput.Panel1.ResumeLayout(false);
             containerOutput.Panel1.PerformLayout();
             containerOutput.Panel2.ResumeLayout(false);
             containerOutput.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize) containerOutput).EndInit();
             containerOutput.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize) dataGridView1).EndInit();
             containerInput.ResumeLayout(false);
             containerInput.PerformLayout();
             ResumeLayout(false);
@@ -191,8 +159,6 @@
         private TextBox textBoxInput;
         private TextBox resultMT;
         private TextBox resultMR;
-        private DataGridView dataGridView1;
-        private DataGridViewTextBoxColumn Expression;
-        private DataGridViewTextBoxColumn Value;
+        private StatusStrip statusStrip1;
     }
 }

@@ -11,6 +11,7 @@ internal class BalancerThorne : AbstractBalancer<Double>
     {
         get
         {
+            // ReSharper disable once ConvertIfStatementToReturnStatement
             if (_independentEquations == null) return "<FAIL>";
 
             return String.Join(Environment.NewLine, _independentEquations.Select(c => GetEquationWithCoefficients(c)));
@@ -45,30 +46,13 @@ internal class BalancerThorne : AbstractBalancer<Double>
 
         result.CoerceZero(Program.DOUBLE_PSEUDOZERO);
 
-        if (DoubleExtensions.IsNonZero(result.Determinant())) return result;
+        if (result.Determinant().IsNonZero()) return result;
 
         Diagnostics.AddRange(Utils.PrettyPrintMatrix("Zero-determinant matrix", result.ToArray(), PrettyPrinter));
         throw new BalancerException("Matrix can't be inverted");
     }
 
     protected override Int64[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
-
-    private String GetEquationWithCoefficients(in Int64[] coefficients)
-    {
-        List<String> l = new();
-        List<String> r = new();
-
-        for (var i = 0; i < Fragments.Count; i++)
-        {
-            if (coefficients[i] == 0) continue;
-
-            var value = Math.Abs(coefficients[i]);
-            var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + Fragments[i];
-            (coefficients[i] < 0 ? l : r).Add(t);
-        }
-
-        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
-    }
 
     protected override String PrettyPrinter(Double value) => Utils.PrettyPrintDouble(value);
 }

@@ -55,7 +55,7 @@ internal static class Utils
         } catch (OverflowException)
         {
             var v = Vector<Double>.Build.DenseOfArray(doubles);
-            var wholes = v.Divide(DoubleExtensions.NonZeroAbsoluteMinimum(v)).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (Int64)d).ToArray();
+            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (Int64)d).ToArray();
             var gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
             return wholes.Select(x => x / gcd).ToArray();
         }

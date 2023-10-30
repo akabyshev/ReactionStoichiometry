@@ -138,6 +138,7 @@ internal abstract class AbstractReducibleMatrix<T> where T : struct, IEquatable<
 
     protected struct BasicOperations
     {
+        // ReSharper disable once NotAccessedField.Global
         internal Func<T, T, T> Add;
         internal Func<T, T, T> Subtract;
         internal Func<T, T, T> Multiply;

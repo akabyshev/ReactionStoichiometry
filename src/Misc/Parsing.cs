@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 internal static class Parsing
 {
     public const String MINIMAL_SKELETAL_STRUCTURE = @"^.+\+.+=.+$";
-    public const String ELEMENT_SYMBOL = @"[A-Z][a-z]|[A-Z]";
+    public const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
     private const String ElementNoIndex = @"([A-Z][a-z]|[A-Z])([A-Z][a-z]|[A-Z]|\(|\)|$)";
     private const String ClosingParenthesisNoIndex = @"\)(?!\d)";
     private const String InnermostParenthesesIndexed = @"\(([^\(\)]+)\)(\d+)";
