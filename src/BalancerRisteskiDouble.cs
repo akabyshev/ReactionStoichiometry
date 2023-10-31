@@ -1,9 +1,9 @@
 ﻿namespace ReactionStoichiometry;
 
-using MathNet.Numerics.LinearAlgebra;
 using System.Numerics;
+using MathNet.Numerics.LinearAlgebra;
 
-internal class BalancerRisteskiDouble : BalancerRisteski<Double>
+internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
 {
     public BalancerRisteskiDouble(String equation) : base(equation)
     {

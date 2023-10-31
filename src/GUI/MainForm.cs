@@ -2,11 +2,11 @@ namespace ReactionStoichiometry.GUI;
 
 using System.Text.RegularExpressions;
 
-public partial class MainForm : Form
+internal sealed partial class MainForm : Form
 {
     private readonly RisteskiInstantiatorForm _risteskiInstantiatorForm = new();
 
-    public MainForm()
+    internal MainForm()
     {
         InitializeComponent();
         textBoxInput.Text = "Fe2(SO4)3 + PrTlTe3 + H3PO4 = Fe0.996(H2PO4)2H2O + Tl1.987(SO3)3 + Pr1.998(SO4)3 + Te2O3 + P2O5 + H2S";

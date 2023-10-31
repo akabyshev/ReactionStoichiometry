@@ -1,6 +1,6 @@
-﻿using System.Numerics;
+﻿namespace ReactionStoichiometry;
 
-namespace ReactionStoichiometry;
+using System.Numerics;
 
 internal interface IBalancerInstantiatable : IFragmentStore
 {

@@ -1,12 +1,12 @@
-﻿using System.Numerics;
+﻿namespace ReactionStoichiometry.GUI;
 
-namespace ReactionStoichiometry.GUI;
+using System.Numerics;
 
-public partial class RisteskiInstantiatorForm : Form
+internal sealed partial class RisteskiInstantiatorForm : Form
 {
     internal IBalancerInstantiatable? Balancer;
 
-    public RisteskiInstantiatorForm() => InitializeComponent();
+    internal RisteskiInstantiatorForm() => InitializeComponent();
 
     internal void InitRisteskiTable()
     {

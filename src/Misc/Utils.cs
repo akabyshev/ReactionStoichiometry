@@ -54,8 +54,9 @@ internal static class Utils
             return ScaleRationals(doubles.Select(x => Rational.Approximate(x, Program.DOUBLE_PSEUDOZERO)).ToArray());
         } catch (OverflowException)
         {
+            // This was needed when coefficients were long, and it's never occurring now with BigInteger
             var v = MathNet.Numerics.LinearAlgebra.Vector<Double>.Build.DenseOfArray(doubles);
-            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (BigInteger) d).ToArray();
+            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (BigInteger)d).ToArray();
             var gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
             return wholes.Select(x => x / gcd).ToArray();
         }

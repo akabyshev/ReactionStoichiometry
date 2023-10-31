@@ -1,6 +1,6 @@
-﻿using System.Numerics;
+﻿namespace ReactionStoichiometry;
 
-namespace ReactionStoichiometry;
+using System.Numerics;
 
 internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
 {

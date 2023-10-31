@@ -1,10 +1,10 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
-using System.Numerics;
 
-internal class BalancerRisteskiRational : BalancerRisteski<Rational>
+internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
 {
     public BalancerRisteskiRational(String equation) : base(equation)
     {

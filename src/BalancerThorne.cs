@@ -1,10 +1,10 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Numerics;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
-using System.Numerics;
 
-internal class BalancerThorne : Balancer<Double>
+internal sealed class BalancerThorne : Balancer<Double>
 {
     private List<BigInteger[]>? _independentEquations;
 

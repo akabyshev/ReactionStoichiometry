@@ -4,7 +4,7 @@ using System.Globalization;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
-internal class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
+internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
 {
     private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, x => x) =>
         Basics = new BasicOperations
