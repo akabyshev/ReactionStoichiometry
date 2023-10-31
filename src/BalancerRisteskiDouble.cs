@@ -1,6 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
 using MathNet.Numerics.LinearAlgebra;
+using System.Numerics;
 
 internal class BalancerRisteskiDouble : BalancerRisteski<Double>
 {
@@ -8,7 +9,7 @@ internal class BalancerRisteskiDouble : BalancerRisteski<Double>
     {
     }
 
-    protected override Int64[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
+    protected override BigInteger[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
 
     protected override SpecialMatrixReducedDouble GetReducedAugmentedMatrix()
     {

@@ -1,8 +1,8 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Numerics;
 using Extensions;
 using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
 internal static class Utils
@@ -47,25 +47,25 @@ internal static class Utils
 
     public static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
 
-    public static Int64[] ScaleDoubles(Double[] doubles)
+    public static BigInteger[] ScaleDoubles(Double[] doubles)
     {
         try
         {
             return ScaleRationals(doubles.Select(x => Rational.Approximate(x, Program.DOUBLE_PSEUDOZERO)).ToArray());
         } catch (OverflowException)
         {
-            var v = Vector<Double>.Build.DenseOfArray(doubles);
-            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (Int64)d).ToArray();
+            var v = MathNet.Numerics.LinearAlgebra.Vector<Double>.Build.DenseOfArray(doubles);
+            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (BigInteger) d).ToArray();
             var gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
             return wholes.Select(x => x / gcd).ToArray();
         }
     }
 
-    public static Int64[] ScaleRationals(Rational[] rationals)
+    public static BigInteger[] ScaleRationals(Rational[] rationals)
     {
         var multiple = rationals.Select(r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
         var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
         var divisor = wholes.Aggregate(Euclid.GreatestCommonDivisor);
-        return wholes.Select(x => (Int64)(x / divisor)).ToArray();
+        return wholes.Select(x => x / divisor).ToArray();
     }
 }

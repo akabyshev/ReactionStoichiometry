@@ -2,6 +2,7 @@
 
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
+using System.Numerics;
 
 internal class BalancerRisteskiRational : BalancerRisteski<Rational>
 {
@@ -9,7 +10,7 @@ internal class BalancerRisteskiRational : BalancerRisteski<Rational>
     {
     }
 
-    protected override Int64[] ScaleToIntegers(Rational[] v) => Utils.ScaleRationals(v);
+    protected override BigInteger[] ScaleToIntegers(Rational[] v) => Utils.ScaleRationals(v);
 
     protected override SpecialMatrixReducedRational GetReducedAugmentedMatrix()
     {

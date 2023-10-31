@@ -1,8 +1,10 @@
-﻿namespace ReactionStoichiometry;
+﻿using System.Numerics;
+
+namespace ReactionStoichiometry;
 
 internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
 {
-    private readonly Dictionary<Int32, Int64[]> _dependentCoefficientExpressions = new();
+    private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
     private List<Int32> _freeCoefficientIndices;
 
     private protected override String Outcome
@@ -53,11 +55,11 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         return result;
     }
 
-    public String Instantiate(Int64[] parameters)
+    public String Instantiate(BigInteger[] parameters)
     {
         if (parameters.Length != _freeCoefficientIndices.Count) throw new ArgumentOutOfRangeException(nameof(parameters), "Parameters array size mismatch");
 
-        var coefficients = new Int64[Fragments.Count];
+        var coefficients = new BigInteger[Fragments.Count];
 
         for (var i = 0; i < _freeCoefficientIndices.Count; i++)
         {
@@ -66,7 +68,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
         foreach (var kvp in _dependentCoefficientExpressions)
         {
-            var calculated = _freeCoefficientIndices.Sum(t => coefficients[t] * kvp.Value[t]);
+            var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, (sum, i) => sum + coefficients[i] * kvp.Value[i]);
 
             if (calculated % kvp.Value[kvp.Key] != 0) throw new InvalidOperationException("Non-integer coefficient, try other SLE params");
 

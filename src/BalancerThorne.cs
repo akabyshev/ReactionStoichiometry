@@ -2,10 +2,11 @@
 
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
+using System.Numerics;
 
 internal class BalancerThorne : Balancer<Double>
 {
-    private List<Int64[]>? _independentEquations;
+    private List<BigInteger[]>? _independentEquations;
 
     private protected override String Outcome
     {
@@ -52,7 +53,7 @@ internal class BalancerThorne : Balancer<Double>
         throw new BalancerException("Matrix can't be inverted");
     }
 
-    protected override Int64[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
+    protected override BigInteger[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
 
     protected override String PrettyPrinter(Double value) => Utils.PrettyPrintDouble(value);
 }

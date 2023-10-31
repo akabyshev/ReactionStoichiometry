@@ -1,5 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Numerics;
 using System.Text.RegularExpressions;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
@@ -105,7 +106,7 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
     }
 
     protected abstract void Balance();
-    protected abstract Int64[] ScaleToIntegers(T[] v);
+    protected abstract BigInteger[] ScaleToIntegers(T[] v);
     protected abstract String PrettyPrinter(T value);
 
     protected String GetEquationWithPlaceholders()
@@ -122,7 +123,7 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
 
-    protected String GetEquationWithCoefficients(in Int64[] coefficients)
+    protected String GetEquationWithCoefficients(in BigInteger[] coefficients)
     {
         List<String> l = new();
         List<String> r = new();
@@ -131,7 +132,7 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
         {
             if (coefficients[i] == 0) continue;
 
-            var value = Math.Abs(coefficients[i]);
+            var value = BigInteger.Abs(coefficients[i]);
             var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + Fragments[i];
             (coefficients[i] < 0 ? l : r).Add(t);
         }

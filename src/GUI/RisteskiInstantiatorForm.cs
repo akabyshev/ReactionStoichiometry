@@ -1,4 +1,6 @@
-﻿namespace ReactionStoichiometry.GUI;
+﻿using System.Numerics;
+
+namespace ReactionStoichiometry.GUI;
 
 public partial class RisteskiInstantiatorForm : Form
 {
@@ -40,13 +42,13 @@ public partial class RisteskiInstantiatorForm : Form
 
         try
         {
-            var parameters = new List<Int64>();
+            var parameters = new List<BigInteger>();
             for (var i = 0; i < dataGridView1.Rows.Count; i++)
             {
                 if (!Boolean.Parse(dataGridView1.Rows[i].Cells["IsFreeVariable"].Value.ToString()!)) continue;
 
                 var cellValue = dataGridView1.Rows[i].Cells["Value"].Value.ToString();
-                if (Int64.TryParse(cellValue, out var parsedValue))
+                if (BigInteger.TryParse(cellValue, out var parsedValue))
                 {
                     parameters.Add(parsedValue);
                 }
