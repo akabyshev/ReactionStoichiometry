@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
-
 internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemicalEntitiesList
 {
     private readonly String _skeletal;
@@ -98,7 +97,6 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
 
     public Int32 EntitiesCount => Entities.Count;
     public String Entity(Int32 i) => Entities[i];
-    public String LabelFor(Int32 i) => Entities.Count > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     public String ToString(IImplementsSpecialToString.OutputFormat format)
     {
@@ -120,9 +118,7 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
         }
     }
 
-    protected abstract void Balance();
-    protected abstract BigInteger[] ScaleToIntegers(T[] v);
-    protected abstract String PrettyPrinter(T value);
+    public String LabelFor(Int32 i) => Entities.Count > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     protected String GetEquationWithCoefficients(in BigInteger[] coefficients)
     {
@@ -141,4 +137,8 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
         if (l.Count == 0 || r.Count == 0) return "Invalid coefficients";
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
+
+    protected abstract void Balance();
+    protected abstract BigInteger[] ScaleToIntegers(T[] v);
+    protected abstract String PrettyPrinter(T value);
 }

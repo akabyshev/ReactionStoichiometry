@@ -4,7 +4,6 @@ using System.Globalization;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
-
 internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
 {
     private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x) =>

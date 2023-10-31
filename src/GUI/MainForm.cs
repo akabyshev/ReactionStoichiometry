@@ -2,7 +2,6 @@ namespace ReactionStoichiometry.GUI;
 
 using System.Text.RegularExpressions;
 
-
 internal sealed partial class MainForm : Form
 {
     private readonly RisteskiInstantiatorForm _risteskiInstantiatorForm = new();

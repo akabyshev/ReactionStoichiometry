@@ -2,7 +2,6 @@
 
 using System.Numerics;
 
-
 internal interface IBalancerInstantiatable : IChemicalEntitiesList
 {
     String LabelFor(Int32 i);

@@ -3,7 +3,6 @@
 using System.Text;
 using MathNet.Numerics.LinearAlgebra;
 
-
 internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
     private protected T[,] Data;

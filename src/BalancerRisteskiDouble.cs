@@ -3,7 +3,6 @@
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
-
 internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
 {
     public BalancerRisteskiDouble(String equation) : base(equation)

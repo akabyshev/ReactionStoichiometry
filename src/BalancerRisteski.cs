@@ -2,7 +2,6 @@
 
 using System.Numerics;
 
-
 internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
 {
     private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();

@@ -2,7 +2,6 @@
 
 using System.Numerics;
 
-
 internal static class BasicTesting
 {
     private static void AssertStringsAreEqual(String lhs, String rhs)

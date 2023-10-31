@@ -2,7 +2,6 @@ namespace ReactionStoichiometry;
 
 using GUI;
 
-
 internal static class Program
 {
     public const Double GOOD_ENOUGH_DOUBLE_ZERO = 1e-10;

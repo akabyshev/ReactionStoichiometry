@@ -2,7 +2,6 @@
 
 using MathNet.Numerics.LinearAlgebra;
 
-
 internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
     protected SpecialMatrixReducible(Matrix<Double> matrix, Func<Double, T> convert) : base(matrix, convert)

@@ -4,7 +4,6 @@ using System.Numerics;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
-
 internal sealed class BalancerThorne : Balancer<Double>
 {
     private List<BigInteger[]>? _independentEquations;

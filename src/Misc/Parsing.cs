@@ -2,7 +2,6 @@
 
 using System.Text.RegularExpressions;
 
-
 internal static class Parsing
 {
     public const String CRE_ALLOWED_DIVIDERS = @"\+|=";

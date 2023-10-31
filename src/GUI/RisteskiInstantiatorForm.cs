@@ -2,7 +2,6 @@
 
 using System.Numerics;
 
-
 internal sealed partial class RisteskiInstantiatorForm : Form
 {
     internal IBalancerInstantiatable? Balancer;
