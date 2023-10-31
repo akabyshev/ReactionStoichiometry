@@ -4,18 +4,19 @@ using System.Numerics;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
+
 internal sealed class BalancerThorne : Balancer<Double>
 {
     private List<BigInteger[]>? _independentEquations;
 
-    private protected override String Outcome
+    protected override IEnumerable<String> Outcome
     {
         get
         {
             // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (_independentEquations == null) return "<FAIL>";
+            if (_independentEquations == null) return new[] { Program.FAILED_BALANCING_OUTCOME };
 
-            return String.Join(Environment.NewLine, _independentEquations.Select(c => GetEquationWithCoefficients(c)));
+            return _independentEquations.Select(c => GetEquationWithCoefficients(c));
         }
     }
 
@@ -54,6 +55,5 @@ internal sealed class BalancerThorne : Balancer<Double>
     }
 
     protected override BigInteger[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
-
     protected override String PrettyPrinter(Double value) => Utils.PrettyPrintDouble(value);
 }

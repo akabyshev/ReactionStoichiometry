@@ -1,8 +1,8 @@
 ## Uses
-- [Rationals](https://github.com/tompazourek/Rationals/tree/master) (MIT License)
 - [Math.NET Numerics](https://numerics.mathdotnet.com/) (MIT License)
+- [Rationals](https://github.com/tompazourek/Rationals/tree/master) (MIT License)
 
-## Test with any of these chemical equations
+## Test with any chemical equations in a format like these:
 - KMnO4 + HCl = KCl + MnCl2 + H2O + Cl2
 - PhCH3 + KMnO4 + H2SO4 = PhCOOH + K2SO4 + MnSO4 + H2O
 - C6H5COOH + O2 = CO2 + H2O

@@ -2,22 +2,23 @@
 
 using System.Numerics;
 
+
 internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
 {
     private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
     private List<Int32> _freeCoefficientIndices = null!;
 
-    private protected override String Outcome
+    protected override IEnumerable<String> Outcome
     {
         get
         {
-            if (_dependentCoefficientExpressions.Count == 0) return Program.FAILED_BALANCING_OUTCOME;
+            if (_dependentCoefficientExpressions.Count == 0) return new[] { Program.FAILED_BALANCING_OUTCOME };
 
-            List<String> lines = new() { GetEquationWithPlaceholders() + ", where" };
+            List<String> lines = new() { GetEquationWithPlaceholders + ", where" };
             lines.AddRange(_dependentCoefficientExpressions.Keys.Select(i => $"{LabelFor(i)} = {GetCoefficientExpression(i)}"));
             lines.Add("for any {" + String.Join(", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
 
-            return String.Join(Environment.NewLine, lines);
+            return lines;
         }
     }
 
@@ -70,7 +71,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         {
             var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, (sum, i) => sum + coefficients[i] * kvp.Value[i]);
 
-            if (calculated % kvp.Value[kvp.Key] != 0) throw new InvalidOperationException("Non-integer coefficient, try other SLE params");
+            if (calculated % kvp.Value[kvp.Key] != 0) throw new BalancerException("Non-integer coefficient, try other SLE params");
 
             calculated /= kvp.Value[kvp.Key];
 

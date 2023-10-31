@@ -1,25 +1,52 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Numerics;
+
+
 internal static class BasicTesting
 {
-    public static void PerformParsingTests()
+    private static void AssertStringsAreEqual(String lhs, String rhs)
     {
-        const String inputFilePath = @"..\..\..\data\parser_tests.txt";
+        if (lhs != rhs) throw new Exception($"{lhs} is not equal to {rhs}");
+    }
 
+    public static void PerformBasicParserTests()
+    {
+        const String inputFilePath = @"..\..\..\data\BasicParserTests.txt";
         if (!File.Exists(inputFilePath)) return;
 
         using StreamReader reader = new(inputFilePath);
         while (reader.ReadLine() is { } line)
         {
+            if (line.StartsWith("#") || line.Length == 0) continue;
             var parts = line.Split("\t");
             AssertStringsAreEqual(Parsing.Unfold(parts[0]), parts[1]);
         }
+    }
 
-        return;
+    public static void PerformInstantiationTests()
+    {
+        const String inputFilePath = @"..\..\..\data\InstantiationTests.csv";
+        if (!File.Exists(inputFilePath)) return;
 
-        static void AssertStringsAreEqual(String lhs, String rhs)
+        using StreamReader reader = new(inputFilePath);
+        while (reader.ReadLine() is { } line)
         {
-            if (lhs != rhs) throw new Exception($"{lhs} is not equal to {rhs}");
+            if (line.StartsWith("#") || line.Length == 0) continue;
+            var parts = line.Split("\t");
+            var eq = parts[0];
+
+            var bRisteski = new BalancerRisteskiRational(eq);
+            var bThorne = new BalancerThorne(eq);
+            var hhSimple = bThorne.ToString(IImplementsSpecialToString.OutputFormat.OutcomeCommaSeparated);
+
+            if (String.IsNullOrEmpty(parts[1])) continue;
+            var instances = parts[1]
+                            .Split(';')
+                            .Select(static s => s.Trim('(', ')').Split(',').Select(BigInteger.Parse).ToArray())
+                            .Select(parametersSet => bRisteski.Instantiate(parametersSet));
+
+            AssertStringsAreEqual(hhSimple, String.Join(",", instances));
         }
     }
 
@@ -32,17 +59,16 @@ internal static class BasicTesting
 
         foreach (var type in balancers)
         {
-            var path = @"..\..\..\data\output-" + type.Name + ".txt";
-            using StreamWriter writer = new(path);
             using StreamReader reader = new(inputFilePath);
+            using StreamWriter writerFull = new($@"..\..\..\data\output-{type.Name}.txt");
 
             while (reader.ReadLine() is { } line)
             {
                 if (line.StartsWith("#") || line.Length == 0) continue;
-                var eq = new Object[] { line };
-                var balancer = (IImplementsSpecialToString)Activator.CreateInstance(type, eq)!;
-                writer.WriteLine(balancer.ToString(IImplementsSpecialToString.OutputFormat.Plain));
-                writer.WriteLine("====================================");
+                var balancer = (IImplementsSpecialToString)Activator.CreateInstance(type, line)!;
+
+                writerFull.WriteLine(balancer.ToString(IImplementsSpecialToString.OutputFormat.Plain));
+                writerFull.WriteLine("====================================");
             }
         }
     }

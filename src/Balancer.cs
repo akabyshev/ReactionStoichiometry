@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
+
 internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemicalEntitiesList
 {
     private readonly String _skeletal;
@@ -13,19 +14,34 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
     protected readonly List<String> Entities = new();
     protected readonly Matrix<Double> M;
     protected readonly Int32 ReactantsCount;
-    private protected virtual String Outcome => String.Empty;
+    protected abstract IEnumerable<String> Outcome { get; }
+
+    protected String GetEquationWithPlaceholders
+    {
+        get
+        {
+            List<String> l = new();
+            List<String> r = new();
+
+            for (var i = 0; i < Entities.Count; i++)
+            {
+                var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + Entities[i];
+                (i < ReactantsCount ? l : r).Add(t);
+            }
+
+            return String.Join(" + ", l) + " = " + String.Join(" + ", r);
+        }
+    }
 
     protected Balancer(String equation)
     {
-        _skeletal = equation.Replace(" ", "");
         try
         {
+            _skeletal = equation.Replace(" ", "");
             ReactantsCount = _skeletal.Split('=')[0].Split('+').Length;
-
-            var chargeSymbols = new[] { "Qn", "Qp" };
-
             Entities.AddRange(Regex.Split(_skeletal, Parsing.CRE_ALLOWED_DIVIDERS));
 
+            var chargeSymbols = new[] { "Qn", "Qp" };
             var elements = Regex.Matches(_skeletal, Parsing.ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct().ToList();
             elements.Add("{e}");
 
@@ -81,8 +97,8 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
     }
 
     public Int32 EntitiesCount => Entities.Count;
-
     public String Entity(Int32 i) => Entities[i];
+    public String LabelFor(Int32 i) => Entities.Count > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     public String ToString(IImplementsSpecialToString.OutputFormat format)
     {
@@ -90,6 +106,8 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
         {
             IImplementsSpecialToString.OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
             IImplementsSpecialToString.OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
+            IImplementsSpecialToString.OutputFormat.OutcomeCommaSeparated => String.Join(',', Outcome),
+            IImplementsSpecialToString.OutputFormat.OutcomeNewLineSeparated => String.Join(Environment.NewLine, Outcome),
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 
@@ -97,30 +115,14 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
         {
             return template.Replace("%Skeletal%", _skeletal)
                            .Replace("%Details%", String.Join(Environment.NewLine, Details))
-                           .Replace("%Outcome%", Outcome)
+                           .Replace("%Outcome%", ToString(IImplementsSpecialToString.OutputFormat.OutcomeNewLineSeparated))
                            .Replace("%Diagnostics%", String.Join(Environment.NewLine, Diagnostics));
         }
     }
 
-    public String LabelFor(Int32 i) => Entities.Count > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
-
     protected abstract void Balance();
     protected abstract BigInteger[] ScaleToIntegers(T[] v);
     protected abstract String PrettyPrinter(T value);
-
-    protected String GetEquationWithPlaceholders()
-    {
-        List<String> l = new();
-        List<String> r = new();
-
-        for (var i = 0; i < Entities.Count; i++)
-        {
-            var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + Entities[i];
-            (i < ReactantsCount ? l : r).Add(t);
-        }
-
-        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
-    }
 
     protected String GetEquationWithCoefficients(in BigInteger[] coefficients)
     {

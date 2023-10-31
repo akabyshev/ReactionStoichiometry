@@ -4,6 +4,7 @@ using System.Globalization;
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
+
 internal sealed class SpecialMatrixReducedRational : SpecialMatrixReducible<Rational>
 {
     private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix, static x => Rational.ParseDecimal(x.ToString(CultureInfo.InvariantCulture))) =>

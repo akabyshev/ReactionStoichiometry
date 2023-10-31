@@ -3,13 +3,12 @@
 using System.Text;
 using MathNet.Numerics.LinearAlgebra;
 
+
 internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
     private protected T[,] Data;
-
     public Int32 RowCount => Data.GetLength(0);
     public Int32 ColumnCount => Data.GetLength(1);
-
     protected BasicOperations Basics { get; init; }
 
     protected SpecialMatrix(Matrix<Double> matrix, Func<Double, T> convert)
@@ -19,7 +18,6 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
     }
 
     protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => Basics.IsNonZero(Data[r, i]));
-
     internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => Basics.IsNonZero(Data[i, c]));
 
     public T[] GetRow(Int32 r)

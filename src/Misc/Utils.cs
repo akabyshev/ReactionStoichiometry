@@ -4,10 +4,10 @@ using System.Numerics;
 using MathNet.Numerics;
 using Rationals;
 
+
 internal static class Utils
 {
     public static String PrettyPrintDouble(Double value) => (value >= 0 ? " " : "") + value.ToString("0.###");
-
     public static String PrettyPrintRational(Rational value) => value.ToString("C");
 
     public static IEnumerable<String> PrettyPrintMatrix<T>(String title,
@@ -43,7 +43,6 @@ internal static class Utils
     }
 
     public static String LetterLabel(Int32 n) => ((Char)('a' + n)).ToString();
-
     public static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
 
     public static BigInteger[] ScaleDoubles(IEnumerable<Double> doubles) =>

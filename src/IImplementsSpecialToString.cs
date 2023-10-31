@@ -5,6 +5,8 @@ internal interface IImplementsSpecialToString
     enum OutputFormat
     {
         Plain,
+        OutcomeCommaSeparated,
+        OutcomeNewLineSeparated,
         Html
     }
 

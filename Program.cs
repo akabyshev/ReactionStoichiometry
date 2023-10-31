@@ -2,6 +2,7 @@ namespace ReactionStoichiometry;
 
 using GUI;
 
+
 internal static class Program
 {
     public const Double GOOD_ENOUGH_DOUBLE_ZERO = 1e-10;
@@ -18,8 +19,11 @@ internal static class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
-        BasicTesting.PerformParsingTests();
+
+        BasicTesting.PerformBasicParserTests();
         BasicTesting.PerformOnLaunchBatchTests();
+        BasicTesting.PerformInstantiationTests();
+
         Application.Run(new MainForm());
     }
 }

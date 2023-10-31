@@ -4,6 +4,7 @@ using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
+
 internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
 {
     public BalancerRisteskiRational(String equation) : base(equation)

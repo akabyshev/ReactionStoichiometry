@@ -2,10 +2,10 @@
 
 using System.Numerics;
 
+
 internal sealed partial class RisteskiInstantiatorForm : Form
 {
     internal IBalancerInstantiatable? Balancer;
-
     internal RisteskiInstantiatorForm() => InitializeComponent();
 
     internal void InitRisteskiTable()
@@ -21,6 +21,7 @@ internal sealed partial class RisteskiInstantiatorForm : Form
             if (Balancer.GetCoefficientExpression(i) == String.Empty)
             {
                 theGrid.Rows[i].Cells["Value"].ReadOnly = false;
+                theGrid.Rows[i].Cells["Value"].Style.BackColor = Color.Ivory;
                 theGrid.Rows[i].Cells["Value"].Value = 1;
                 theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
             }
