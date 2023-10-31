@@ -44,25 +44,27 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
                     Data[r, c] = Basics.Divide(Data[r, c], div);
                 }
 
-            for (var j = 0; j < RowCount; j++)
+            for (var r2 = 0; r2 < RowCount; r2++)
             {
-                if (j == r) continue;
+                if (r2 == r) continue;
 
-                var sub = Data[j, leadColumnIndex];
-                for (var k = 0; k < ColumnCount; k++)
+                var sub = Data[r2, leadColumnIndex];
+                for (var c2 = 0; c2 < ColumnCount; c2++)
                 {
-                    Data[j, k] = Basics.Subtract(Data[j, k], Basics.Multiply(sub, Data[r, k]));
+                    Data[r2, c2] = Basics.Subtract(Data[r2, c2], Basics.Multiply(sub, Data[r, c2]));
                 }
             }
 
             leadColumnIndex++;
         }
 
-        while (CountNonZeroesInRow(RowCount - 1) == 0)
-        {
-            var newData = new T[RowCount - 1, ColumnCount];
-            CopyValues(newData, Data, static r => r);
-            Data = newData;
-        }
+        var bottomZeroRows = Enumerable.Range(0, RowCount)
+                                       .Reverse()
+                                       .TakeWhile(r => CountNonZeroesInRow(r) == 0)
+                                       .Count();
+
+        var dataNoZeroRows = new T[RowCount - bottomZeroRows, ColumnCount];
+        CopyValues(dataNoZeroRows, Data, static r => r);
+        Data = dataNoZeroRows;
     }
 }

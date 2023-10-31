@@ -2,9 +2,9 @@
 
 using System.Numerics;
 
-internal interface IBalancerInstantiatable : IFragmentStore
+internal interface IBalancerInstantiatable : IChemicalEntitiesList
 {
-    Func<Int32, String> LabelFor { get; }
+    String LabelFor(Int32 i);
     String GetCoefficientExpression(Int32 index);
     String Instantiate(BigInteger[] parameters);
 }

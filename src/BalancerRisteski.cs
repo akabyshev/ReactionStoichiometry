@@ -5,7 +5,7 @@ using System.Numerics;
 internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
 {
     private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
-    private List<Int32> _freeCoefficientIndices;
+    private List<Int32> _freeCoefficientIndices = null!;
 
     private protected override String Outcome
     {
@@ -38,7 +38,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
                                                    var coefficient = (-1 * expression[i]).ToString();
                                                    if (coefficient == "1") coefficient = String.Empty;
                                                    if (coefficient == "-1") coefficient = "-";
-                                                   return $"{coefficient}{LabelFor(i)}";
+                                                   return $"{coefficient}{LabelFor(i)}"; // TODO: Streamline
                                                })
                                        .ToList();
 
@@ -59,7 +59,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
     {
         if (parameters.Length != _freeCoefficientIndices.Count) throw new ArgumentOutOfRangeException(nameof(parameters), "Parameters array size mismatch");
 
-        var coefficients = new BigInteger[Fragments.Count];
+        var coefficients = new BigInteger[Entities.Count];
 
         for (var i = 0; i < _freeCoefficientIndices.Count; i++)
         {
@@ -84,10 +84,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
     protected override void Balance()
     {
-        for (var c = ReactantsCount; c < Fragments.Count; c++)
-        {
-            M.SetColumn(c, M.Column(c).Multiply(-1));
-        }
+        M.MapIndexedInplace((_, c, value) => c >= ReactantsCount ? -value : value);
 
         var reducedAugmentedMatrix = GetReducedAugmentedMatrix();
         Details.AddRange(Utils.PrettyPrintMatrix("RREF-data augmented matrix", reducedAugmentedMatrix.ToArray(), PrettyPrinter));
@@ -100,8 +97,8 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         for (var r = 0; r < reducedAugmentedMatrix.RowCount; r++)
         {
             var row = ScaleToIntegers(reducedAugmentedMatrix.GetRow(r));
-            var pivotIndex = Array.FindIndex(row, static i => i != 0);
-            _dependentCoefficientExpressions.Add(pivotIndex, row);
+            var dependentCoefficientIndex = Array.FindIndex(row, static i => i != 0);
+            _dependentCoefficientExpressions.Add(dependentCoefficientIndex, row);
         }
     }
 

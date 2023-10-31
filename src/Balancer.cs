@@ -5,16 +5,16 @@ using System.Text.RegularExpressions;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
-internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragmentStore
+internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemicalEntitiesList
 {
     private readonly String _skeletal;
     protected readonly List<String> Details = new();
     protected readonly List<String> Diagnostics = new();
-    protected readonly List<String> Fragments = new();
+    protected readonly List<String> Entities = new();
     protected readonly Matrix<Double> M;
     protected readonly Int32 ReactantsCount;
 
-    public Func<Int32, String> LabelFor => Fragments.Count <= Program.LETTER_LABEL_THRESHOLD ? Utils.LetterLabel : Utils.GenericLabel;
+    public String LabelFor(Int32 i) => (Entities.Count <= Program.LETTER_LABEL_THRESHOLD) ? Utils.LetterLabel(i) : Utils.GenericLabel(i);
     private protected virtual String Outcome => String.Empty;
 
     protected Balancer(String equation)
@@ -25,31 +25,30 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
             ReactantsCount = _skeletal.Split('=')[0].Split('+').Length;
 
             var chargeSymbols = new[] { "Qn", "Qp" };
-            var chargeParsingRules = new[] { new[] { "Qn", @"Qn(\d*)$", "{$1-}" }, new[] { "Qp", @"Qp(\d*)$", "{$1+}" } };
 
-            Fragments.AddRange(Regex.Split(_skeletal, Parsing.FRAGMENT_DIVIDERS));
+            Entities.AddRange(Regex.Split(_skeletal, Parsing.CRE_ALLOWED_DIVIDERS));
 
-            List<String> elements = new();
-            elements.AddRange(Regex.Matches(_skeletal, Parsing.ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct());
+            var elements = Regex.Matches(_skeletal, Parsing.ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct().ToList();
             elements.Add("{e}");
 
-            M = Matrix<Double>.Build.Dense(elements.Count, Fragments.Count);
+            M = Matrix<Double>.Build.Dense(elements.Count, Entities.Count);
             for (var r = 0; r < elements.Count; r++)
             {
                 Regex regex = new(Parsing.ELEMENT_TEMPLATE.Replace("X", elements[r]));
 
-                for (var c = 0; c < Fragments.Count; c++)
+                for (var c = 0; c < Entities.Count; c++)
                 {
-                    var fragment = Parsing.UnfoldFragment(Fragments[c]);
-                    M[r, c] += regex.Matches(fragment).Sum(static match => Double.Parse(match.Groups[1].Value));
+                    var s = Parsing.Unfold(Entities[c]);
+                    M[r, c] += regex.Matches(s).Sum(static match => Double.Parse(match.Groups[1].Value));
                 }
             }
 
+            var chargeParsingRules = new[] { new[] { "Qn", @"Qn(\d*)$", "{$1-}" }, new[] { "Qp", @"Qp(\d*)$", "{$1+}" } };
             foreach (var chargeParsingRule in chargeParsingRules)
             {
-                for (var i = 0; i < Fragments.Count; i++)
+                for (var i = 0; i < Entities.Count; i++)
                 {
-                    Fragments[i] = Regex.Replace(Fragments[i], chargeParsingRule[1], chargeParsingRule[2]);
+                    Entities[i] = Regex.Replace(Entities[i], chargeParsingRule[1], chargeParsingRule[2]);
                 }
             }
 
@@ -67,7 +66,7 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
             M = M.RemoveRow(elements.IndexOf("Qp"));
             elements.Remove("Qp");
 
-            Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(), Utils.PrettyPrintDouble, Fragments, elements));
+            Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(), Utils.PrettyPrintDouble, Entities, elements));
             Details.Add($"RxC: {M.RowCount}x{M.ColumnCount}, rank = {M.Rank()}, nullity = {M.Nullity()}");
         } catch (Exception e)
         {
@@ -83,9 +82,9 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
         }
     }
 
-    public Int32 FragmentsCount => Fragments.Count;
+    public Int32 EntitiesCount => Entities.Count;
 
-    public String Fragment(Int32 i) => Fragments[i];
+    public String Entity(Int32 i) => Entities[i];
 
     public String ToString(IImplementsSpecialToString.OutputFormat format)
     {
@@ -114,9 +113,9 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
         List<String> l = new();
         List<String> r = new();
 
-        for (var i = 0; i < Fragments.Count; i++)
+        for (var i = 0; i < Entities.Count; i++)
         {
-            var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + Fragments[i];
+            var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + Entities[i];
             (i < ReactantsCount ? l : r).Add(t);
         }
 
@@ -128,12 +127,12 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
         List<String> l = new();
         List<String> r = new();
 
-        for (var i = 0; i < Fragments.Count; i++)
+        for (var i = 0; i < Entities.Count; i++)
         {
             if (coefficients[i] == 0) continue;
 
             var value = BigInteger.Abs(coefficients[i]);
-            var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + Fragments[i];
+            var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + Entities[i];
             (coefficients[i] < 0 ? l : r).Add(t);
         }
 

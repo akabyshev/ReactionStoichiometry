@@ -12,11 +12,11 @@ internal sealed partial class RisteskiInstantiatorForm : Form
     {
         if (Balancer == null) return;
         theGrid.Rows.Clear();
-        theGrid.RowCount = Balancer.FragmentsCount;
-        for (var i = 0; i < Balancer.FragmentsCount; i++)
+        theGrid.RowCount = Balancer.EntitiesCount;
+        for (var i = 0; i < Balancer.EntitiesCount; i++)
         {
             theGrid.Rows[i].HeaderCell.Value = Balancer.LabelFor(i);
-            theGrid.Rows[i].Cells["Fragment"].Value = Balancer.Fragment(i);
+            theGrid.Rows[i].Cells["Entity"].Value = Balancer.Entity(i);
 
             if (Balancer.GetCoefficientExpression(i) == String.Empty)
             {
@@ -69,6 +69,6 @@ internal sealed partial class RisteskiInstantiatorForm : Form
     {
         var size = TextRenderer.MeasureText(txtInstance.Text, txtInstance.Font);
         Width = size.Width + 25;
-        Height = txtInstance.Height * (1 + Balancer!.FragmentsCount + 1) + 120;
+        Height = txtInstance.Height * (1 + Balancer!.EntitiesCount + 1) + 120;
     }
 }

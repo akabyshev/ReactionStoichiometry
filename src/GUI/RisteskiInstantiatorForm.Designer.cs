@@ -30,7 +30,7 @@
         {
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             theGrid = new DataGridView();
-            Fragment = new DataGridViewTextBoxColumn();
+            Entity = new DataGridViewTextBoxColumn();
             Value = new DataGridViewTextBoxColumn();
             IsFreeVariable = new DataGridViewCheckBoxColumn();
             txtInstance = new TextBox();
@@ -44,7 +44,7 @@
             theGrid.AllowUserToResizeRows = false;
             theGrid.ColumnHeadersHeight = 58;
             theGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            theGrid.Columns.AddRange(new DataGridViewColumn[] { Fragment, Value, IsFreeVariable });
+            theGrid.Columns.AddRange(new DataGridViewColumn[] { Entity, Value, IsFreeVariable });
             theGrid.Dock = DockStyle.Fill;
             theGrid.Location = new Point(0, 47);
             theGrid.Name = "theGrid";
@@ -64,14 +64,14 @@
             theGrid.TabIndex = 3;
             theGrid.CellEndEdit += OnCellEndEdit;
             // 
-            // Fragment
+            // Entity
             // 
-            Fragment.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            Fragment.HeaderText = "Fragment";
-            Fragment.MinimumWidth = 12;
-            Fragment.Name = "Fragment";
-            Fragment.ReadOnly = true;
-            Fragment.SortMode = DataGridViewColumnSortMode.NotSortable;
+            Entity.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Entity.HeaderText = "Entity";
+            Entity.MinimumWidth = 12;
+            Entity.Name = "Entity";
+            Entity.ReadOnly = true;
+            Entity.SortMode = DataGridViewColumnSortMode.NotSortable;
             // 
             // Value
             // 
@@ -123,7 +123,7 @@
 
         #endregion
         private TextBox txtInstance;
-        private DataGridViewTextBoxColumn Fragment;
+        private DataGridViewTextBoxColumn Entity;
         private DataGridViewTextBoxColumn Value;
         private DataGridViewCheckBoxColumn IsFreeVariable;
         private DataGridView theGrid;

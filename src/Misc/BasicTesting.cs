@@ -12,7 +12,7 @@ internal static class BasicTesting
         while (reader.ReadLine() is { } line)
         {
             var parts = line.Split("\t");
-            AssertStringsAreEqual(Parsing.UnfoldFragment(parts[0]), parts[1]);
+            AssertStringsAreEqual(Parsing.Unfold(parts[0]), parts[1]);
         }
 
         return;
