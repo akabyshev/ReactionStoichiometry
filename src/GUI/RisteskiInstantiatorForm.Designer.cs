@@ -28,50 +28,41 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            dataGridView1 = new DataGridView();
-            txtInstance = new TextBox();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            theGrid = new DataGridView();
             Fragment = new DataGridViewTextBoxColumn();
             Value = new DataGridViewTextBoxColumn();
             IsFreeVariable = new DataGridViewCheckBoxColumn();
-            ((System.ComponentModel.ISupportInitialize) dataGridView1).BeginInit();
+            txtInstance = new TextBox();
+            ((System.ComponentModel.ISupportInitialize) theGrid).BeginInit();
             SuspendLayout();
             // 
-            // dataGridView1
+            // theGrid
             // 
-            dataGridView1.AllowUserToAddRows = false;
-            dataGridView1.AllowUserToDeleteRows = false;
-            dataGridView1.AllowUserToResizeRows = false;
-            dataGridView1.ColumnHeadersHeight = 58;
-            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Fragment, Value, IsFreeVariable });
-            dataGridView1.Dock = DockStyle.Fill;
-            dataGridView1.Location = new Point(0, 47);
-            dataGridView1.Name = "dataGridView1";
-            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = SystemColors.Control;
-            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
-            dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle1;
-            dataGridView1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
-            dataGridView1.RowTemplate.Height = 49;
-            dataGridView1.ScrollBars = ScrollBars.None;
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.CellSelect;
-            dataGridView1.Size = new Size(798, 311);
-            dataGridView1.TabIndex = 3;
-            dataGridView1.CellEndEdit += On_dataGridView1_CellEndEdit;
-            // 
-            // txtInstance
-            // 
-            txtInstance.Dock = DockStyle.Top;
-            txtInstance.Location = new Point(0, 0);
-            txtInstance.Name = "txtInstance";
-            txtInstance.ReadOnly = true;
-            txtInstance.Size = new Size(798, 47);
-            txtInstance.TabIndex = 4;
-            txtInstance.TextChanged += On_txtInstance_TextChanged;
+            theGrid.AllowUserToAddRows = false;
+            theGrid.AllowUserToDeleteRows = false;
+            theGrid.AllowUserToResizeRows = false;
+            theGrid.ColumnHeadersHeight = 58;
+            theGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            theGrid.Columns.AddRange(new DataGridViewColumn[] { Fragment, Value, IsFreeVariable });
+            theGrid.Dock = DockStyle.Fill;
+            theGrid.Location = new Point(0, 47);
+            theGrid.Name = "theGrid";
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = SystemColors.Control;
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle2.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            theGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            theGrid.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+            theGrid.RowTemplate.Height = 49;
+            theGrid.ScrollBars = ScrollBars.None;
+            theGrid.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            theGrid.ShowCellToolTips = false;
+            theGrid.Size = new Size(798, 311);
+            theGrid.TabIndex = 3;
+            theGrid.CellEndEdit += OnCellEndEdit;
             // 
             // Fragment
             // 
@@ -102,20 +93,30 @@
             IsFreeVariable.Visible = false;
             IsFreeVariable.Width = 207;
             // 
+            // txtInstance
+            // 
+            txtInstance.Dock = DockStyle.Top;
+            txtInstance.Location = new Point(0, 0);
+            txtInstance.Name = "txtInstance";
+            txtInstance.ReadOnly = true;
+            txtInstance.Size = new Size(798, 47);
+            txtInstance.TabIndex = 4;
+            txtInstance.TextChanged += On_txtInstance_TextChanged;
+            // 
             // RisteskiInstantiatorForm
             // 
             AutoScaleDimensions = new SizeF(17F, 41F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(798, 358);
             ControlBox = false;
-            Controls.Add(dataGridView1);
+            Controls.Add(theGrid);
             Controls.Add(txtInstance);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             MinimumSize = new Size(800, 360);
             Name = "RisteskiInstantiatorForm";
             Text = "Instantiation";
             TopMost = true;
-            ((System.ComponentModel.ISupportInitialize) dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize) theGrid).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -125,6 +126,6 @@
         private DataGridViewTextBoxColumn Fragment;
         private DataGridViewTextBoxColumn Value;
         private DataGridViewCheckBoxColumn IsFreeVariable;
-        private DataGridView dataGridView1;
+        private DataGridView theGrid;
     }
 }

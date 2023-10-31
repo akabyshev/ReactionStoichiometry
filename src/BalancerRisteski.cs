@@ -100,7 +100,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         for (var r = 0; r < reducedAugmentedMatrix.RowCount; r++)
         {
             var row = ScaleToIntegers(reducedAugmentedMatrix.GetRow(r));
-            var pivotIndex = Array.FindIndex(row, i => i != 0);
+            var pivotIndex = Array.FindIndex(row, static i => i != 0);
             _dependentCoefficientExpressions.Add(pivotIndex, row);
         }
     }

@@ -30,7 +30,7 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
             Fragments.AddRange(Regex.Split(_skeletal, Parsing.FRAGMENT_DIVIDERS));
 
             List<String> elements = new();
-            elements.AddRange(Regex.Matches(_skeletal, Parsing.ELEMENT_SYMBOL).Select(m => m.Value).Concat(chargeSymbols).Distinct());
+            elements.AddRange(Regex.Matches(_skeletal, Parsing.ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct());
             elements.Add("{e}");
 
             M = Matrix<Double>.Build.Dense(elements.Count, Fragments.Count);
@@ -41,7 +41,7 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
                 for (var c = 0; c < Fragments.Count; c++)
                 {
                     var fragment = Parsing.UnfoldFragment(Fragments[c]);
-                    M[r, c] += regex.Matches(fragment).Sum(match => Double.Parse(match.Groups[1].Value));
+                    M[r, c] += regex.Matches(fragment).Sum(static match => Double.Parse(match.Groups[1].Value));
                 }
             }
 
@@ -56,7 +56,7 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IFragm
             var totalCharge = M.Row(elements.IndexOf("Qp")) - M.Row(elements.IndexOf("Qn"));
             M.SetRow(elements.IndexOf("{e}"), totalCharge);
 
-            if (totalCharge.CountNonZeroes() == 0)
+            if (!totalCharge.Any(DoubleExtensions.IsNonZero))
             {
                 M = M.RemoveRow(elements.IndexOf("{e}"));
                 elements.Remove("{e}");

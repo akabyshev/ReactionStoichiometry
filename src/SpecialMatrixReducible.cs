@@ -61,7 +61,7 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
         while (CountNonZeroesInRow(RowCount - 1) == 0)
         {
             var newData = new T[RowCount - 1, ColumnCount];
-            CopyValues(newData, Data, r => r);
+            CopyValues(newData, Data, static r => r);
             Data = newData;
         }
     }

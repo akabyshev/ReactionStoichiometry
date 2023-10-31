@@ -6,15 +6,15 @@ using MathNet.Numerics.LinearAlgebra;
 
 internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
 {
-    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, x => x) =>
+    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x) =>
         Basics = new BasicOperations
                  {
-                     Add = (a, b) => a + b,
-                     Subtract = (a, b) => a - b,
-                     Multiply = (a, b) => a * b,
-                     Divide = (a, b) => a / b,
+                     Add = static (d1, d2) => d1 + d2,
+                     Subtract = static (d1, d2) => d1 - d2,
+                     Multiply = static (d1, d2) => d1 * d2,
+                     Divide = static (d1, d2) => d1 / d2,
                      IsNonZero = DoubleExtensions.IsNonZero,
-                     AsString = d => d.ToString(CultureInfo.InvariantCulture)
+                     AsString = static d => d.ToString(CultureInfo.InvariantCulture)
                  };
 
     internal static SpecialMatrixReducedDouble CreateInstance(Matrix<Double> matrix)

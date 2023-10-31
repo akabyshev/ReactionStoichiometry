@@ -6,15 +6,15 @@ using Rationals;
 
 internal sealed class SpecialMatrixReducedRational : SpecialMatrixReducible<Rational>
 {
-    private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix, x => Rational.ParseDecimal(x.ToString(CultureInfo.InvariantCulture))) =>
+    private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix, static x => Rational.ParseDecimal(x.ToString(CultureInfo.InvariantCulture))) =>
         Basics = new BasicOperations
                  {
                      Add = Rational.Add,
                      Subtract = Rational.Subtract,
                      Multiply = Rational.Multiply,
                      Divide = Rational.Divide,
-                     IsNonZero = r => !r.IsZero,
-                     AsString = r => r.ToString("C")
+                     IsNonZero = static r => !r.IsZero,
+                     AsString = static r => r.ToString("C")
                  };
 
     internal static SpecialMatrixReducedRational CreateInstance(Matrix<Double> matrix)

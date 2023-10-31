@@ -45,7 +45,7 @@ internal sealed class BalancerThorne : Balancer<Double>
         var submatrixRightIdentity = Matrix<Double>.Build.DenseIdentity(nullity);
         var result = reduced.Stack(submatrixLeftZeroes.Append(submatrixRightIdentity));
 
-        result.CoerceZero(Program.DOUBLE_PSEUDOZERO);
+        result.CoerceZero(Program.GOOD_ENOUGH_DOUBLE_ZERO);
 
         if (result.Determinant().IsNonZero()) return result;
 

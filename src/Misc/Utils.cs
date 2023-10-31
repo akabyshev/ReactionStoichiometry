@@ -1,7 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
-using Extensions;
 using MathNet.Numerics;
 using Rationals;
 
@@ -47,24 +46,12 @@ internal static class Utils
 
     public static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
 
-    public static BigInteger[] ScaleDoubles(Double[] doubles)
-    {
-        try
-        {
-            return ScaleRationals(doubles.Select(x => Rational.Approximate(x, Program.DOUBLE_PSEUDOZERO)).ToArray());
-        } catch (OverflowException)
-        {
-            // This was needed when coefficients were long, and it's never occurring now with BigInteger
-            var v = MathNet.Numerics.LinearAlgebra.Vector<Double>.Build.DenseOfArray(doubles);
-            var wholes = v.Divide(v.NonZeroAbsoluteMinimum()).Divide(Program.DOUBLE_PSEUDOZERO).Select(d => (BigInteger)d).ToArray();
-            var gcd = wholes.Aggregate(Euclid.GreatestCommonDivisor);
-            return wholes.Select(x => x / gcd).ToArray();
-        }
-    }
+    public static BigInteger[] ScaleDoubles(IEnumerable<Double> doubles) =>
+        ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Program.GOOD_ENOUGH_DOUBLE_ZERO)).ToArray());
 
     public static BigInteger[] ScaleRationals(Rational[] rationals)
     {
-        var multiple = rationals.Select(r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
+        var multiple = rationals.Select(static r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
         var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
         var divisor = wholes.Aggregate(Euclid.GreatestCommonDivisor);
         return wholes.Select(x => x / divisor).ToArray();

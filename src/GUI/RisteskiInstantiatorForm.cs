@@ -11,27 +11,27 @@ internal sealed partial class RisteskiInstantiatorForm : Form
     internal void InitRisteskiTable()
     {
         if (Balancer == null) return;
-        dataGridView1.Rows.Clear();
-        dataGridView1.RowCount = Balancer.FragmentsCount;
+        theGrid.Rows.Clear();
+        theGrid.RowCount = Balancer.FragmentsCount;
         for (var i = 0; i < Balancer.FragmentsCount; i++)
         {
-            dataGridView1.Rows[i].HeaderCell.Value = Balancer.LabelFor(i);
-            dataGridView1.Rows[i].Cells["Fragment"].Value = Balancer.Fragment(i);
+            theGrid.Rows[i].HeaderCell.Value = Balancer.LabelFor(i);
+            theGrid.Rows[i].Cells["Fragment"].Value = Balancer.Fragment(i);
 
             if (Balancer.GetCoefficientExpression(i) == String.Empty)
             {
-                dataGridView1.Rows[i].Cells["Value"].ReadOnly = false;
-                dataGridView1.Rows[i].Cells["Value"].Value = 1;
-                dataGridView1.Rows[i].Cells["IsFreeVariable"].Value = true;
+                theGrid.Rows[i].Cells["Value"].ReadOnly = false;
+                theGrid.Rows[i].Cells["Value"].Value = 1;
+                theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
             }
             else
             {
-                dataGridView1.Rows[i].Cells["Value"].Value = Balancer.GetCoefficientExpression(i);
-                dataGridView1.Rows[i].Cells["IsFreeVariable"].Value = false;
+                theGrid.Rows[i].Cells["Value"].Value = Balancer.GetCoefficientExpression(i);
+                theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
             }
         }
 
-        dataGridView1.Refresh();
+        theGrid.Refresh();
 
         UpdateTable();
     }
@@ -43,30 +43,27 @@ internal sealed partial class RisteskiInstantiatorForm : Form
         try
         {
             var parameters = new List<BigInteger>();
-            for (var i = 0; i < dataGridView1.Rows.Count; i++)
+            for (var i = 0; i < theGrid.Rows.Count; i++)
             {
-                if (!Boolean.Parse(dataGridView1.Rows[i].Cells["IsFreeVariable"].Value.ToString()!)) continue;
+                if (!Boolean.Parse(theGrid.Rows[i].Cells["IsFreeVariable"].Value.ToString()!)) continue;
 
-                var cellValue = dataGridView1.Rows[i].Cells["Value"].Value.ToString();
-                if (BigInteger.TryParse(cellValue, out var parsedValue))
-                {
-                    parameters.Add(parsedValue);
-                }
-                else
-                {
-                    txtInstance.Text = "Parsing error occurred";
-                    return;
-                }
+                var cell = theGrid.Rows[i].Cells["Value"].Value ?? throw new FormatException();
+                parameters.Add(BigInteger.Parse(cell.ToString()!));
             }
 
             txtInstance.Text = Balancer.Instantiate(parameters.ToArray());
-        } catch (InvalidOperationException)
+        }
+        catch (InvalidOperationException)
         {
             txtInstance.Text = "Could not get integer coefficients";
         }
+        catch (FormatException)
+        {
+            txtInstance.Text = "Parsing error occurred";
+        }
     }
 
-    private void On_dataGridView1_CellEndEdit(Object sender, DataGridViewCellEventArgs e) => UpdateTable();
+    private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => UpdateTable();
 
     private void On_txtInstance_TextChanged(Object sender, EventArgs e)
     {
