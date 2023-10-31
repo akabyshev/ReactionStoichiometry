@@ -52,12 +52,10 @@ internal sealed partial class RisteskiInstantiatorForm : Form
             }
 
             txtInstance.Text = Balancer.Instantiate(parameters.ToArray());
-        }
-        catch (InvalidOperationException)
+        } catch (InvalidOperationException)
         {
             txtInstance.Text = "Could not get integer coefficients";
-        }
-        catch (FormatException)
+        } catch (FormatException)
         {
             txtInstance.Text = "Parsing error occurred";
         }

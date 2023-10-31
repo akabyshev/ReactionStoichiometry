@@ -1,2 +1,3 @@
 Illustrate true negative error of METHOD_THORNE		- find an equation that CAN NOT be balanced and it must say so (det 0?)
-Illustrate false negative error of METHOD_RISTESKI 	- is it even doable? I don't think so
+
+Illustrate false negative error of METHOD_RISTESKI 	- is it even doable?

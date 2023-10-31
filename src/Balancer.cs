@@ -13,8 +13,6 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
     protected readonly List<String> Entities = new();
     protected readonly Matrix<Double> M;
     protected readonly Int32 ReactantsCount;
-
-    public String LabelFor(Int32 i) => (Entities.Count <= Program.LETTER_LABEL_THRESHOLD) ? Utils.LetterLabel(i) : Utils.GenericLabel(i);
     private protected virtual String Outcome => String.Empty;
 
     protected Balancer(String equation)
@@ -103,6 +101,8 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
                            .Replace("%Diagnostics%", String.Join(Environment.NewLine, Diagnostics));
         }
     }
+
+    public String LabelFor(Int32 i) => Entities.Count > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     protected abstract void Balance();
     protected abstract BigInteger[] ScaleToIntegers(T[] v);
