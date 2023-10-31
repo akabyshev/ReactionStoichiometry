@@ -2,7 +2,7 @@
 
 using MathNet.Numerics.LinearAlgebra;
 
-internal class BalancerRisteskiDouble : BalancerRisteskiGeneric<Double>
+internal class BalancerRisteskiDouble : BalancerRisteski<Double>
 {
     public BalancerRisteskiDouble(String equation) : base(equation)
     {
@@ -10,10 +10,10 @@ internal class BalancerRisteskiDouble : BalancerRisteskiGeneric<Double>
 
     protected override Int64[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
 
-    protected override ReducedMatrixOfDouble GetReducedAugmentedMatrix()
+    protected override SpecialMatrixReducedDouble GetReducedAugmentedMatrix()
     {
         var augmentedMatrix = M.Append(Matrix<Double>.Build.Dense(M.RowCount, 1));
-        return ReducedMatrixOfDouble.CreateInstance(augmentedMatrix);
+        return SpecialMatrixReducedDouble.CreateInstance(augmentedMatrix);
     }
 
     protected override String PrettyPrinter(Double value) => Utils.PrettyPrintDouble(value);

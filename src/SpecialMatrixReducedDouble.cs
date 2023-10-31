@@ -4,9 +4,9 @@ using System.Globalization;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
-internal class MatrixOfDouble : AbstractReducibleMatrix<Double>
+internal class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
 {
-    protected MatrixOfDouble(Matrix<Double> matrix) : base(matrix, x => x) =>
+    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, x => x) =>
         Basics = new BasicOperations
                  {
                      Add = (a, b) => a + b,
@@ -16,4 +16,11 @@ internal class MatrixOfDouble : AbstractReducibleMatrix<Double>
                      IsNonZero = DoubleExtensions.IsNonZero,
                      AsString = d => d.ToString(CultureInfo.InvariantCulture)
                  };
+
+    internal static SpecialMatrixReducedDouble CreateInstance(Matrix<Double> matrix)
+    {
+        var result = new SpecialMatrixReducedDouble(matrix);
+        result.Reduce();
+        return result;
+    }
 }

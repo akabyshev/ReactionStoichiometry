@@ -40,8 +40,8 @@ internal static class BasicTesting
             {
                 if (line.StartsWith("#") || line.Length == 0) continue;
                 var eq = new Object[] { line };
-                var balancer = (ProtoBalancer)Activator.CreateInstance(type, eq)!;
-                writer.WriteLine(balancer.ToString(ProtoBalancer.OutputFormat.Plain));
+                var balancer = (IImplementsSpecialToString)Activator.CreateInstance(type, eq)!;
+                writer.WriteLine(balancer.ToString(IImplementsSpecialToString.OutputFormat.Plain));
                 writer.WriteLine("====================================");
             }
         }

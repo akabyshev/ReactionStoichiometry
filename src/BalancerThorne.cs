@@ -3,7 +3,7 @@
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
-internal class BalancerThorne : AbstractBalancer<Double>
+internal class BalancerThorne : Balancer<Double>
 {
     private List<Int64[]>? _independentEquations;
 
@@ -35,7 +35,7 @@ internal class BalancerThorne : AbstractBalancer<Double>
 
     private Matrix<Double> GetAugmentedMatrix()
     {
-        var reduced = M.RowCount == M.ColumnCount ? ReducedMatrixOfDouble.CreateInstance(M).ToMatrix() : M.Clone();
+        var reduced = M.RowCount == M.ColumnCount ? SpecialMatrixReducedDouble.CreateInstance(M).ToMatrix() : M.Clone();
 
         if (reduced.RowCount == reduced.ColumnCount) throw new BalancerException("Matrix in RREF is still square");
 

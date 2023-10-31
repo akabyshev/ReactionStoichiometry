@@ -2,7 +2,7 @@
 
 public partial class RisteskiInstantiatorForm : Form
 {
-    internal BalancerRisteskiDouble? Balancer;
+    internal IBalancerInstantiatable? Balancer;
 
     public RisteskiInstantiatorForm() => InitializeComponent();
 
@@ -16,7 +16,7 @@ public partial class RisteskiInstantiatorForm : Form
             dataGridView1.Rows[i].HeaderCell.Value = Balancer.LabelFor(i);
             dataGridView1.Rows[i].Cells["Fragment"].Value = Balancer.Fragment(i);
 
-            if (Balancer.GetCoefficientString(i) == String.Empty)
+            if (Balancer.GetCoefficientExpression(i) == String.Empty)
             {
                 dataGridView1.Rows[i].Cells["Value"].ReadOnly = false;
                 dataGridView1.Rows[i].Cells["Value"].Value = 1;
@@ -24,7 +24,7 @@ public partial class RisteskiInstantiatorForm : Form
             }
             else
             {
-                dataGridView1.Rows[i].Cells["Value"].Value = Balancer.GetCoefficientString(i);
+                dataGridView1.Rows[i].Cells["Value"].Value = Balancer.GetCoefficientExpression(i);
                 dataGridView1.Rows[i].Cells["IsFreeVariable"].Value = false;
             }
         }

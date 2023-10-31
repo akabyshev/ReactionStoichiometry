@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
-internal abstract partial class AbstractBalancer<T>
+internal abstract partial class Balancer<T>
 {
     internal class BalancerException : InvalidOperationException
     {

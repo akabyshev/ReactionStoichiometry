@@ -9,16 +9,16 @@ public partial class MainForm : Form
     public MainForm()
     {
         InitializeComponent();
-        textBoxInput.Text = "H2+O2=H2O+O3+H5O3";
+        textBoxInput.Text = "Fe2(SO4)3 + PrTlTe3 + H3PO4 = Fe0.996(H2PO4)2H2O + Tl1.987(SO3)3 + Pr1.998(SO4)3 + Te2O3 + P2O5 + H2S";
         SyncControls();
     }
 
     private void On_buttonBalance_Click(Object sender, EventArgs e)
     {
-        resultMT.Text = new BalancerThorne(textBoxInput.Text).ToString(ProtoBalancer.OutputFormat.Plain);
+        resultMT.Text = new BalancerThorne(textBoxInput.Text).ToString(IImplementsSpecialToString.OutputFormat.Plain);
 
-        var balancer = new BalancerRisteskiDouble(textBoxInput.Text);
-        resultMR.Text = balancer.ToString(ProtoBalancer.OutputFormat.Plain);
+        var balancer = new BalancerRisteskiRational(textBoxInput.Text);
+        resultMR.Text = balancer.ToString(IImplementsSpecialToString.OutputFormat.Plain);
 
         _risteskiInstantiatorForm.Balancer = balancer;
         _risteskiInstantiatorForm.InitRisteskiTable();

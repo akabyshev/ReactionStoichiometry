@@ -4,9 +4,9 @@ using System.Globalization;
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
-internal class MatrixOfRational : AbstractReducibleMatrix<Rational>
+internal class SpecialMatrixReducedRational : SpecialMatrixReducible<Rational>
 {
-    protected MatrixOfRational(Matrix<Double> matrix) : base(matrix, x => Rational.ParseDecimal(x.ToString(CultureInfo.InvariantCulture))) =>
+    private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix, x => Rational.ParseDecimal(x.ToString(CultureInfo.InvariantCulture))) =>
         Basics = new BasicOperations
                  {
                      Add = Rational.Add,
@@ -16,4 +16,11 @@ internal class MatrixOfRational : AbstractReducibleMatrix<Rational>
                      IsNonZero = r => !r.IsZero,
                      AsString = r => r.ToString("C")
                  };
+
+    internal static SpecialMatrixReducedRational CreateInstance(Matrix<Double> matrix)
+    {
+        var result = new SpecialMatrixReducedRational(matrix);
+        result.Reduce();
+        return result;
+    }
 }

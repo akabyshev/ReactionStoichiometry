@@ -3,7 +3,7 @@
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
-internal class BalancerRisteskiRational : BalancerRisteskiGeneric<Rational>
+internal class BalancerRisteskiRational : BalancerRisteski<Rational>
 {
     public BalancerRisteskiRational(String equation) : base(equation)
     {
@@ -11,10 +11,10 @@ internal class BalancerRisteskiRational : BalancerRisteskiGeneric<Rational>
 
     protected override Int64[] ScaleToIntegers(Rational[] v) => Utils.ScaleRationals(v);
 
-    protected override ReducedMatrixOfRational GetReducedAugmentedMatrix()
+    protected override SpecialMatrixReducedRational GetReducedAugmentedMatrix()
     {
         var augmentedMatrix = M.Append(Matrix<Double>.Build.Dense(M.RowCount, 1));
-        return ReducedMatrixOfRational.CreateInstance(augmentedMatrix);
+        return SpecialMatrixReducedRational.CreateInstance(augmentedMatrix);
     }
 
     protected override String PrettyPrinter(Rational value) => Utils.PrettyPrintRational(value);
