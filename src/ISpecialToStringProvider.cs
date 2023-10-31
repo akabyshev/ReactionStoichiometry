@@ -1,6 +1,6 @@
 namespace ReactionStoichiometry;
 
-internal interface IImplementsSpecialToString
+internal interface ISpecialToStringProvider
 {
     enum OutputFormat
     {

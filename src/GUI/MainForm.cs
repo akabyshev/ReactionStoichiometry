@@ -15,10 +15,10 @@ internal sealed partial class MainForm : Form
 
     private void On_buttonBalance_Click(Object sender, EventArgs e)
     {
-        resultMT.Text = new BalancerThorne(textBoxInput.Text).ToString(IImplementsSpecialToString.OutputFormat.Plain);
+        resultMT.Text = new BalancerThorne(textBoxInput.Text).ToString(ISpecialToStringProvider.OutputFormat.Plain);
 
         var balancer = new BalancerRisteskiRational(textBoxInput.Text);
-        resultMR.Text = balancer.ToString(IImplementsSpecialToString.OutputFormat.Plain);
+        resultMR.Text = balancer.ToString(ISpecialToStringProvider.OutputFormat.Plain);
 
         _risteskiInstantiatorForm.Balancer = balancer;
         _risteskiInstantiatorForm.InitRisteskiTable();

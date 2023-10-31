@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
-internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemicalEntitiesList
+internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemicalEntityCollection
 {
     private readonly String _skeletal;
     protected readonly List<String> Details = new();
@@ -97,15 +97,16 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
 
     public Int32 EntitiesCount => Entities.Count;
     public String Entity(Int32 i) => Entities[i];
+    public String LabelFor(Int32 i) => Entities.Count > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
-    public String ToString(IImplementsSpecialToString.OutputFormat format)
+    public String ToString(ISpecialToStringProvider.OutputFormat format)
     {
         return format switch
         {
-            IImplementsSpecialToString.OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
-            IImplementsSpecialToString.OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
-            IImplementsSpecialToString.OutputFormat.OutcomeCommaSeparated => String.Join(',', Outcome),
-            IImplementsSpecialToString.OutputFormat.OutcomeNewLineSeparated => String.Join(Environment.NewLine, Outcome),
+            ISpecialToStringProvider.OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
+            ISpecialToStringProvider.OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
+            ISpecialToStringProvider.OutputFormat.OutcomeCommaSeparated => String.Join(',', Outcome),
+            ISpecialToStringProvider.OutputFormat.OutcomeNewLineSeparated => String.Join(Environment.NewLine, Outcome),
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 
@@ -113,13 +114,11 @@ internal abstract partial class Balancer<T> : IImplementsSpecialToString, IChemi
         {
             return template.Replace("%Skeletal%", _skeletal)
                            .Replace("%Details%", String.Join(Environment.NewLine, Details))
-                           .Replace("%Outcome%", ToString(IImplementsSpecialToString.OutputFormat.OutcomeNewLineSeparated))
+                           .Replace("%Outcome%", ToString(ISpecialToStringProvider.OutputFormat.OutcomeNewLineSeparated))
                            .Replace("%Diagnostics%", String.Join(Environment.NewLine, Diagnostics));
         }
     }
-
-    public String LabelFor(Int32 i) => Entities.Count > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
-
+    
     protected String GetEquationWithCoefficients(in BigInteger[] coefficients)
     {
         List<String> l = new();
