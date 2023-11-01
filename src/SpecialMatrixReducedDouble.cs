@@ -1,7 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Globalization;
-using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
 internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
@@ -13,7 +12,7 @@ internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double
                      Subtract = static (d1, d2) => d1 - d2,
                      Multiply = static (d1, d2) => d1 * d2,
                      Divide = static (d1, d2) => d1 / d2,
-                     IsNonZero = DoubleExtensions.IsNonZero,
+                     IsNonZero = Utils.IsNonZeroDouble,
                      AsString = static d => d.ToString(CultureInfo.InvariantCulture)
                  };
 

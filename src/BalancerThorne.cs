@@ -1,12 +1,12 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
-using Extensions;
 using MathNet.Numerics.LinearAlgebra;
 
 internal sealed class BalancerThorne : Balancer<Double>
 {
     private List<BigInteger[]>? _independentEquations;
+
 
     protected override IEnumerable<String> Outcome
     {
@@ -49,6 +49,6 @@ internal sealed class BalancerThorne : Balancer<Double>
 
         result.CoerceZero(Program.GOOD_ENOUGH_DOUBLE_ZERO);
 
-        return result.Determinant().IsNonZero() ? result : null;
+        return Utils.IsNonZeroDouble(result.Determinant()) ? result : null;
     }
 }

@@ -54,4 +54,6 @@ internal static class Utils
         var divisor = wholes.Aggregate(Euclid.GreatestCommonDivisor);
         return wholes.Select(x => x / divisor).ToArray();
     }
+
+    public static Boolean IsNonZeroDouble(Double d) => Math.Abs(d) > Program.GOOD_ENOUGH_DOUBLE_ZERO;
 }

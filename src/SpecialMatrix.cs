@@ -5,7 +5,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
-    private protected T[,] Data;
+    protected T[,] Data;
     public Int32 RowCount => Data.GetLength(0);
     public Int32 ColumnCount => Data.GetLength(1);
     protected BasicOperations Basics { get; init; }
