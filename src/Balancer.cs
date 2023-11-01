@@ -15,6 +15,9 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
     protected readonly Int32 ReactantsCount;
     protected abstract IEnumerable<String> Outcome { get; }
 
+    private protected Func<T, String> PrettyPrinter { get; }
+    private protected Func<T[], BigInteger[]> ScaleToIntegers { get; }
+
     protected String GetEquationWithPlaceholders
     {
         get
@@ -32,11 +35,14 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
         }
     }
 
-    protected Balancer(String equation)
+    protected Balancer(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale)
     {
+        _skeletal = equation.Replace(" ", "");
+        PrettyPrinter = print;
+        ScaleToIntegers = scale;
+
         try
         {
-            _skeletal = equation.Replace(" ", "");
             ReactantsCount = _skeletal.Split('=')[0].Split('+').Length;
             Entities.AddRange(Regex.Split(_skeletal, Parsing.CRE_ALLOWED_DIVIDERS));
 
@@ -139,6 +145,4 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
     }
 
     protected abstract void Balance();
-    protected abstract BigInteger[] ScaleToIntegers(T[] v);
-    protected abstract String PrettyPrinter(T value);
 }

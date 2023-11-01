@@ -19,7 +19,7 @@ internal sealed class BalancerThorne : Balancer<Double>
         }
     }
 
-    public BalancerThorne(String equation) : base(equation)
+    public BalancerThorne(String equation) : base(equation, Utils.PrettyPrintDouble, Utils.ScaleDoubles)
     {
     }
 
@@ -51,7 +51,4 @@ internal sealed class BalancerThorne : Balancer<Double>
 
         return result.Determinant().IsNonZero() ? result : null;
     }
-
-    protected override BigInteger[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);
-    protected override String PrettyPrinter(Double value) => Utils.PrettyPrintDouble(value);
 }

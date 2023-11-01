@@ -11,7 +11,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
     {
         get
         {
-            if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return new[] { Program.FAILED_BALANCING_OUTCOME };
+            if (_dependentCoefficientExpressions?.Count == 0 || _freeCoefficientIndices?.Count == 0) return new[] { Program.FAILED_BALANCING_OUTCOME };
 
             List<String> lines = new() { GetEquationWithPlaceholders + ", where" };
             lines.AddRange(_dependentCoefficientExpressions.Keys.Select(i => $"{LabelFor(i)} = {GetCoefficientExpression(i)}"));
@@ -21,7 +21,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         }
     }
 
-    protected BalancerRisteski(String equation) : base(equation)
+    protected BalancerRisteski(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale) : base(equation, print, scale)
     {
     }
 
