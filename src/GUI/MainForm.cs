@@ -20,8 +20,7 @@ internal sealed partial class MainForm : Form
         var balancer = new BalancerRisteskiRational(textBoxInput.Text);
         resultMR.Text = balancer.ToString(ISpecialToStringProvider.OutputFormat.Plain);
 
-        _risteskiInstantiatorForm.Balancer = balancer;
-        _risteskiInstantiatorForm.InitRisteskiTable();
+        _risteskiInstantiatorForm.InitRisteskiTable(balancer);
         _risteskiInstantiatorForm.Show();
     }
 

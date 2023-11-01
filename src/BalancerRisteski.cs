@@ -4,14 +4,14 @@ using System.Numerics;
 
 internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
 {
-    private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
-    private List<Int32> _freeCoefficientIndices = null!;
+    private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
+    private List<Int32>? _freeCoefficientIndices;
 
     protected override IEnumerable<String> Outcome
     {
         get
         {
-            if (_dependentCoefficientExpressions.Count == 0) return new[] { Program.FAILED_BALANCING_OUTCOME };
+            if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return new[] { Program.FAILED_BALANCING_OUTCOME };
 
             List<String> lines = new() { GetEquationWithPlaceholders + ", where" };
             lines.AddRange(_dependentCoefficientExpressions.Keys.Select(i => $"{LabelFor(i)} = {GetCoefficientExpression(i)}"));
@@ -27,7 +27,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
     public String GetCoefficientExpression(Int32 index)
     {
-        if (!_dependentCoefficientExpressions.ContainsKey(index)) return String.Empty;
+        if (!_dependentCoefficientExpressions!.ContainsKey(index)) return String.Empty;
 
         var expression = _dependentCoefficientExpressions[index];
 
@@ -57,7 +57,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
     public String Instantiate(BigInteger[] parameters)
     {
-        if (parameters.Length != _freeCoefficientIndices.Count) throw new ArgumentOutOfRangeException(nameof(parameters), "Parameters array size mismatch");
+        if (parameters.Length != _freeCoefficientIndices!.Count) throw new ArgumentOutOfRangeException(nameof(parameters), "Parameters array size mismatch");
 
         var coefficients = new BigInteger[Entities.Count];
 
@@ -66,7 +66,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
             coefficients[_freeCoefficientIndices[i]] = parameters[i];
         }
 
-        foreach (var kvp in _dependentCoefficientExpressions)
+        foreach (var kvp in _dependentCoefficientExpressions!)
         {
             var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, (sum, i) => sum + coefficients[i] * kvp.Value[i]);
 
@@ -86,20 +86,24 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
     {
         M.MapIndexedInplace((_, c, value) => c >= ReactantsCount ? -value : value);
 
-        var reducedAugmentedMatrix = GetReducedAugmentedMatrix();
+        var reducedAugmentedMatrix = GetReducedAugmentedMatrix(); // TODO: look at MT, might want to throw e here too if it's in a certain form 
         Details.AddRange(Utils.PrettyPrintMatrix("RREF-data augmented matrix", reducedAugmentedMatrix.ToArray(), PrettyPrinter));
 
-        _freeCoefficientIndices = Enumerable.Range(0, reducedAugmentedMatrix.ColumnCount)
-                                            .Where(c => reducedAugmentedMatrix.CountNonZeroesInColumn(c) > 1)
-                                            .ToList();
-        if (_freeCoefficientIndices.Count == 0) throw new BalancerException("This SLE is unsolvable");
+        _dependentCoefficientExpressions = Enumerable.Range(0, reducedAugmentedMatrix.RowCount)
+                                                     .Select(r =>
+                                                             {
+                                                                 var row = ScaleToIntegers(reducedAugmentedMatrix.GetRow(r));
+                                                                 return new { DependentCoefficientIndex = Array.FindIndex(row, static i => i != 0), Coefficients = row };
+                                                             })
+                                                     .ToDictionary(static item => item.DependentCoefficientIndex, static item => item.Coefficients);
 
-        for (var r = 0; r < reducedAugmentedMatrix.RowCount; r++)
-        {
-            var row = ScaleToIntegers(reducedAugmentedMatrix.GetRow(r));
-            var dependentCoefficientIndex = Array.FindIndex(row, static i => i != 0);
-            _dependentCoefficientExpressions.Add(dependentCoefficientIndex, row);
-        }
+        _freeCoefficientIndices = Enumerable.Range(0, reducedAugmentedMatrix.ColumnCount)
+                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) &&
+                                                        reducedAugmentedMatrix.CountNonZeroesInColumn(c) > 0)
+                                            .ToList();
+
+        if (_freeCoefficientIndices.Count == 0) throw new BalancerException("This SLE is unsolvable");
+        if (_dependentCoefficientExpressions.Count + _freeCoefficientIndices.Count != EntitiesCount) throw new ArgumentException();
     }
 
     protected abstract SpecialMatrixReducible<T> GetReducedAugmentedMatrix();

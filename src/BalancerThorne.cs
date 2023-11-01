@@ -26,15 +26,17 @@ internal sealed class BalancerThorne : Balancer<Double>
     protected override void Balance()
     {
         var originalMatrixNullity = M.Nullity();
-        var invertedAugmentedMatrix = GetAugmentedMatrix().Inverse();
+        var augmentedMatrix = GetInvertibleAugmentedMatrix() ?? throw new BalancerException("Augmented matrix can't be inverted");
+        var invertedAugmentedMatrix = augmentedMatrix.Inverse();
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", invertedAugmentedMatrix.ToArray(), PrettyPrinter));
+
 
         _independentEquations = Enumerable.Range(invertedAugmentedMatrix.ColumnCount - originalMatrixNullity, originalMatrixNullity)
                                           .Select(c => ScaleToIntegers(invertedAugmentedMatrix.Column(c).ToArray()))
                                           .ToList();
     }
 
-    private Matrix<Double> GetAugmentedMatrix()
+    private Matrix<Double>? GetInvertibleAugmentedMatrix()
     {
         var reduced = M.RowCount == M.ColumnCount ? SpecialMatrixReducedDouble.CreateInstance(M).ToMatrix() : M.Clone();
 
@@ -47,10 +49,7 @@ internal sealed class BalancerThorne : Balancer<Double>
 
         result.CoerceZero(Program.GOOD_ENOUGH_DOUBLE_ZERO);
 
-        if (result.Determinant().IsNonZero()) return result;
-
-        Diagnostics.AddRange(Utils.PrettyPrintMatrix("Zero-determinant matrix", result.ToArray(), PrettyPrinter));
-        throw new BalancerException("Matrix can't be inverted");
+        return result.Determinant().IsNonZero() ? result : null;
     }
 
     protected override BigInteger[] ScaleToIntegers(Double[] v) => Utils.ScaleDoubles(v);

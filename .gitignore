@@ -3,9 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-# Aziz: my folders to ignore
+# Aziz: my stuff to ignore
 data/
 REFs/
+TODO.txt
 
 # User-specific files
 *.rsuser

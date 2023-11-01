@@ -20,8 +20,8 @@ internal static class Program
         ApplicationConfiguration.Initialize();
 
         BasicTesting.PerformBasicParserTests();
-        BasicTesting.PerformOnLaunchBatchTests();
         BasicTesting.PerformInstantiationTests();
+        BasicTesting.PerformOnLaunchBatchTests();
 
         Application.Run(new MainForm());
     }

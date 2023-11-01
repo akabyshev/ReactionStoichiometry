@@ -4,29 +4,30 @@ using System.Numerics;
 
 internal sealed partial class RisteskiInstantiatorForm : Form
 {
-    internal IBalancerInstantiatable? Balancer;
+    private IBalancerInstantiatable? _balancer;
     internal RisteskiInstantiatorForm() => InitializeComponent();
 
-    internal void InitRisteskiTable()
+    internal void InitRisteskiTable(IBalancerInstantiatable b)
     {
-        if (Balancer == null) return;
-        theGrid.Rows.Clear();
-        theGrid.RowCount = Balancer.EntitiesCount;
-        for (var i = 0; i < Balancer.EntitiesCount; i++)
-        {
-            theGrid.Rows[i].HeaderCell.Value = Balancer.LabelFor(i);
-            theGrid.Rows[i].Cells["Entity"].Value = Balancer.Entity(i);
+        _balancer = b;
 
-            if (Balancer.GetCoefficientExpression(i) == String.Empty)
+        theGrid.Rows.Clear();
+        theGrid.RowCount = _balancer.EntitiesCount;
+        for (var i = 0; i < _balancer.EntitiesCount; i++)
+        {
+            theGrid.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
+            theGrid.Rows[i].Cells["Entity"].Value = _balancer.Entity(i);
+
+            if (_balancer.GetCoefficientExpression(i) == String.Empty)
             {
                 theGrid.Rows[i].Cells["Value"].ReadOnly = false;
-                theGrid.Rows[i].Cells["Value"].Style.BackColor = Color.Ivory;
                 theGrid.Rows[i].Cells["Value"].Value = 1;
                 theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
             }
             else
             {
-                theGrid.Rows[i].Cells["Value"].Value = Balancer.GetCoefficientExpression(i);
+                theGrid.Rows[i].Cells["Value"].ReadOnly = true;
+                theGrid.Rows[i].Cells["Value"].Value = _balancer.GetCoefficientExpression(i);
                 theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
             }
         }
@@ -38,7 +39,7 @@ internal sealed partial class RisteskiInstantiatorForm : Form
 
     private void UpdateTable()
     {
-        if (Balancer == null) return;
+        if (_balancer == null) return;
 
         try
         {
@@ -51,7 +52,7 @@ internal sealed partial class RisteskiInstantiatorForm : Form
                 parameters.Add(BigInteger.Parse(cell.ToString()!));
             }
 
-            txtInstance.Text = Balancer.Instantiate(parameters.ToArray());
+            txtInstance.Text = _balancer.Instantiate(parameters.ToArray());
         } catch (InvalidOperationException)
         {
             txtInstance.Text = "Could not get integer coefficients";
@@ -67,6 +68,6 @@ internal sealed partial class RisteskiInstantiatorForm : Form
     {
         var size = TextRenderer.MeasureText(txtInstance.Text, txtInstance.Font);
         Width = size.Width + 25;
-        Height = txtInstance.Height * (1 + Balancer!.EntitiesCount + 1) + 120;
+        Height = txtInstance.Height * (1 + _balancer!.EntitiesCount + 1) + 120;
     }
 }

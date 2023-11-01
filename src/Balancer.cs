@@ -8,8 +8,8 @@ using MathNet.Numerics.LinearAlgebra;
 internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemicalEntityCollection
 {
     private readonly String _skeletal;
+    private readonly String _failureMessage;
     protected readonly List<String> Details = new();
-    protected readonly List<String> Diagnostics = new();
     protected readonly List<String> Entities = new();
     protected readonly Matrix<Double> M;
     protected readonly Int32 ReactantsCount;
@@ -89,9 +89,10 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
         try
         {
             Balance();
+            _failureMessage = String.Empty;
         } catch (BalancerException e)
         {
-            Diagnostics.Add($"This equation can't be balanced: {e.Message}");
+            _failureMessage = "This equation can't be balanced: " + e.Message;
         }
     }
 
@@ -115,7 +116,7 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
             return template.Replace("%Skeletal%", _skeletal)
                            .Replace("%Details%", String.Join(Environment.NewLine, Details))
                            .Replace("%Outcome%", ToString(ISpecialToStringProvider.OutputFormat.OutcomeNewLineSeparated))
-                           .Replace("%Diagnostics%", String.Join(Environment.NewLine, Diagnostics));
+                           .Replace("%Diagnostics%", _failureMessage);
         }
     }
     
