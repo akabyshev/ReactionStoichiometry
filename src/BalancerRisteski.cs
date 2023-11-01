@@ -16,11 +16,25 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
             if (_dependentCoefficientExpressions.Count == 0 || _freeCoefficientIndices.Count == 0) return new[] { Program.FAILED_BALANCING_OUTCOME };
 
-            List<String> lines = new() { GetEquationWithPlaceholders + ", where" };
+            List<String> lines = new() { GetEquationWithPlaceholders() + ", where" };
             lines.AddRange(_dependentCoefficientExpressions.Keys.Select(i => $"{LabelFor(i)} = {GetCoefficientExpression(i)}"));
             lines.Add("for any {" + String.Join(", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
 
             return lines;
+
+            String GetEquationWithPlaceholders()
+            {
+                List<String> l = new();
+                List<String> r = new();
+
+                for (var i = 0; i < EntitiesCount; i++)
+                {
+                    var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + Entity(i);
+                    (i < ReactantsCount ? l : r).Add(t);
+                }
+
+                return String.Join(" + ", l) + " = " + String.Join(" + ", r);
+            }
         }
     }
 
@@ -54,6 +68,8 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
     protected abstract SpecialMatrixReducible<T> GetReducedAugmentedMatrix();
 
+    public String LabelFor(Int32 i) => EntitiesCount > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
+
     public String GetCoefficientExpression(Int32 index)
     {
         if (!_dependentCoefficientExpressions!.ContainsKey(index)) return String.Empty;
@@ -64,10 +80,10 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
                                        .Where(i => expression[i] != 0)
                                        .Select(i =>
                                        {
-                                           var coefficient = (-1 * expression[i]).ToString();
+                                           var coefficient = (-expression[i]).ToString();
                                            if (coefficient == "1") coefficient = String.Empty;
                                            if (coefficient == "-1") coefficient = "-";
-                                           return $"{coefficient}{LabelFor(i)}"; // TODO: Streamline
+                                           return $"{coefficient}{LabelFor(i)}";
                                        })
                                        .ToList();
 

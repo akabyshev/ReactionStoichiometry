@@ -12,26 +12,8 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
     protected readonly List<String> Details = new();
     protected readonly Matrix<Double> M;
     protected readonly Int32 ReactantsCount;
-    protected Func<T, String> PrettyPrinter { get; }
-    protected Func<T[], BigInteger[]> ScaleToIntegers { get; }
-    protected abstract IEnumerable<String> Outcome { get; }
-
-    protected String GetEquationWithPlaceholders
-    {
-        get
-        {
-            List<String> l = new();
-            List<String> r = new();
-
-            for (var i = 0; i < _entities.Count; i++)
-            {
-                var t = LabelFor(i) + Program.MULTIPLICATION_SYMBOL + _entities[i];
-                (i < ReactantsCount ? l : r).Add(t);
-            }
-
-            return String.Join(" + ", l) + " = " + String.Join(" + ", r);
-        }
-    }
+    protected readonly Func<T, String> PrettyPrinter;
+    protected readonly Func<T[], BigInteger[]> ScaleToIntegers;
 
     protected Balancer(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale)
     {
@@ -102,7 +84,6 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
 
     public Int32 EntitiesCount => _entities.Count;
     public String Entity(Int32 i) => _entities[i];
-    public String LabelFor(Int32 i) => _entities.Count > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     public String ToString(ISpecialToStringProvider.OutputFormat format)
     {
@@ -143,4 +124,5 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
     }
 
     protected abstract void Balance();
+    protected abstract IEnumerable<String> Outcome { get; }
 }
