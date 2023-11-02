@@ -95,7 +95,6 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
     }
 
     #region Nested type: BasicOperations
-
     protected struct BasicOperations
     {
         // ReSharper disable once NotAccessedField.Global
@@ -107,6 +106,5 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         internal Func<T, Boolean> IsOne;
         internal Func<T, String> AsString;
     }
-
     #endregion
 }

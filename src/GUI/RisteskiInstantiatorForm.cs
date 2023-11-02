@@ -61,10 +61,12 @@ internal sealed partial class RisteskiInstantiatorForm : Form
             }
 
             return _balancer!.Instantiate(parameters.ToArray());
-        } catch (InvalidOperationException)
+        }
+        catch (InvalidOperationException)
         {
             return "Could not get integer coefficients";
-        } catch (FormatException)
+        }
+        catch (FormatException)
         {
             return "Parsing error occurred";
         }

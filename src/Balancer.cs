@@ -7,10 +7,8 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
 {
     private readonly String _failureMessage;
     protected readonly List<String> Details = new();
-
     protected readonly ChemicalReactionEquation Equation;
     protected readonly Matrix<Double> M;
-
     protected readonly Func<T, String> PrettyPrinter;
     protected readonly Func<T[], BigInteger[]> ScaleToIntegers;
 
@@ -22,8 +20,9 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
 
         try
         {
-            M = Equation.Parse();
-        } catch (Exception e)
+            Equation.Parse(out M);
+        }
+        catch (Exception e)
         {
             throw new BalancerException($"Parsing failed: {e.Message}");
         }
@@ -35,7 +34,8 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
         {
             Balance();
             _failureMessage = String.Empty;
-        } catch (BalancerException e)
+        }
+        catch (BalancerException e)
         {
             _failureMessage = "This equation can't be balanced: " + e.Message;
         }
@@ -44,14 +44,11 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
     protected abstract IEnumerable<String> Outcome { get; }
 
     #region IChemicalEntityList Members
-
     public Int32 EntitiesCount => Equation.EntitiesCount;
     public String GetEntity(Int32 i) => Equation.GetEntity(i);
-
     #endregion
 
     #region ISpecialToStringProvider Members
-
     public String ToString(ISpecialToStringProvider.OutputFormat format)
     {
         return format switch
@@ -71,7 +68,6 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
                            .Replace("%Diagnostics%", _failureMessage);
         }
     }
-
     #endregion
 
     protected String AssembleEquationString<T2>(T2[] vector, Func<T2, Boolean> mustInclude, Func<T2, String> toString, Func<Int32, T2, Boolean> isReactant)
@@ -99,13 +95,11 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
     protected abstract void Balance();
 
     #region Nested type: BalancerException
-
     internal sealed class BalancerException : InvalidOperationException
     {
         public BalancerException(String message) : base(message)
         {
         }
     }
-
     #endregion
 }

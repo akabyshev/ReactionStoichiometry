@@ -19,7 +19,7 @@ internal static class BasicTesting
         {
             if (line.StartsWith("#") || line.Length == 0) continue;
             var parts = line.Split("\t");
-            AssertStringsAreEqual(Parsing.Unfold(parts[0]), parts[1]);
+            AssertStringsAreEqual(ChemicalReactionEquation.Unfold(parts[0]), parts[1]);
         }
     }
 

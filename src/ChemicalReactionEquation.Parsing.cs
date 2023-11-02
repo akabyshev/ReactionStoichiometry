@@ -2,24 +2,20 @@
 
 using System.Text.RegularExpressions;
 
-internal static class Parsing
+internal sealed partial class ChemicalReactionEquation
 {
     private const String OPENING_PARENTHESIS = @"\(";
     private const String CLOSING_PARENTHESIS = @"\)";
-    public const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
-
+    private const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
     private const String NO_INDEX_CLOSING_PARENTHESIS = @$"{CLOSING_PARENTHESIS}(?!\d)";
-
     private const String NO_INDEX_ELEMENT = $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
-
     private const String INNERMOST_PARENTHESES_WITH_INDEX = @$"{OPENING_PARENTHESIS}([^{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+){CLOSING_PARENTHESIS}(\d+)";
-
     private const String ENTITY_ALPHABET = $"[A-Za-z0-9{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
-    public const String DIVIDER_CHARS = @"\+|=";
+    private const String DIVIDER_CHARS = @"\+|=";
+    private const String SKELETAL_STRUCTURE = @$"^(?:{ENTITY_ALPHABET}\+)+{ENTITY_ALPHABET}={ENTITY_ALPHABET}(?:\+{ENTITY_ALPHABET})+$";
+    private const String ELEMENT_TEMPLATE = @"X(\d+(\.\d+)*)";
 
-    public const String SKELETAL_STRUCTURE = @$"^(?:{ENTITY_ALPHABET}\+)+{ENTITY_ALPHABET}={ENTITY_ALPHABET}(?:\+{ENTITY_ALPHABET})+$";
-
-    public const String ELEMENT_TEMPLATE = @"X(\d+(\.\d+)*)";
+    public static Boolean SeemsFine(String text) => Regex.IsMatch(text.Replace(" ", String.Empty), SKELETAL_STRUCTURE);
 
     internal static String Unfold(in String s)
     {

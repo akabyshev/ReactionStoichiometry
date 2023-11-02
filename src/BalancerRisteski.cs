@@ -27,7 +27,6 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
     }
 
     #region IBalancerInstantiatable Members
-
     public String LabelFor(Int32 i) => EntitiesCount > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     public String GetCoefficientExpression(Int32 index)
@@ -86,7 +85,6 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
         return EquationWithIntegerCoefficients(coefficients);
     }
-
     #endregion
 
     protected override void Balance()

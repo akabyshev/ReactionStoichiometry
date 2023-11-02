@@ -1,7 +1,5 @@
 namespace ReactionStoichiometry.GUI;
 
-using System.Text.RegularExpressions;
-
 internal sealed partial class MainForm : Form
 {
     private RisteskiInstantiatorForm? _risteskiInstantiatorForm;
@@ -36,6 +34,6 @@ internal sealed partial class MainForm : Form
             _risteskiInstantiatorForm.Dispose();
         }
 
-        buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text.Replace(" ", String.Empty), Parsing.SKELETAL_STRUCTURE);
+        buttonBalance.Enabled = ChemicalReactionEquation.SeemsFine(textBoxInput.Text);
     }
 }
