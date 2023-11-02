@@ -17,7 +17,7 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
 
             var i = r;
 
-            while (!Basics.IsNonZero(Data[i, leadColumnIndex]))
+            while (Basics.IsZero(Data[i, leadColumnIndex]))
             {
                 i++;
 
@@ -38,7 +38,7 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
                 }
 
             var div = Data[r, leadColumnIndex];
-            if (Basics.IsNonZero(div))
+            if (!Basics.IsZero(div))
                 for (var c = 0; c < ColumnCount; c++)
                 {
                     Data[r, c] = Basics.Divide(Data[r, c], div);

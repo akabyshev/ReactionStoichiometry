@@ -12,7 +12,8 @@ internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double
                      Subtract = static (d1, d2) => d1 - d2,
                      Multiply = static (d1, d2) => d1 * d2,
                      Divide = static (d1, d2) => d1 / d2,
-                     IsNonZero = Utils.IsNonZeroDouble,
+                     IsZero = static d => !Utils.IsNonZeroDouble(d),
+                     IsOne = static d => !Utils.IsNonZeroDouble(1.0d - d),
                      AsString = static d => d.ToString(CultureInfo.InvariantCulture)
                  };
 

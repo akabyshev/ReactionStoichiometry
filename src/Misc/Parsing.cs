@@ -4,20 +4,28 @@ using System.Text.RegularExpressions;
 
 internal static class Parsing
 {
-    public const String CRE_ALLOWED_DIVIDERS = @"\+|=";
-    public const String MINIMAL_SKELETAL_STRUCTURE = @"^.+\+.+=.+$";
+    private const String OPENING_PARENTHESIS = @"\(";
+    private const String CLOSING_PARENTHESIS = @"\)";
     public const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
+
+    private const String NO_INDEX_CLOSING_PARENTHESIS = @$"{CLOSING_PARENTHESIS}(?!\d)";
+    private const String NO_INDEX_ELEMENT =
+        $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
+    private const String INNERMOST_PARENTHESES_WITH_INDEX =
+        @$"{OPENING_PARENTHESIS}([^{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+){CLOSING_PARENTHESIS}(\d+)";
+
+    private const String ENTITY_ALPHABET = $"[A-Za-z0-9{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
+    public const String DIVIDER_CHARS = @"\+|=";
+    public const String SKELETAL_STRUCTURE =
+        @$"^(?:{ENTITY_ALPHABET}\+)+{ENTITY_ALPHABET}={ENTITY_ALPHABET}(?:\+{ENTITY_ALPHABET})+$";
     public const String ELEMENT_TEMPLATE = @"X(\d+(\.\d+)*)";
-    private const String ElementNoIndex = @"([A-Z][a-z]|[A-Z])([A-Z][a-z]|[A-Z]|\(|\)|$)";
-    private const String ClosingParenthesisNoIndex = @"\)(?!\d)";
-    private const String InnermostParenthesesIndexed = @"\(([^\(\)]+)\)(\d+)";
 
     internal static String Unfold(in String s)
     {
         var result = s;
 
         {
-            Regex regex = new(ElementNoIndex);
+            Regex regex = new(NO_INDEX_ELEMENT);
             while (true)
             {
                 var match = regex.Match(result);
@@ -28,7 +36,7 @@ internal static class Parsing
             }
         }
         {
-            Regex regex = new(ClosingParenthesisNoIndex);
+            Regex regex = new(NO_INDEX_CLOSING_PARENTHESIS);
             while (true)
             {
                 var match = regex.Match(result);
@@ -38,7 +46,7 @@ internal static class Parsing
             }
         }
         {
-            Regex regex = new(InnermostParenthesesIndexed);
+            Regex regex = new(INNERMOST_PARENTHESES_WITH_INDEX);
             while (true)
             {
                 var match = regex.Match(result);
@@ -46,7 +54,7 @@ internal static class Parsing
                 var token = match.Groups[1].Value;
                 var index = match.Groups[2].Value;
 
-                var repeated = String.Join("", Enumerable.Repeat(token, Int32.Parse(index)));
+                var repeated = String.Join(String.Empty, Enumerable.Repeat(token, Int32.Parse(index)));
                 result = regex.Replace(result, repeated, 1);
             }
         }

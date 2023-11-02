@@ -6,14 +6,15 @@ using MathNet.Numerics.LinearAlgebra;
 
 internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemicalEntityCollection
 {
-    private readonly String _skeletal;
-    private readonly String _failureMessage;
     private readonly List<String> _entities = new();
+    private readonly String _failureMessage;
+    private readonly String _skeletal;
     protected readonly List<String> Details = new();
     protected readonly Matrix<Double> M;
-    protected readonly Int32 ReactantsCount;
     protected readonly Func<T, String> PrettyPrinter;
+    protected readonly Int32 ReactantsCount;
     protected readonly Func<T[], BigInteger[]> ScaleToIntegers;
+    protected abstract IEnumerable<String> Outcome { get; }
 
     protected Balancer(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale)
     {
@@ -24,7 +25,7 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
         try
         {
             ReactantsCount = _skeletal.Split('=')[0].Split('+').Length;
-            _entities.AddRange(Regex.Split(_skeletal, Parsing.CRE_ALLOWED_DIVIDERS));
+            _entities.AddRange(Regex.Split(_skeletal, Parsing.DIVIDER_CHARS));
 
             var chargeSymbols = new[] { "Qn", "Qp" };
             var elements = Regex.Matches(_skeletal, Parsing.ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct().ToList();
@@ -104,25 +105,28 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
                            .Replace("%Diagnostics%", _failureMessage);
         }
     }
-    
-    protected String GetEquationWithCoefficients(in BigInteger[] coefficients)
+
+    protected String AssembleEquationString<T2>(T2[] vector, Func<T2, Boolean> mustInclude, Func<T2, String> toString, Func<Int32, T2, Boolean> isReactant)
     {
+        if (vector.Length != EntitiesCount) throw new ArgumentOutOfRangeException(nameof(vector), "Array size mismatch");
+
         List<String> l = new();
         List<String> r = new();
 
-        for (var i = 0; i < _entities.Count; i++)
+        for (var i = 0; i < EntitiesCount; i++)
         {
-            if (coefficients[i] == 0) continue;
-
-            var value = BigInteger.Abs(coefficients[i]);
-            var t = (value == 1 ? "" : value + Program.MULTIPLICATION_SYMBOL) + _entities[i];
-            (coefficients[i] < 0 ? l : r).Add(t);
+            if (mustInclude(vector[i])) (isReactant(i, vector[i]) ? l : r).Add(toString(vector[i]) + Entity(i));
         }
 
         if (l.Count == 0 || r.Count == 0) return "Invalid coefficients";
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
 
+    protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
+        AssembleEquationString(coefficients,
+                               static value => value != BigInteger.Zero,
+                               static value => value == 1 || value == -1 ? "" : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
+                               static (_, value) => value < 0);
+
     protected abstract void Balance();
-    protected abstract IEnumerable<String> Outcome { get; }
 }

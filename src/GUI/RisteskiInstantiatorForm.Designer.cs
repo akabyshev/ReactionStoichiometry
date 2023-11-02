@@ -101,7 +101,7 @@
             txtInstance.ReadOnly = true;
             txtInstance.Size = new Size(798, 47);
             txtInstance.TabIndex = 4;
-            txtInstance.TextChanged += On_txtInstance_TextChanged;
+            txtInstance.TextChanged += OnTextChanged;
             // 
             // RisteskiInstantiatorForm
             // 

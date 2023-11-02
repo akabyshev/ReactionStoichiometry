@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 internal sealed partial class MainForm : Form
 {
-    private readonly RisteskiInstantiatorForm _risteskiInstantiatorForm = new();
+    private RisteskiInstantiatorForm? _risteskiInstantiatorForm;
 
     internal MainForm()
     {
@@ -20,6 +20,7 @@ internal sealed partial class MainForm : Form
         var balancer = new BalancerRisteskiRational(textBoxInput.Text);
         resultMR.Text = balancer.ToString(ISpecialToStringProvider.OutputFormat.Plain);
 
+        _risteskiInstantiatorForm = new RisteskiInstantiatorForm();
         _risteskiInstantiatorForm.InitRisteskiTable(balancer);
         _risteskiInstantiatorForm.Show();
     }
@@ -30,7 +31,12 @@ internal sealed partial class MainForm : Form
     {
         resultMT.Text = String.Empty;
         resultMR.Text = String.Empty;
-        _risteskiInstantiatorForm.Visible = false;
-        buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text, Parsing.MINIMAL_SKELETAL_STRUCTURE);
+        if (_risteskiInstantiatorForm is { IsDisposed: false })
+        {
+            _risteskiInstantiatorForm.Close();
+            _risteskiInstantiatorForm.Dispose();
+        }
+
+        buttonBalance.Enabled = Regex.IsMatch(textBoxInput.Text.Replace(" ", String.Empty), Parsing.SKELETAL_STRUCTURE);
     }
 }

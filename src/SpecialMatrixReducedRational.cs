@@ -13,7 +13,8 @@ internal sealed class SpecialMatrixReducedRational : SpecialMatrixReducible<Rati
                      Subtract = Rational.Subtract,
                      Multiply = Rational.Multiply,
                      Divide = Rational.Divide,
-                     IsNonZero = static r => !r.IsZero,
+                     IsZero = static r => r.IsZero,
+                     IsOne = static r => r.IsOne,
                      AsString = static r => r.ToString("C")
                  };
 

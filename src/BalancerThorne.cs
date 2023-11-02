@@ -7,7 +7,6 @@ internal sealed class BalancerThorne : Balancer<Double>
 {
     private List<BigInteger[]>? _independentEquations;
 
-
     protected override IEnumerable<String> Outcome
     {
         get
@@ -15,7 +14,7 @@ internal sealed class BalancerThorne : Balancer<Double>
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if (_independentEquations == null) return new[] { Program.FAILED_BALANCING_OUTCOME };
 
-            return _independentEquations.Select(c => GetEquationWithCoefficients(c));
+            return _independentEquations.Select(EquationWithIntegerCoefficients);
         }
     }
 
@@ -25,18 +24,18 @@ internal sealed class BalancerThorne : Balancer<Double>
 
     protected override void Balance()
     {
-        var originalMatrixNullity = M.Nullity();
-        var augmentedMatrix = GetInvertibleAugmentedMatrix() ?? throw new BalancerException("Augmented matrix can't be inverted");
+        var augmentedMatrix = GetInvertibleAugmentedMatrix();
+        if (!Utils.IsNonZeroDouble(augmentedMatrix.Determinant())) throw new BalancerException("Augmented matrix can't be inverted");
         var invertedAugmentedMatrix = augmentedMatrix.Inverse();
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", invertedAugmentedMatrix.ToArray(), PrettyPrinter));
 
 
-        _independentEquations = Enumerable.Range(invertedAugmentedMatrix.ColumnCount - originalMatrixNullity, originalMatrixNullity)
+        _independentEquations = Enumerable.Range(invertedAugmentedMatrix.ColumnCount - M.Nullity(), M.Nullity())
                                           .Select(c => ScaleToIntegers(invertedAugmentedMatrix.Column(c).ToArray()))
                                           .ToList();
     }
 
-    private Matrix<Double>? GetInvertibleAugmentedMatrix()
+    private Matrix<Double> GetInvertibleAugmentedMatrix()
     {
         var reduced = M.RowCount == M.ColumnCount ? SpecialMatrixReducedDouble.CreateInstance(M).ToMatrix() : M.Clone();
 
@@ -49,6 +48,6 @@ internal sealed class BalancerThorne : Balancer<Double>
 
         result.CoerceZero(Program.GOOD_ENOUGH_DOUBLE_ZERO);
 
-        return Utils.IsNonZeroDouble(result.Determinant()) ? result : null;
+        return result;
     }
 }

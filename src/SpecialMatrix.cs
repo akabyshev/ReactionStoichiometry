@@ -10,14 +10,32 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
     public Int32 ColumnCount => Data.GetLength(1);
     protected BasicOperations Basics { get; init; }
 
+    public Boolean IsIdentityMatrix
+    {
+        get
+        {
+            if (RowCount != ColumnCount) return false;
+
+            for (var r = 0; r < RowCount; r++)
+            {
+                for (var c = 0; c < ColumnCount; c++)
+                {
+                    if (r == c && !Basics.IsOne(Data[r, c])) return false;
+                    if (r != c && !Basics.IsZero(Data[r, c])) return false;
+                }
+            }
+            return true;
+        }
+    }
+
     protected SpecialMatrix(Matrix<Double> matrix, Func<Double, T> convert)
     {
         Data = new T[matrix.RowCount, matrix.ColumnCount];
         CopyValues(Data, matrix.ToArray(), convert);
     }
 
-    protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => Basics.IsNonZero(Data[r, i]));
-    internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => Basics.IsNonZero(Data[i, c]));
+    protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
+    internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => !Basics.IsZero(Data[i, c]));
 
     public T[] GetRow(Int32 r)
     {
@@ -82,7 +100,8 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         internal Func<T, T, T> Subtract;
         internal Func<T, T, T> Multiply;
         internal Func<T, T, T> Divide;
-        internal Func<T, Boolean> IsNonZero;
+        internal Func<T, Boolean> IsZero;
+        internal Func<T, Boolean> IsOne;
         internal Func<T, String> AsString;
     }
 }
