@@ -1,79 +1,35 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
-using System.Text.RegularExpressions;
 using MathNet.Numerics.LinearAlgebra;
 
-internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityCollection
+internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityList
 {
-    private readonly List<String> _entities = new();
     private readonly String _failureMessage;
-    private readonly String _skeletal;
-    private readonly ChemicalReactionEquation _skeletalObject;
     protected readonly List<String> Details = new();
+
+    protected readonly ChemicalReactionEquation Equation;
     protected readonly Matrix<Double> M;
+
     protected readonly Func<T, String> PrettyPrinter;
-    protected readonly Int32 ReactantsCount;
     protected readonly Func<T[], BigInteger[]> ScaleToIntegers;
-    protected abstract IEnumerable<String> Outcome { get; }
 
     protected Balancer(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale)
     {
-        _skeletal = equation.Replace(" ", "");
-        _skeletalObject = new ChemicalReactionEquation(equation.Replace(" ", ""));
+        Equation = new ChemicalReactionEquation(equation);
         PrettyPrinter = print;
         ScaleToIntegers = scale;
 
         try
         {
-            ReactantsCount = _skeletal.Split('=')[0].Split('+').Length;
-            _entities.AddRange(Regex.Split(_skeletal, Parsing.DIVIDER_CHARS));
-
-            var chargeSymbols = new[] { "Qn", "Qp" };
-            var elements = Regex.Matches(_skeletal, Parsing.ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct().ToList();
-            elements.Add("{e}");
-
-            M = Matrix<Double>.Build.Dense(elements.Count, _entities.Count);
-            for (var r = 0; r < elements.Count; r++)
-            {
-                Regex regex = new(Parsing.ELEMENT_TEMPLATE.Replace("X", elements[r]));
-
-                for (var c = 0; c < _entities.Count; c++)
-                {
-                    var s = Parsing.Unfold(_entities[c]);
-                    M[r, c] += regex.Matches(s).Sum(static match => Double.Parse(match.Groups[1].Value));
-                }
-            }
-
-            var chargeParsingRules = new[] { new[] { "Qn", @"Qn(\d*)$", "{$1-}" }, new[] { "Qp", @"Qp(\d*)$", "{$1+}" } };
-            for (var i = 0; i < _entities.Count; i++)
-            {
-                foreach (var chargeParsingRule in chargeParsingRules)
-                {
-                    _entities[i] = Regex.Replace(_entities[i], chargeParsingRule[1], chargeParsingRule[2]);
-                }
-            }
-
-            var totalCharge = M.Row(elements.IndexOf("Qp")) - M.Row(elements.IndexOf("Qn"));
-            M.SetRow(elements.IndexOf("{e}"), totalCharge);
-
-            if (!totalCharge.Any(Utils.IsNonZeroDouble))
-            {
-                M = M.RemoveRow(elements.IndexOf("{e}"));
-                elements.Remove("{e}");
-            }
-
-            M = M.RemoveRow(elements.IndexOf("Qn"));
-            elements.Remove("Qn");
-            M = M.RemoveRow(elements.IndexOf("Qp"));
-            elements.Remove("Qp");
-
-            Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(), Utils.PrettyPrintDouble, _entities, elements));
-            Details.Add($"RxC: {M.RowCount}x{M.ColumnCount}, rank = {M.Rank()}, nullity = {M.Nullity()}");
+            M = Equation.Parse();
         } catch (Exception e)
         {
             throw new BalancerException($"Parsing failed: {e.Message}");
         }
+
+        Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(), Utils.PrettyPrintDouble, GetEntity, Equation.GetElement));
+        Details.Add($"RxC: {M.RowCount}x{M.ColumnCount}, rank = {M.Rank()}, nullity = {M.Nullity()}");
 
         try
         {
@@ -85,8 +41,16 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityC
         }
     }
 
-    public Int32 EntitiesCount => _entities.Count;
-    public String Entity(Int32 i) => _entities[i];
+    protected abstract IEnumerable<String> Outcome { get; }
+
+    #region IChemicalEntityList Members
+
+    public Int32 EntitiesCount => Equation.EntitiesCount;
+    public String GetEntity(Int32 i) => Equation.GetEntity(i);
+
+    #endregion
+
+    #region ISpecialToStringProvider Members
 
     public String ToString(ISpecialToStringProvider.OutputFormat format)
     {
@@ -101,12 +65,14 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityC
 
         String Fill(String template)
         {
-            return template.Replace("%Skeletal%", _skeletal)
+            return template.Replace("%Skeletal%", Equation.Skeletal)
                            .Replace("%Details%", String.Join(Environment.NewLine, Details))
                            .Replace("%Outcome%", ToString(ISpecialToStringProvider.OutputFormat.OutcomeNewLineSeparated))
                            .Replace("%Diagnostics%", _failureMessage);
         }
     }
+
+    #endregion
 
     protected String AssembleEquationString<T2>(T2[] vector, Func<T2, Boolean> mustInclude, Func<T2, String> toString, Func<Int32, T2, Boolean> isReactant)
     {
@@ -117,7 +83,7 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityC
 
         for (var i = 0; i < EntitiesCount; i++)
         {
-            if (mustInclude(vector[i])) (isReactant(i, vector[i]) ? l : r).Add(toString(vector[i]) + Entity(i));
+            if (mustInclude(vector[i])) (isReactant(i, vector[i]) ? l : r).Add(toString(vector[i]) + GetEntity(i));
         }
 
         if (l.Count == 0 || r.Count == 0) return "Invalid coefficients";
@@ -132,10 +98,14 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityC
 
     protected abstract void Balance();
 
+    #region Nested type: BalancerException
+
     internal sealed class BalancerException : InvalidOperationException
     {
         public BalancerException(String message) : base(message)
         {
         }
     }
+
+    #endregion
 }

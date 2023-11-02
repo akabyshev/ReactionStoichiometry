@@ -16,7 +16,7 @@ internal sealed partial class RisteskiInstantiatorForm : Form
         for (var i = 0; i < _balancer.EntitiesCount; i++)
         {
             theGrid.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
-            theGrid.Rows[i].Cells["Entity"].Value = _balancer.Entity(i);
+            theGrid.Rows[i].Cells["Entity"].Value = _balancer.GetEntity(i);
 
             if (_balancer.GetCoefficientExpression(i) == String.Empty)
             {

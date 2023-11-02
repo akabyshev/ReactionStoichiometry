@@ -12,8 +12,8 @@ internal static class Utils
     public static IEnumerable<String> PrettyPrintMatrix<T>(String title,
                                                            in T[,] matrix,
                                                            Func<T, String> printer,
-                                                           List<String>? columnHeaders = null,
-                                                           List<String>? rowHeaders = null)
+                                                           Func<Int32, String>? columnHeaders = null,
+                                                           Func<Int32, String>? rowHeaders = null)
     {
         List<String> result = new() { $"[[{title}]]" };
 
@@ -21,14 +21,14 @@ internal static class Utils
         if (columnHeaders != null)
         {
             line.Add(String.Empty);
-            line.AddRange(columnHeaders);
+            line.AddRange(Enumerable.Range(0, matrix.GetLength(1)).Select(columnHeaders));
             result.Add(String.Join('\t', line));
         }
 
         for (var r = 0; r < matrix.GetLength(0); r++)
         {
             line.Clear();
-            line.Add(rowHeaders != null ? rowHeaders[r] : $"R#{r + 1}");
+            line.Add(rowHeaders != null ? rowHeaders(r) : $"R#{r + 1}");
 
             for (var c = 0; c < matrix.GetLength(1); c++)
             {

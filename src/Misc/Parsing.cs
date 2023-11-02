@@ -9,15 +9,16 @@ internal static class Parsing
     public const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
 
     private const String NO_INDEX_CLOSING_PARENTHESIS = @$"{CLOSING_PARENTHESIS}(?!\d)";
-    private const String NO_INDEX_ELEMENT =
-        $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
-    private const String INNERMOST_PARENTHESES_WITH_INDEX =
-        @$"{OPENING_PARENTHESIS}([^{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+){CLOSING_PARENTHESIS}(\d+)";
+
+    private const String NO_INDEX_ELEMENT = $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
+
+    private const String INNERMOST_PARENTHESES_WITH_INDEX = @$"{OPENING_PARENTHESIS}([^{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+){CLOSING_PARENTHESIS}(\d+)";
 
     private const String ENTITY_ALPHABET = $"[A-Za-z0-9{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
     public const String DIVIDER_CHARS = @"\+|=";
-    public const String SKELETAL_STRUCTURE =
-        @$"^(?:{ENTITY_ALPHABET}\+)+{ENTITY_ALPHABET}={ENTITY_ALPHABET}(?:\+{ENTITY_ALPHABET})+$";
+
+    public const String SKELETAL_STRUCTURE = @$"^(?:{ENTITY_ALPHABET}\+)+{ENTITY_ALPHABET}={ENTITY_ALPHABET}(?:\+{ENTITY_ALPHABET})+$";
+
     public const String ELEMENT_TEMPLATE = @"X(\d+(\.\d+)*)";
 
     internal static String Unfold(in String s)

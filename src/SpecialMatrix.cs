@@ -6,6 +6,13 @@ using MathNet.Numerics.LinearAlgebra;
 internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
     protected T[,] Data;
+
+    protected SpecialMatrix(Matrix<Double> matrix, Func<Double, T> convert)
+    {
+        Data = new T[matrix.RowCount, matrix.ColumnCount];
+        CopyValues(Data, matrix.ToArray(), convert);
+    }
+
     public Int32 RowCount => Data.GetLength(0);
     public Int32 ColumnCount => Data.GetLength(1);
     protected BasicOperations Basics { get; init; }
@@ -26,12 +33,6 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
             }
             return true;
         }
-    }
-
-    protected SpecialMatrix(Matrix<Double> matrix, Func<Double, T> convert)
-    {
-        Data = new T[matrix.RowCount, matrix.ColumnCount];
-        CopyValues(Data, matrix.ToArray(), convert);
     }
 
     protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
@@ -93,6 +94,8 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         }
     }
 
+    #region Nested type: BasicOperations
+
     protected struct BasicOperations
     {
         // ReSharper disable once NotAccessedField.Global
@@ -104,4 +107,6 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         internal Func<T, Boolean> IsOne;
         internal Func<T, String> AsString;
     }
+
+    #endregion
 }

@@ -1,7 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
-internal interface IChemicalEntityCollection
+internal interface IChemicalEntityList
 {
     Int32 EntitiesCount { get; }
-    String Entity(Int32 i);
+    String GetEntity(Int32 i);
 }

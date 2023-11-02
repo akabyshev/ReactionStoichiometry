@@ -8,6 +8,10 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
+    protected BalancerRisteski(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale) : base(equation, print, scale)
+    {
+    }
+
     protected override IEnumerable<String> Outcome
     {
         get
@@ -22,9 +26,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         }
     }
 
-    protected BalancerRisteski(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale) : base(equation, print, scale)
-    {
-    }
+    #region IBalancerInstantiatable Members
 
     public String LabelFor(Int32 i) => EntitiesCount > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
@@ -77,7 +79,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
             calculated /= kvp.Value[kvp.Key];
 
-            if (kvp.Key >= ReactantsCount) calculated *= -1;
+            if (kvp.Key >= Equation.ReactantsCount) calculated *= -1;
 
             coefficients[kvp.Key] = calculated;
         }
@@ -85,9 +87,11 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         return EquationWithIntegerCoefficients(coefficients);
     }
 
+    #endregion
+
     protected override void Balance()
     {
-        M.MapIndexedInplace((_, c, value) => c >= ReactantsCount ? -value : value);
+        M.MapIndexedInplace((_, c, value) => c >= Equation.ReactantsCount ? -value : value);
         var reducedMatrix = GetReducedMatrix();
         if (reducedMatrix.IsIdentityMatrix) throw new BalancerException("This SLE is unsolvable");
         Details.AddRange(Utils.PrettyPrintMatrix("Matrix in RREF", reducedMatrix.ToArray(), PrettyPrinter));
@@ -106,8 +110,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
                                                      .ToDictionary(static item => item.DependentCoefficientIndex, static item => item.Coefficients);
 
         _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
-                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) &&
-                                                        reducedMatrix.CountNonZeroesInColumn(c) > 0)
+                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) && reducedMatrix.CountNonZeroesInColumn(c) > 0)
                                             .ToList();
     }
 
@@ -117,7 +120,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
                                static _ => true,
                                static value => value + Program.MULTIPLICATION_SYMBOL,
-                               (index, _) => index < ReactantsCount);
+                               (index, _) => index < Equation.ReactantsCount);
 }
 
 internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>

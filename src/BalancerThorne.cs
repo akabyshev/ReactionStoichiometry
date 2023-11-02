@@ -7,6 +7,10 @@ internal sealed class BalancerThorne : Balancer<Double>
 {
     private List<BigInteger[]>? _independentEquations;
 
+    public BalancerThorne(String equation) : base(equation, Utils.PrettyPrintDouble, Utils.ScaleDoubles)
+    {
+    }
+
     protected override IEnumerable<String> Outcome
     {
         get
@@ -16,10 +20,6 @@ internal sealed class BalancerThorne : Balancer<Double>
 
             return _independentEquations.Select(EquationWithIntegerCoefficients);
         }
-    }
-
-    public BalancerThorne(String equation) : base(equation, Utils.PrettyPrintDouble, Utils.ScaleDoubles)
-    {
     }
 
     protected override void Balance()
