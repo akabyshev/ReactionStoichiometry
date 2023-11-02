@@ -88,15 +88,15 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
     protected override void Balance()
     {
         M.MapIndexedInplace((_, c, value) => c >= ReactantsCount ? -value : value);
-        var reducedAugmentedMatrix = GetReducedAugmentedMatrix();
-        if (reducedAugmentedMatrix.IsIdentityMatrix) throw new BalancerException("This SLE is unsolvable");
-        Details.AddRange(Utils.PrettyPrintMatrix("RREF-data augmented matrix", reducedAugmentedMatrix.ToArray(), PrettyPrinter));
+        var reducedMatrix = GetReducedMatrix();
+        if (reducedMatrix.IsIdentityMatrix) throw new BalancerException("This SLE is unsolvable");
+        Details.AddRange(Utils.PrettyPrintMatrix("Matrix in RREF", reducedMatrix.ToArray(), PrettyPrinter));
 
 
-        _dependentCoefficientExpressions = Enumerable.Range(0, reducedAugmentedMatrix.RowCount)
+        _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
                                                      .Select(r =>
                                                              {
-                                                                 var row = ScaleToIntegers(reducedAugmentedMatrix.GetRow(r));
+                                                                 var row = ScaleToIntegers(reducedMatrix.GetRow(r));
                                                                  return new
                                                                         {
                                                                             DependentCoefficientIndex = Array.FindIndex(row, static i => i != 0),
@@ -105,13 +105,13 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
                                                              })
                                                      .ToDictionary(static item => item.DependentCoefficientIndex, static item => item.Coefficients);
 
-        _freeCoefficientIndices = Enumerable.Range(0, reducedAugmentedMatrix.ColumnCount)
+        _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
                                             .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) &&
-                                                        reducedAugmentedMatrix.CountNonZeroesInColumn(c) > 0)
+                                                        reducedMatrix.CountNonZeroesInColumn(c) > 0)
                                             .ToList();
     }
 
-    protected abstract SpecialMatrixReducible<T> GetReducedAugmentedMatrix();
+    protected abstract SpecialMatrixReducible<T> GetReducedMatrix();
 
     private String EquationWithPlaceholders() =>
         AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
@@ -126,7 +126,7 @@ internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
     {
     }
 
-    protected override SpecialMatrixReducedDouble GetReducedAugmentedMatrix() => SpecialMatrixReducedDouble.CreateInstance(M);
+    protected override SpecialMatrixReducedDouble GetReducedMatrix() => SpecialMatrixReducedDouble.CreateInstance(M);
 }
 
 internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
@@ -135,5 +135,5 @@ internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
     {
     }
 
-    protected override SpecialMatrixReducedRational GetReducedAugmentedMatrix() => SpecialMatrixReducedRational.CreateInstance(M);
+    protected override SpecialMatrixReducedRational GetReducedMatrix() => SpecialMatrixReducedRational.CreateInstance(M);
 }

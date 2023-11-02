@@ -23,6 +23,9 @@ internal static class Program
         BasicTesting.PerformInstantiationTests();
         BasicTesting.PerformOnLaunchBatchTests();
 
+        // TODO: Illustrate true negative error of METHOD_THORNE		- find an equation that CAN NOT be balanced and it must say so (det 0?)
+        // TODO: Illustrate false negative error of METHOD_RISTESKI 	- is it even doable?
+
         Application.Run(new MainForm());
     }
 }

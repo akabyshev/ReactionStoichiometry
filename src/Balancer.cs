@@ -4,11 +4,12 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using MathNet.Numerics.LinearAlgebra;
 
-internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemicalEntityCollection
+internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityCollection
 {
     private readonly List<String> _entities = new();
     private readonly String _failureMessage;
     private readonly String _skeletal;
+    private readonly ChemicalReactionEquation _skeletalObject;
     protected readonly List<String> Details = new();
     protected readonly Matrix<Double> M;
     protected readonly Func<T, String> PrettyPrinter;
@@ -19,6 +20,7 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
     protected Balancer(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale)
     {
         _skeletal = equation.Replace(" ", "");
+        _skeletalObject = new ChemicalReactionEquation(equation.Replace(" ", ""));
         PrettyPrinter = print;
         ScaleToIntegers = scale;
 
@@ -44,9 +46,9 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
             }
 
             var chargeParsingRules = new[] { new[] { "Qn", @"Qn(\d*)$", "{$1-}" }, new[] { "Qp", @"Qp(\d*)$", "{$1+}" } };
-            foreach (var chargeParsingRule in chargeParsingRules)
+            for (var i = 0; i < _entities.Count; i++)
             {
-                for (var i = 0; i < _entities.Count; i++)
+                foreach (var chargeParsingRule in chargeParsingRules)
                 {
                     _entities[i] = Regex.Replace(_entities[i], chargeParsingRule[1], chargeParsingRule[2]);
                 }
@@ -129,4 +131,11 @@ internal abstract partial class Balancer<T> : ISpecialToStringProvider, IChemica
                                static (_, value) => value < 0);
 
     protected abstract void Balance();
+
+    internal sealed class BalancerException : InvalidOperationException
+    {
+        public BalancerException(String message) : base(message)
+        {
+        }
+    }
 }

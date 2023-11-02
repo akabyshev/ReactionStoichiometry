@@ -9,7 +9,6 @@ internal sealed partial class MainForm : Form
     internal MainForm()
     {
         InitializeComponent();
-        textBoxInput.Text = "H2+O2=H2O+O3+H5O3";
         SyncControls();
     }
 
