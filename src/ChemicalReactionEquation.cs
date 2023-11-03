@@ -8,18 +8,19 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
     private readonly List<String> _elements = new();
     private readonly List<String> _entities = new();
 
+    public readonly Int32 ReactantsCount;
     public readonly String Skeletal;
 
     public ChemicalReactionEquation(String s)
     {
         Skeletal = s.Replace(" ", String.Empty);
+        if (!SeemsFine(Skeletal)) throw new ArgumentException("Invalid string");
+        ReactantsCount = Skeletal.Split('=')[0].Split('+').Length;
 
         var chargeSymbols = new[] { "Qn", "Qp" };
         _elements.AddRange(Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct());
         _elements.Add("{e}");
     }
-
-    public Int32 ReactantsCount => Skeletal.Split('=')[0].Split('+').Length;
 
     #region IChemicalEntityList Members
     public Int32 EntitiesCount => _entities.Count;

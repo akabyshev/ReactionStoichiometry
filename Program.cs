@@ -19,12 +19,11 @@ internal static class Program
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
 
+        #if DEBUG
         BasicTesting.PerformBasicParserTests();
         BasicTesting.PerformInstantiationTests();
         BasicTesting.PerformOnLaunchBatchTests();
-
-        // TODO: Illustrate true negative error of METHOD_THORNE		- find an equation that CAN NOT be balanced and it must say so (det 0?)
-        // TODO: Illustrate false negative error of METHOD_RISTESKI 	- is it even doable?
+        #endif
 
         Application.Run(new MainForm());
     }

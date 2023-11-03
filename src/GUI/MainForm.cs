@@ -35,6 +35,6 @@ internal sealed partial class MainForm : Form
             _risteskiInstantiatorForm.Dispose();
         }
 
-        buttonBalance.Enabled = ChemicalReactionEquation.SeemsFine(textBoxInput.Text);
+        buttonBalance.Enabled = ChemicalReactionEquation.SeemsFine(textBoxInput.Text.Replace(" ", String.Empty));
     }
 }
