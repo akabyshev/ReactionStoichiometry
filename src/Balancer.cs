@@ -31,6 +31,7 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
 
         try
         {
+            // ReSharper disable once VirtualMemberCallInConstructor
             Balance();
             _statusMessage = "OK";
         }
