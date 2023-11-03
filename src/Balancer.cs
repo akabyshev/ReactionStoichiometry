@@ -5,17 +5,16 @@ using MathNet.Numerics.LinearAlgebra;
 
 internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityList
 {
-    private readonly String _failureMessage;
+    private readonly String _statusMessage;
     protected readonly List<String> Details = new();
+
     protected readonly ChemicalReactionEquation Equation;
     protected readonly Matrix<Double> M;
-    protected readonly Func<T, String> PrettyPrinter;
     protected readonly Func<T[], BigInteger[]> ScaleToIntegers;
 
-    protected Balancer(String equation, Func<T, String> print, Func<T[], BigInteger[]> scale)
+    protected Balancer(String equation, Func<T[], BigInteger[]> scale)
     {
         Equation = new ChemicalReactionEquation(equation);
-        PrettyPrinter = print;
         ScaleToIntegers = scale;
 
         try
@@ -27,17 +26,17 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
             throw new BalancerException($"Parsing failed: {e.Message}");
         }
 
-        Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(), Utils.PrettyPrintDouble, GetEntity, Equation.GetElement));
+        Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(), GetEntity, Equation.GetElement));
         Details.Add($"RxC: {M.RowCount}x{M.ColumnCount}, rank = {M.Rank()}, nullity = {M.Nullity()}");
 
         try
         {
             Balance();
-            _failureMessage = String.Empty;
+            _statusMessage = "OK";
         }
         catch (BalancerException e)
         {
-            _failureMessage = "This equation can't be balanced: " + e.Message;
+            _statusMessage = "This equation can't be balanced: " + e.Message;
         }
     }
 
@@ -65,41 +64,16 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
             return template.Replace("%Skeletal%", Equation.Skeletal)
                            .Replace("%Details%", String.Join(Environment.NewLine, Details))
                            .Replace("%Outcome%", ToString(ISpecialToStringProvider.OutputFormat.OutcomeNewLineSeparated))
-                           .Replace("%Diagnostics%", _failureMessage);
+                           .Replace("%Diagnostics%", _statusMessage);
         }
     }
     #endregion
-
-    protected String AssembleEquationString<T2>(T2[] vector, Func<T2, Boolean> mustInclude, Func<T2, String> toString, Func<Int32, T2, Boolean> isReactant)
-    {
-        if (vector.Length != EntitiesCount) throw new ArgumentOutOfRangeException(nameof(vector), "Array size mismatch");
-
-        List<String> l = new();
-        List<String> r = new();
-
-        for (var i = 0; i < EntitiesCount; i++)
-        {
-            if (mustInclude(vector[i])) (isReactant(i, vector[i]) ? l : r).Add(toString(vector[i]) + GetEntity(i));
-        }
-
-        if (l.Count == 0 || r.Count == 0) return "Invalid coefficients";
-        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
-    }
 
     protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
-        AssembleEquationString(coefficients,
-                               static value => value != BigInteger.Zero,
-                               static value => value == 1 || value == -1 ? "" : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
-                               static (_, value) => value < 0);
+        Equation.AssembleEquationString(coefficients,
+                                        static value => value != BigInteger.Zero,
+                                        static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
+                                        static (_, value) => value < 0);
 
     protected abstract void Balance();
-
-    #region Nested type: BalancerException
-    internal sealed class BalancerException : InvalidOperationException
-    {
-        public BalancerException(String message) : base(message)
-        {
-        }
-    }
-    #endregion
 }

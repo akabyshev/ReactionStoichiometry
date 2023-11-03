@@ -6,15 +6,19 @@ using Rationals;
 
 internal static class Utils
 {
-    public static String PrettyPrintDouble(Double value) => (value >= 0 ? " " : "") + value.ToString("0.###");
-    public static String PrettyPrintRational(Rational value) => value.ToString("C");
-
     public static IEnumerable<String> PrettyPrintMatrix<T>(String title,
                                                            in T[,] matrix,
-                                                           Func<T, String> printer,
                                                            Func<Int32, String>? columnHeaders = null,
                                                            Func<Int32, String>? rowHeaders = null)
     {
+        Func<T, String> printer;
+        if (typeof(T) == typeof(Double))
+            printer = static v => PrettyPrintDouble((Double)(v as Object)!);
+        else if (typeof(T) == typeof(Rational))
+            printer = static v => PrettyPrintRational((Rational)(v as Object)!);
+        else
+            throw new NotImplementedException($"Printer is not implemented for type {typeof(T)}");
+
         List<String> result = new() { $"[[{title}]]" };
 
         List<String> line = new();
@@ -39,6 +43,16 @@ internal static class Utils
         }
 
         return result;
+
+        static String PrettyPrintDouble(Double value)
+        {
+            return (value >= 0 ? " " : String.Empty) + value.ToString("0.###");
+        }
+
+        static String PrettyPrintRational(Rational value)
+        {
+            return value.ToString("C");
+        }
     }
 
     public static String LetterLabel(Int32 n) => ((Char)('a' + n)).ToString();

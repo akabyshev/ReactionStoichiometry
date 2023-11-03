@@ -18,7 +18,7 @@ internal sealed partial class RisteskiInstantiatorForm : Form
             theGrid.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
             theGrid.Rows[i].Cells["Entity"].Value = _balancer.GetEntity(i);
 
-            if (_balancer.GetCoefficientExpression(i) == String.Empty)
+            if (String.IsNullOrEmpty(_balancer.GetCoefficientExpressionString(i)))
             {
                 theGrid.Rows[i].Cells["Value"].ReadOnly = false;
                 theGrid.Rows[i].Cells["Value"].Value = 1;
@@ -27,7 +27,7 @@ internal sealed partial class RisteskiInstantiatorForm : Form
             else
             {
                 theGrid.Rows[i].Cells["Value"].ReadOnly = true;
-                theGrid.Rows[i].Cells["Value"].Value = _balancer.GetCoefficientExpression(i);
+                theGrid.Rows[i].Cells["Value"].Value = _balancer.GetCoefficientExpressionString(i);
                 theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
             }
         }
@@ -62,17 +62,17 @@ internal sealed partial class RisteskiInstantiatorForm : Form
 
             return _balancer!.Instantiate(parameters.ToArray());
         }
-        catch (InvalidOperationException)
-        {
-            return "Could not get integer coefficients";
-        }
         catch (FormatException)
         {
             return "Parsing error occurred";
         }
+        catch (BalancerException)
+        {
+            return "Could not get integer coefficients";
+        }
     }
 
-    private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => Instantiate();
+    private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => txtInstance.Text = Instantiate();
 
     private void OnTextChanged(Object sender, EventArgs e) => ResizeForm();
 

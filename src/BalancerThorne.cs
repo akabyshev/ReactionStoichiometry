@@ -7,7 +7,7 @@ internal sealed class BalancerThorne : Balancer<Double>
 {
     private List<BigInteger[]>? _independentEquations;
 
-    public BalancerThorne(String equation) : base(equation, Utils.PrettyPrintDouble, Utils.ScaleDoubles)
+    public BalancerThorne(String equation) : base(equation, Utils.ScaleDoubles)
     {
     }
 
@@ -27,7 +27,7 @@ internal sealed class BalancerThorne : Balancer<Double>
         var augmentedMatrix = GetAugmentedMatrix();
         if (!Utils.IsNonZeroDouble(augmentedMatrix.Determinant())) throw new BalancerException("Augmented matrix can't be inverted");
         var inverse = augmentedMatrix.Inverse();
-        Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", inverse.ToArray(), PrettyPrinter));
+        Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", inverse.ToArray()));
 
 
         _independentEquations = Enumerable.Range(inverse.ColumnCount - M.Nullity(), M.Nullity())

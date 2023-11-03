@@ -12,7 +12,7 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
 
     public ChemicalReactionEquation(String s)
     {
-        Skeletal = s.Replace(" ", "");
+        Skeletal = s.Replace(" ", String.Empty);
 
         var chargeSymbols = new[] { "Qn", "Qp" };
         _elements.AddRange(Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct());
@@ -66,5 +66,22 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
         _elements.Remove("Qn");
         matrix = matrix.RemoveRow(_elements.IndexOf("Qp"));
         _elements.Remove("Qp");
+    }
+
+    public String AssembleEquationString<T>(T[] vector, Func<T, Boolean> mustInclude, Func<T, String> toString, Func<Int32, T, Boolean> isReactant)
+    {
+        if (vector.Length != EntitiesCount) throw new ArgumentOutOfRangeException(nameof(vector), "Array size mismatch");
+
+        List<String> l = new();
+        List<String> r = new();
+
+        for (var i = 0; i < EntitiesCount; i++)
+        {
+            if (mustInclude(vector[i])) (isReactant(i, vector[i]) ? l : r).Add(toString(vector[i]) + GetEntity(i));
+        }
+
+        if (l.Count == 0 || r.Count == 0) return "Invalid coefficients";
+
+        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
 }
