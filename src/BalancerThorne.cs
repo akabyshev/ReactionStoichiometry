@@ -3,11 +3,11 @@
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
-internal sealed class BalancerThorne : Balancer<Double>
+internal sealed class BalancerThorne : Balancer
 {
     private List<BigInteger[]>? _independentEquations;
 
-    public BalancerThorne(String equation) : base(equation, Utils.ScaleDoubles)
+    public BalancerThorne(String equation) : base(equation)
     {
     }
 
@@ -22,7 +22,7 @@ internal sealed class BalancerThorne : Balancer<Double>
         }
     }
 
-    protected override void Balance()
+    protected override void BalanceImplementation()
     {
         var augmentedMatrix = GetAugmentedMatrix();
         if (!Utils.IsNonZeroDouble(augmentedMatrix.Determinant())) throw new BalancerException("Augmented matrix can't be inverted");
@@ -31,7 +31,7 @@ internal sealed class BalancerThorne : Balancer<Double>
 
 
         _independentEquations = Enumerable.Range(inverse.ColumnCount - M.Nullity(), M.Nullity())
-                                          .Select(c => ScaleToIntegers(inverse.Column(c).ToArray()))
+                                          .Select(c => Utils.ScaleDoubles(inverse.Column(c).ToArray()))
                                           .ToList();
     }
 

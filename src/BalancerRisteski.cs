@@ -3,14 +3,13 @@
 using System.Numerics;
 using Rationals;
 
-internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
+internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
 {
+    private readonly Func<IEnumerable<T>, BigInteger[]> _scaleToIntegers;
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
-    protected BalancerRisteski(String equation, Func<T[], BigInteger[]> scale) : base(equation, scale)
-    {
-    }
+    protected BalancerRisteski(String equation, Func<IEnumerable<T>, BigInteger[]> scale) : base(equation) => _scaleToIntegers = scale;
 
     protected override IEnumerable<String> Outcome
     {
@@ -89,7 +88,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
     }
     #endregion
 
-    protected override void Balance()
+    protected override void BalanceImplementation()
     {
         M.MapIndexedInplace((_, c, value) => c >= Equation.ReactantsCount ? -value : value);
         var reducedMatrix = GetReducedMatrix();
@@ -100,7 +99,7 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
                                                      .Select(r =>
                                                              {
-                                                                 var row = ScaleToIntegers(reducedMatrix.GetRow(r));
+                                                                 var row = _scaleToIntegers(reducedMatrix.GetRow(r));
                                                                  return new
                                                                         {
                                                                             DependentCoefficientIndex = Array.FindIndex(row, static i => i != 0),
@@ -118,9 +117,9 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
     private String EquationWithPlaceholders() =>
         Equation.AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
-                               static _ => true,
-                               static value => value + Program.MULTIPLICATION_SYMBOL,
-                               (index, _) => index < Equation.ReactantsCount);
+                                        static _ => true,
+                                        static value => value + Program.MULTIPLICATION_SYMBOL,
+                                        (index, _) => index < Equation.ReactantsCount);
 }
 
 internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>

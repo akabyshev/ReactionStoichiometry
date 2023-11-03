@@ -11,7 +11,6 @@ internal sealed partial class MainForm : Form
         SyncControls();
         _permutationTool.Owner = this;
         _instantiationTool.Owner = this;
-
     }
 
     private void On_buttonBalance_Click(Object sender, EventArgs e) => Balance();
@@ -21,16 +20,22 @@ internal sealed partial class MainForm : Form
         textBoxInput.Text = textBoxInput.Text.Replace(" ", String.Empty);
         var s = textBoxInput.Text;
 
-        resultMT.Text = new BalancerThorne(s).ToString(ISpecialToStringProvider.OutputFormat.Plain);
+        {
+            var balancerThorne = new BalancerThorne(s);
+            balancerThorne.Balance();
+            resultMT.Text = balancerThorne.ToString(Balancer.OutputFormat.Plain);
+        }
+        {
+            var balancerRisteskiRational = new BalancerRisteskiRational(s);
+            balancerRisteskiRational.Balance();
+            resultMR.Text = balancerRisteskiRational.ToString(Balancer.OutputFormat.Plain);
 
-        var balancer = new BalancerRisteskiRational(s);
-        resultMR.Text = balancer.ToString(ISpecialToStringProvider.OutputFormat.Plain);
+            _permutationTool.Init(s);
+            _instantiationTool.Init(balancerRisteskiRational);
 
-        _permutationTool.Init(s);
-        _instantiationTool.Init(balancer);
-
-        _permutationTool.Visible = true;
-        _instantiationTool.Visible = true;
+            _permutationTool.Visible = true;
+            _instantiationTool.Visible = true;
+        }
     }
 
     private void On_textBoxInput_TextChanged(Object sender, EventArgs e) => SyncControls();

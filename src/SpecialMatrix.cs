@@ -38,7 +38,7 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
     protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
     internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => !Basics.IsZero(Data[i, c]));
 
-    public T[] GetRow(Int32 r)
+    public IEnumerable<T> GetRow(Int32 r)
     {
         var result = new T[ColumnCount];
         for (var c = 0; c < ColumnCount; c++)

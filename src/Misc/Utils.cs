@@ -61,7 +61,7 @@ internal static class Utils
     public static BigInteger[] ScaleDoubles(IEnumerable<Double> doubles) =>
         ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Program.GOOD_ENOUGH_DOUBLE_ZERO)).ToArray());
 
-    public static BigInteger[] ScaleRationals(Rational[] rationals)
+    public static BigInteger[] ScaleRationals(IEnumerable<Rational> rationals)
     {
         var multiple = rationals.Select(static r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
         var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();

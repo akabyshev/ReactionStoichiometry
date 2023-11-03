@@ -37,7 +37,11 @@ internal static class BasicTesting
 
             var bRisteski = new BalancerRisteskiRational(eq);
             var bThorne = new BalancerThorne(eq);
-            var hhSimple = bThorne.ToString(ISpecialToStringProvider.OutputFormat.OutcomeCommaSeparated);
+
+            bRisteski.Balance();
+            bThorne.Balance();
+
+            var hhSimple = bThorne.ToString(Balancer.OutputFormat.OutcomeCommaSeparated);
 
             if (String.IsNullOrEmpty(parts[1])) continue;
             var instances = parts[1]
@@ -64,9 +68,10 @@ internal static class BasicTesting
             while (reader.ReadLine() is { } line)
             {
                 if (line.StartsWith("#") || line.Length == 0) continue;
-                var balancer = (ISpecialToStringProvider)Activator.CreateInstance(type, line.Replace(" ", String.Empty))!;
+                var balancer = (Balancer)Activator.CreateInstance(type, line.Replace(" ", String.Empty))!;
+                balancer.Balance();
 
-                writerFull.WriteLine(balancer.ToString(ISpecialToStringProvider.OutputFormat.Plain));
+                writerFull.WriteLine(balancer.ToString(Balancer.OutputFormat.Plain));
                 writerFull.WriteLine("====================================");
             }
         }

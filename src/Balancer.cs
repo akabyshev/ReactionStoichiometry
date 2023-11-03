@@ -3,19 +3,27 @@
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 
-internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityList
+internal abstract class Balancer : IChemicalEntityList
 {
-    private readonly String _statusMessage;
+    #region OutputFormat enum
+    public enum OutputFormat
+    {
+        Plain,
+        OutcomeCommaSeparated,
+        OutcomeNewLineSeparated,
+        Html
+    }
+    #endregion
+
     protected readonly List<String> Details = new();
 
     protected readonly ChemicalReactionEquation Equation;
     protected readonly Matrix<Double> M;
-    protected readonly Func<T[], BigInteger[]> ScaleToIntegers;
+    private String _statusMessage = String.Empty;
 
-    protected Balancer(String equation, Func<T[], BigInteger[]> scale)
+    protected Balancer(String equation)
     {
         Equation = new ChemicalReactionEquation(equation);
-        ScaleToIntegers = scale;
 
         try
         {
@@ -28,17 +36,6 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
 
         Details.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", M.ToArray(), GetEntity, Equation.GetElement));
         Details.Add($"RxC: {M.RowCount}x{M.ColumnCount}, rank = {M.Rank()}, nullity = {M.Nullity()}");
-
-        try
-        {
-            // ReSharper disable once VirtualMemberCallInConstructor
-            Balance();
-            _statusMessage = "OK";
-        }
-        catch (BalancerException e)
-        {
-            _statusMessage = "This equation can't be balanced: " + e.Message;
-        }
     }
 
     protected abstract IEnumerable<String> Outcome { get; }
@@ -48,15 +45,14 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
     public String GetEntity(Int32 i) => Equation.GetEntity(i);
     #endregion
 
-    #region ISpecialToStringProvider Members
-    public String ToString(ISpecialToStringProvider.OutputFormat format)
+    public String ToString(OutputFormat format)
     {
         return format switch
         {
-            ISpecialToStringProvider.OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
-            ISpecialToStringProvider.OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
-            ISpecialToStringProvider.OutputFormat.OutcomeCommaSeparated => String.Join(',', Outcome),
-            ISpecialToStringProvider.OutputFormat.OutcomeNewLineSeparated => String.Join(Environment.NewLine, Outcome),
+            OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
+            OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
+            OutputFormat.OutcomeCommaSeparated => String.Join(',', Outcome),
+            OutputFormat.OutcomeNewLineSeparated => String.Join(Environment.NewLine, Outcome),
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 
@@ -64,11 +60,10 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
         {
             return template.Replace("%Skeletal%", Equation.Skeletal)
                            .Replace("%Details%", String.Join(Environment.NewLine, Details))
-                           .Replace("%Outcome%", ToString(ISpecialToStringProvider.OutputFormat.OutcomeNewLineSeparated))
+                           .Replace("%Outcome%", ToString(OutputFormat.OutcomeNewLineSeparated))
                            .Replace("%Diagnostics%", _statusMessage);
         }
     }
-    #endregion
 
     protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
         Equation.AssembleEquationString(coefficients,
@@ -76,5 +71,18 @@ internal abstract class Balancer<T> : ISpecialToStringProvider, IChemicalEntityL
                                         static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
                                         static (_, value) => value < 0);
 
-    protected abstract void Balance();
+    protected abstract void BalanceImplementation();
+
+    public void Balance()
+    {
+        try
+        {
+            BalanceImplementation();
+            _statusMessage = "OK";
+        }
+        catch (BalancerException e)
+        {
+            _statusMessage = "This equation can't be balanced: " + e.Message;
+        }
+    }
 }

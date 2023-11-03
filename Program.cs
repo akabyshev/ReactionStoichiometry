@@ -27,9 +27,8 @@ internal static class Program
         BasicTesting.PerformInstantiationTests();
         BasicTesting.PerformOnLaunchBatchTests();
         stopwatch.Stop();
-        var elapsed = stopwatch.Elapsed;
-        Console.WriteLine($"Elapsed time: {elapsed.TotalMilliseconds} milliseconds");
-#endif
+        Debug.WriteLine($"Tests look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
+        #endif
 
         Application.Run(new MainForm());
     }
