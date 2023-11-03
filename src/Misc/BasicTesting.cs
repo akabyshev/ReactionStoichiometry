@@ -43,7 +43,7 @@ internal static class BasicTesting
             var instances = parts[1]
                             .Split(';')
                             .Select(static s => s.Trim('(', ')').Split(',').Select(BigInteger.Parse).ToArray())
-                            .Select(parametersSet => bRisteski.Instantiate(parametersSet));
+                            .Select(parametersSet => bRisteski.Instantiate(parametersSet).readable);
 
             AssertStringsAreEqual(hhSimple, String.Join(",", instances));
         }

@@ -4,13 +4,17 @@ using System.Numerics;
 
 internal sealed partial class RisteskiInstantiatorForm : Form
 {
-    private IBalancerInstantiatable? _balancer;
-    internal RisteskiInstantiatorForm() => InitializeComponent();
+    private readonly IBalancerInstantiatable _balancer;
 
-    internal void InitRisteskiTable(IBalancerInstantiatable b)
+    internal RisteskiInstantiatorForm(IBalancerInstantiatable balancer)
     {
-        _balancer = b;
+        _balancer = balancer;
+        InitializeComponent();
+        InitRisteskiTable();
+    }
 
+    private void InitRisteskiTable()
+    {
         theGrid.Rows.Clear();
         theGrid.RowCount = _balancer.EntitiesCount;
         for (var i = 0; i < _balancer.EntitiesCount; i++)
@@ -18,23 +22,24 @@ internal sealed partial class RisteskiInstantiatorForm : Form
             theGrid.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
             theGrid.Rows[i].Cells["Entity"].Value = _balancer.GetEntity(i);
 
-            if (String.IsNullOrEmpty(_balancer.GetCoefficientExpressionString(i)))
+            var expr = _balancer.GetCoefficientExpressionString(i);
+
+            if (!String.IsNullOrEmpty(expr))
             {
-                theGrid.Rows[i].Cells["Value"].ReadOnly = false;
-                theGrid.Rows[i].Cells["Value"].Value = 1;
-                theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
+                theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
+                theGrid.Rows[i].Cells["Expression"].Value = expr;
             }
             else
             {
-                theGrid.Rows[i].Cells["Value"].ReadOnly = true;
-                theGrid.Rows[i].Cells["Value"].Value = _balancer.GetCoefficientExpressionString(i);
-                theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
+                theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
+                theGrid.Rows[i].Cells["Expression"].Value = "a parameter";
+                theGrid.Rows[i].Cells["Value"].Value = 0;
             }
         }
 
-        txtInstance.Text = Instantiate();
-        theGrid.Refresh();
+        Instantiate();
         ApplyVisualStyle();
+        theGrid.Refresh();
     }
 
     private void ApplyVisualStyle()
@@ -44,11 +49,13 @@ internal sealed partial class RisteskiInstantiatorForm : Form
             var cv = theGrid.Rows[i].Cells["IsFreeVariable"].Value ?? throw new InvalidOperationException();
             var isFreeVarRow = Boolean.Parse(cv.ToString()!);
             theGrid.Rows[i].Cells["Value"].Style.BackColor = isFreeVarRow ? Color.Bisque : Color.White;
+            theGrid.Rows[i].Cells["Value"].ReadOnly = !isFreeVarRow;
         }
     }
 
-    private String Instantiate()
+    private void Instantiate()
     {
+        BigInteger[]? coefficients;
         try
         {
             List<BigInteger> parameters = new();
@@ -60,26 +67,28 @@ internal sealed partial class RisteskiInstantiatorForm : Form
                 parameters.Add(BigInteger.Parse(cv.ToString()!));
             }
 
-            return _balancer!.Instantiate(parameters.ToArray());
+            (coefficients, txtInstance.Text) = _balancer.Instantiate(parameters.ToArray());
         }
         catch (FormatException)
         {
-            return "Parsing error occurred";
+            txtInstance.Text = "Parsing error occurred";
+            coefficients = null;
         }
         catch (BalancerException)
         {
-            return "Could not get integer coefficients";
+            txtInstance.Text = "Could not get integer coefficients";
+            coefficients = null;
+        }
+
+        for (var i = 0; i < theGrid.Rows.Count; i++)
+        {
+            theGrid.Rows[i].Cells["Value"].Value = coefficients != null ? BigInteger.Abs(coefficients[i]) : 0;
         }
     }
 
-    private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => txtInstance.Text = Instantiate();
+    private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => Instantiate();
 
-    private void OnTextChanged(Object sender, EventArgs e) => ResizeForm();
+    private void OnTextChanged(Object sender, EventArgs e) => AdaptFormHeight();
 
-    private void ResizeForm()
-    {
-        var size = TextRenderer.MeasureText(txtInstance.Text, txtInstance.Font);
-        Width = size.Width + 25;
-        Height = txtInstance.Height * (1 + theGrid.RowCount + 1) + 120;
-    }
+    private void AdaptFormHeight() => Height = txtInstance.Height * (1 + theGrid.RowCount + 1) + 120;
 }

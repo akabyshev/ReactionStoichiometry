@@ -64,7 +64,7 @@
             // resultMT
             // 
             resultMT.Dock = DockStyle.Fill;
-            resultMT.Font = new Font("Courier New", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            resultMT.Font = new Font("Courier New", 8.1F, FontStyle.Regular, GraphicsUnit.Point);
             resultMT.Location = new Point(0, 0);
             resultMT.Multiline = true;
             resultMT.Name = "resultMT";
@@ -87,7 +87,7 @@
             // resultMR
             // 
             resultMR.Dock = DockStyle.Fill;
-            resultMR.Font = new Font("Courier New", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            resultMR.Font = new Font("Courier New", 8.1F, FontStyle.Regular, GraphicsUnit.Point);
             resultMR.Location = new Point(0, 0);
             resultMR.Multiline = true;
             resultMR.Name = "resultMR";
@@ -114,7 +114,7 @@
             textBoxInput.Name = "textBoxInput";
             textBoxInput.Size = new Size(2180, 47);
             textBoxInput.TabIndex = 4;
-            textBoxInput.Text = "IO4Qn+IQn=IO3Qn+I3Qn+H2O+OHQn";
+            textBoxInput.Text = "Fe2(SO4)3 + PrTlTe3 + H3PO4 = Fe0.996(H2PO4)2H2O + Tl1.987(SO3)3 + Pr1.998(SO4)3 + Te2O3 + P2O5 + H2S";
             textBoxInput.TextChanged += On_textBoxInput_TextChanged;
             // 
             // buttonBalance

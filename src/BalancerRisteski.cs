@@ -61,20 +61,20 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
         return result;
     }
 
-    public String Instantiate(BigInteger[] parameters)
+    public (BigInteger[] coefficients, String readable) Instantiate(BigInteger[] parameters)
     {
         if (parameters.Length != _freeCoefficientIndices!.Count) throw new ArgumentOutOfRangeException(nameof(parameters), "Array size mismatch");
 
-        var coefficients = new BigInteger[EntitiesCount];
+        var result = new BigInteger[EntitiesCount];
 
         for (var i = 0; i < _freeCoefficientIndices.Count; i++)
         {
-            coefficients[_freeCoefficientIndices[i]] = parameters[i];
+            result[_freeCoefficientIndices[i]] = parameters[i];
         }
 
         foreach (var kvp in _dependentCoefficientExpressions!)
         {
-            var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, (sum, i) => sum + coefficients[i] * kvp.Value[i]);
+            var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, (sum, i) => sum + result[i] * kvp.Value[i]);
 
             if (calculated % kvp.Value[kvp.Key] != 0) throw new BalancerException("Non-integer coefficient, try other SLE params");
 
@@ -82,10 +82,10 @@ internal abstract class BalancerRisteski<T> : Balancer<T>, IBalancerInstantiatab
 
             if (kvp.Key >= Equation.ReactantsCount) calculated *= -1;
 
-            coefficients[kvp.Key] = calculated;
+            result[kvp.Key] = calculated;
         }
 
-        return EquationWithIntegerCoefficients(coefficients);
+        return (result, EquationWithIntegerCoefficients(result));
     }
     #endregion
 

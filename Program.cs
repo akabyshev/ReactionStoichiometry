@@ -1,5 +1,6 @@
 namespace ReactionStoichiometry;
 
+using System.Diagnostics;
 using GUI;
 
 internal static class Program
@@ -20,9 +21,14 @@ internal static class Program
         ApplicationConfiguration.Initialize();
 
         #if DEBUG
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
         BasicTesting.PerformBasicParserTests();
         BasicTesting.PerformInstantiationTests();
         BasicTesting.PerformOnLaunchBatchTests();
+        stopwatch.Stop();
+        var elapsed = stopwatch.Elapsed;
+        Console.WriteLine($"Elapsed time: {elapsed.TotalMilliseconds} milliseconds");
         #endif
 
         Application.Run(new MainForm());

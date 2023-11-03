@@ -7,7 +7,6 @@ internal sealed partial class MainForm : Form
     internal MainForm()
     {
         InitializeComponent();
-        textBoxInput.Text = "C6H5COOH + O2 = CO2 + H2O";
         SyncControls();
     }
 
@@ -18,8 +17,8 @@ internal sealed partial class MainForm : Form
         var balancer = new BalancerRisteskiRational(textBoxInput.Text);
         resultMR.Text = balancer.ToString(ISpecialToStringProvider.OutputFormat.Plain);
 
-        _risteskiInstantiatorForm = new RisteskiInstantiatorForm();
-        _risteskiInstantiatorForm.InitRisteskiTable(balancer);
+        // ReSharper disable once ArrangeThisQualifier
+        _risteskiInstantiatorForm = new RisteskiInstantiatorForm(balancer) { Width = this.Width};
         _risteskiInstantiatorForm.Show();
     }
 
