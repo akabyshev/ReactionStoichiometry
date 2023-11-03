@@ -2,28 +2,35 @@ namespace ReactionStoichiometry;
 
 internal sealed partial class MainForm : Form
 {
-    private InstantiationTool? _instantiatorForm;
-    private readonly PermutationTool _permutationTool = new() {Visible = false};
+    private readonly InstantiationTool _instantiationTool = new();
+    private readonly PermutationTool _permutationTool = new();
 
     internal MainForm()
     {
         InitializeComponent();
         SyncControls();
+        _permutationTool.Owner = this;
+        _instantiationTool.Owner = this;
+
     }
 
-    private void On_buttonBalance_Click(Object sender, EventArgs e)
+    private void On_buttonBalance_Click(Object sender, EventArgs e) => Balance();
+
+    internal void Balance()
     {
-        var s = textBoxInput.Text.Replace(" ", String.Empty);
+        textBoxInput.Text = textBoxInput.Text.Replace(" ", String.Empty);
+        var s = textBoxInput.Text;
+
         resultMT.Text = new BalancerThorne(s).ToString(ISpecialToStringProvider.OutputFormat.Plain);
 
         var balancer = new BalancerRisteskiRational(s);
         resultMR.Text = balancer.ToString(ISpecialToStringProvider.OutputFormat.Plain);
-        _permutationTool.In(s);
-        _permutationTool.Visible = true;
 
-        // ReSharper disable once ArrangeThisQualifier
-        _instantiatorForm = new InstantiationTool(balancer) { Width = this.Width};
-        _instantiatorForm.Show();
+        _permutationTool.Init(s);
+        _instantiationTool.Init(balancer);
+
+        _permutationTool.Visible = true;
+        _instantiationTool.Visible = true;
     }
 
     private void On_textBoxInput_TextChanged(Object sender, EventArgs e) => SyncControls();
@@ -32,12 +39,9 @@ internal sealed partial class MainForm : Form
     {
         resultMT.Text = String.Empty;
         resultMR.Text = String.Empty;
-        if (_instantiatorForm is { IsDisposed: false })
-        {
-            _instantiatorForm.Close();
-            _instantiatorForm.Dispose();
-        }
 
         buttonBalance.Enabled = ChemicalReactionEquation.SeemsFine(textBoxInput.Text.Replace(" ", String.Empty));
+        _instantiationTool.Visible = false;
+        _permutationTool.Visible = false;
     }
 }

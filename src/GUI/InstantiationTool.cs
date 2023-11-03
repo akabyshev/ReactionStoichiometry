@@ -4,17 +4,14 @@ using System.Numerics;
 
 internal sealed partial class InstantiationTool : Form
 {
-    private readonly IBalancerInstantiatable _balancer;
+    private IBalancerInstantiatable _balancer;
 
-    internal InstantiationTool(IBalancerInstantiatable balancer)
+    internal InstantiationTool() => InitializeComponent();
+
+    internal void Init(IBalancerInstantiatable balancer)
     {
         _balancer = balancer;
-        InitializeComponent();
-        InitRisteskiTable();
-    }
 
-    private void InitRisteskiTable()
-    {
         theGrid.Rows.Clear();
         theGrid.RowCount = _balancer.EntitiesCount;
         for (var i = 0; i < _balancer.EntitiesCount; i++)
@@ -32,7 +29,7 @@ internal sealed partial class InstantiationTool : Form
             else
             {
                 theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
-                theGrid.Rows[i].Cells["Expression"].Value = "a parameter";
+                theGrid.Rows[i].Cells["Expression"].Value = "free variable";
                 theGrid.Rows[i].Cells["Value"].Value = 0;
             }
         }
@@ -84,11 +81,15 @@ internal sealed partial class InstantiationTool : Form
         {
             theGrid.Rows[i].Cells["Value"].Value = coefficients != null ? BigInteger.Abs(coefficients[i]) : 0;
         }
+
+        AdaptFormSize();
     }
 
     private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => Instantiate();
 
-    private void OnTextChanged(Object sender, EventArgs e) => AdaptFormHeight();
-
-    private void AdaptFormHeight() => Height = txtInstance.Height * (1 + theGrid.RowCount + 1) + 120;
+    private void AdaptFormSize()
+    {
+        Width = Owner.Width;
+        Height = txtInstance.Height * (1 + theGrid.RowCount + 1) + 120;
+    }
 }

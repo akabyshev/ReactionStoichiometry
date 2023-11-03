@@ -28,55 +28,35 @@
         /// </summary>
         private void InitializeComponent()
         {
-            listEntities = new ListView();
-            panel1 = new Panel();
-            buttonMoveDown = new Button();
-            buttonMoveUp = new Button();
-            panel1.SuspendLayout();
+            listLHS = new ListBox();
+            listRHS = new ListBox();
             SuspendLayout();
             // 
-            // listEntities
+            // listLHS
             // 
-            listEntities.Dock = DockStyle.Fill;
-            listEntities.FullRowSelect = true;
-            listEntities.GridLines = true;
-            listEntities.Location = new Point(64, 0);
-            listEntities.MultiSelect = false;
-            listEntities.Name = "listEntities";
-            listEntities.Size = new Size(504, 512);
-            listEntities.TabIndex = 0;
-            listEntities.UseCompatibleStateImageBehavior = false;
-            listEntities.View = View.SmallIcon;
+            listLHS.Dock = DockStyle.Top;
+            listLHS.ItemHeight = 41;
+            listLHS.Items.AddRange(new object[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" });
+            listLHS.Location = new Point(0, 0);
+            listLHS.Name = "listLHS";
+            listLHS.ScrollAlwaysVisible = true;
+            listLHS.Size = new Size(568, 250);
+            listLHS.TabIndex = 0;
+            listLHS.TabStop = false;
+            listLHS.MouseDoubleClick += OnListMouseDoubleClick;
             // 
-            // panel1
+            // listRHS
             // 
-            panel1.Controls.Add(buttonMoveDown);
-            panel1.Controls.Add(buttonMoveUp);
-            panel1.Dock = DockStyle.Left;
-            panel1.Location = new Point(0, 0);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(64, 512);
-            panel1.TabIndex = 3;
-            // 
-            // buttonMoveDown
-            // 
-            buttonMoveDown.Dock = DockStyle.Bottom;
-            buttonMoveDown.Location = new Point(0, 384);
-            buttonMoveDown.Name = "buttonMoveDown";
-            buttonMoveDown.Size = new Size(64, 128);
-            buttonMoveDown.TabIndex = 5;
-            buttonMoveDown.Text = "▼";
-            buttonMoveDown.UseVisualStyleBackColor = true;
-            // 
-            // buttonMoveUp
-            // 
-            buttonMoveUp.Dock = DockStyle.Top;
-            buttonMoveUp.Location = new Point(0, 0);
-            buttonMoveUp.Name = "buttonMoveUp";
-            buttonMoveUp.Size = new Size(64, 128);
-            buttonMoveUp.TabIndex = 4;
-            buttonMoveUp.Text = "▲";
-            buttonMoveUp.UseVisualStyleBackColor = true;
+            listRHS.Dock = DockStyle.Fill;
+            listRHS.ItemHeight = 41;
+            listRHS.Items.AddRange(new object[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" });
+            listRHS.Location = new Point(0, 250);
+            listRHS.Name = "listRHS";
+            listRHS.ScrollAlwaysVisible = true;
+            listRHS.Size = new Size(568, 262);
+            listRHS.TabIndex = 1;
+            listRHS.TabStop = false;
+            listRHS.MouseDoubleClick += OnListMouseDoubleClick;
             // 
             // PermutationTool
             // 
@@ -84,21 +64,17 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(568, 512);
             ControlBox = false;
-            Controls.Add(listEntities);
-            Controls.Add(panel1);
+            Controls.Add(listRHS);
+            Controls.Add(listLHS);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "PermutationTool";
             Text = "PermutationTool";
-            TopMost = true;
-            panel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
 
-        private ListView listEntities;
-        private Panel panel1;
-        private Button buttonMoveDown;
-        private Button buttonMoveUp;
+        private ListBox listLHS;
+        private ListBox listRHS;
     }
 }

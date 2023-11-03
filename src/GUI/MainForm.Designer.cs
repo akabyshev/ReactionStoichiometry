@@ -114,7 +114,7 @@
             textBoxInput.Name = "textBoxInput";
             textBoxInput.Size = new Size(2180, 47);
             textBoxInput.TabIndex = 4;
-            textBoxInput.Text = "Fe2(SO4)3 + PrTlTe3 + H3PO4 = Fe0.996(H2PO4)2H2O + Tl1.987(SO3)3 + Pr1.998(SO4)3 + Te2O3 + P2O5 + H2S";
+            textBoxInput.Text = "KMnO4 + HCl = KCl + MnCl2 + H2O + Cl2";
             textBoxInput.TextChanged += On_textBoxInput_TextChanged;
             // 
             // buttonBalance
@@ -156,9 +156,9 @@
         private SplitContainer containerOutput;
         private Panel containerInput;
         private Button buttonBalance;
-        private TextBox textBoxInput;
         private TextBox resultMT;
         private TextBox resultMR;
         private StatusStrip statusStrip1;
+        internal TextBox textBoxInput;
     }
 }
