@@ -33,7 +33,7 @@ internal static class BasicTesting
         {
             if (line.StartsWith("#") || line.Length == 0) continue;
             var parts = line.Split("\t");
-            var eq = parts[0];
+            var eq = parts[0].Replace(" ", String.Empty);
 
             var bRisteski = new BalancerRisteskiRational(eq);
             var bThorne = new BalancerThorne(eq);
@@ -64,7 +64,7 @@ internal static class BasicTesting
             while (reader.ReadLine() is { } line)
             {
                 if (line.StartsWith("#") || line.Length == 0) continue;
-                var balancer = (ISpecialToStringProvider)Activator.CreateInstance(type, line)!;
+                var balancer = (ISpecialToStringProvider)Activator.CreateInstance(type, line.Replace(" ", String.Empty))!;
 
                 writerFull.WriteLine(balancer.ToString(ISpecialToStringProvider.OutputFormat.Plain));
                 writerFull.WriteLine("====================================");

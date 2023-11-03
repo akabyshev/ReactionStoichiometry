@@ -1,7 +1,6 @@
 namespace ReactionStoichiometry;
 
 using System.Diagnostics;
-using GUI;
 
 internal static class Program
 {
@@ -19,6 +18,7 @@ internal static class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
+        Application.EnableVisualStyles();
 
         #if DEBUG
         var stopwatch = new Stopwatch();
@@ -29,7 +29,7 @@ internal static class Program
         stopwatch.Stop();
         var elapsed = stopwatch.Elapsed;
         Console.WriteLine($"Elapsed time: {elapsed.TotalMilliseconds} milliseconds");
-        #endif
+#endif
 
         Application.Run(new MainForm());
     }

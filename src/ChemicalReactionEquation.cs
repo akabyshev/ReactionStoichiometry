@@ -13,13 +13,15 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
 
     public ChemicalReactionEquation(String s)
     {
-        Skeletal = s.Replace(" ", String.Empty);
+        Skeletal = s;
         if (!SeemsFine(Skeletal)) throw new ArgumentException("Invalid string");
         ReactantsCount = Skeletal.Split('=')[0].Split('+').Length;
 
         var chargeSymbols = new[] { "Qn", "Qp" };
         _elements.AddRange(Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct());
         _elements.Add("{e}");
+
+        _entities.AddRange(Regex.Split(Skeletal, DIVIDER_CHARS));
     }
 
     #region IChemicalEntityList Members
@@ -31,8 +33,6 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
 
     public void Parse(out Matrix<Double> matrix)
     {
-        _entities.AddRange(Regex.Split(Skeletal, DIVIDER_CHARS));
-
         matrix = Matrix<Double>.Build.Dense(_elements.Count, EntitiesCount);
         for (var r = 0; r < _elements.Count; r++)
         {

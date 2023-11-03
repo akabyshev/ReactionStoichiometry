@@ -1,6 +1,6 @@
-﻿namespace ReactionStoichiometry.GUI
+﻿namespace ReactionStoichiometry
 {
-    partial class RisteskiInstantiatorForm
+    partial class InstantiationTool
     {
         /// <summary>
         /// Required designer variable.
@@ -129,7 +129,7 @@
             txtInstance.TabIndex = 4;
             txtInstance.TextChanged += OnTextChanged;
             // 
-            // RisteskiInstantiatorForm
+            // InstantiationTool
             // 
             AutoScaleDimensions = new SizeF(17F, 41F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -137,11 +137,10 @@
             ControlBox = false;
             Controls.Add(theGrid);
             Controls.Add(txtInstance);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
+            FormBorderStyle = FormBorderStyle.FixedToolWindow;
             MinimumSize = new Size(800, 360);
-            Name = "RisteskiInstantiatorForm";
+            Name = "InstantiationTool";
             Text = "Instantiation";
-            TopMost = true;
             ((System.ComponentModel.ISupportInitialize) theGrid).EndInit();
             ResumeLayout(false);
             PerformLayout();
