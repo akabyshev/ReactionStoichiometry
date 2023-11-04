@@ -6,7 +6,7 @@ using MathNet.Numerics.LinearAlgebra;
 internal abstract class Balancer : IChemicalEntityList
 {
     #region OutputFormat enum
-    public enum OutputFormat
+    internal enum OutputFormat
     {
         Plain,
         OutcomeCommaSeparated,
@@ -45,7 +45,7 @@ internal abstract class Balancer : IChemicalEntityList
     public String GetEntity(Int32 i) => Equation.GetEntity(i);
     #endregion
 
-    public String ToString(OutputFormat format)
+    internal String ToString(OutputFormat format)
     {
         return format switch
         {
@@ -65,15 +65,7 @@ internal abstract class Balancer : IChemicalEntityList
         }
     }
 
-    protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
-        Equation.AssembleEquationString(coefficients,
-                                        static value => value != BigInteger.Zero,
-                                        static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
-                                        static (_, value) => value < 0);
-
-    protected abstract void BalanceImplementation();
-
-    public void Balance()
+    internal void Balance()
     {
         try
         {
@@ -85,4 +77,12 @@ internal abstract class Balancer : IChemicalEntityList
             _statusMessage = "This equation can't be balanced: " + e.Message;
         }
     }
+
+    protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
+        Equation.AssembleEquationString(coefficients,
+                                        static value => value != BigInteger.Zero,
+                                        static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
+                                        static (_, value) => value < 0);
+
+    protected abstract void BalanceImplementation();
 }

@@ -6,10 +6,10 @@ using Rationals;
 
 internal static class Utils
 {
-    public static IEnumerable<String> PrettyPrintMatrix<T>(String title,
-                                                           in T[,] matrix,
-                                                           Func<Int32, String>? columnHeaders = null,
-                                                           Func<Int32, String>? rowHeaders = null)
+    internal static IEnumerable<String> PrettyPrintMatrix<T>(String title,
+                                                             in T[,] matrix,
+                                                             Func<Int32, String>? columnHeaders = null,
+                                                             Func<Int32, String>? rowHeaders = null)
     {
         Func<T, String> printer;
         if (typeof(T) == typeof(Double))
@@ -55,13 +55,13 @@ internal static class Utils
         }
     }
 
-    public static String LetterLabel(Int32 n) => ((Char)('a' + n)).ToString();
-    public static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
+    internal static String LetterLabel(Int32 n) => ((Char)('a' + n)).ToString();
+    internal static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
 
-    public static BigInteger[] ScaleDoubles(IEnumerable<Double> doubles) =>
+    internal static BigInteger[] ScaleDoubles(IEnumerable<Double> doubles) =>
         ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Program.GOOD_ENOUGH_DOUBLE_ZERO)).ToArray());
 
-    public static BigInteger[] ScaleRationals(IEnumerable<Rational> rationals)
+    internal static BigInteger[] ScaleRationals(IEnumerable<Rational> rationals)
     {
         var multiple = rationals.Select(static r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
         var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
@@ -69,5 +69,5 @@ internal static class Utils
         return wholes.Select(x => x / divisor).ToArray();
     }
 
-    public static Boolean IsNonZeroDouble(Double d) => Math.Abs(d) > Program.GOOD_ENOUGH_DOUBLE_ZERO;
+    internal static Boolean IsNonZeroDouble(Double d) => Math.Abs(d) > Program.GOOD_ENOUGH_DOUBLE_ZERO;
 }

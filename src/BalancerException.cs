@@ -2,7 +2,7 @@
 
 internal sealed class BalancerException : InvalidOperationException
 {
-    public BalancerException(String message) : base(message)
+    internal BalancerException(String message) : base(message)
     {
     }
 }

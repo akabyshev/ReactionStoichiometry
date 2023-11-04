@@ -7,7 +7,7 @@ internal sealed class BalancerThorne : Balancer
 {
     private List<BigInteger[]>? _independentEquations;
 
-    public BalancerThorne(String equation) : base(equation)
+    internal BalancerThorne(String equation) : base(equation)
     {
     }
 

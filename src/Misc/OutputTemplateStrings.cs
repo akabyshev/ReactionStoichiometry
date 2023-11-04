@@ -2,12 +2,12 @@
 
 internal static class OutputTemplateStrings
 {
-    public const String PLAIN_OUTPUT = "Input:\r\n%Skeletal%\r\n\r\n" +
-                                       "Details:\r\n%Details%\r\n\r\n" +
-                                       "Output:\r\n%Outcome%\r\n\r\n" +
-                                       "Diagnostics:\r\n%Diagnostics%";
+    internal const String PLAIN_OUTPUT = "Input:\r\n%Skeletal%\r\n\r\n" +
+                                         "Details:\r\n%Details%\r\n\r\n" +
+                                         "Output:\r\n%Outcome%\r\n\r\n" +
+                                         "Diagnostics:\r\n%Diagnostics%";
 
-    public const String HTML_OUTPUT = @"<!DOCTYPE html>
+    internal const String HTML_OUTPUT = @"<!DOCTYPE html>
 <html>
 <head>
     <title>ReactionStoichiometry</title>

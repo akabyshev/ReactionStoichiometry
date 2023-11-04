@@ -4,15 +4,10 @@ using System.Numerics;
 
 internal static class BasicTesting
 {
-    private static void AssertStringsAreEqual(String lhs, String rhs)
-    {
-        if (lhs != rhs) throw new Exception($"{lhs} is not equal to {rhs}");
-    }
-
-    public static void PerformBasicParserTests()
+    internal static Boolean PerformBasicParserTests()
     {
         const String inputFilePath = @"..\..\..\data\BasicParserTests.txt";
-        if (!File.Exists(inputFilePath)) return;
+        if (!File.Exists(inputFilePath)) return false;
 
         using StreamReader reader = new(inputFilePath);
         while (reader.ReadLine() is { } line)
@@ -21,12 +16,14 @@ internal static class BasicTesting
             var parts = line.Split("\t");
             AssertStringsAreEqual(ChemicalReactionEquation.Unfold(parts[0]), parts[1]);
         }
+
+        return true;
     }
 
-    public static void PerformInstantiationTests()
+    internal static Boolean PerformInstantiationTests()
     {
         const String inputFilePath = @"..\..\..\data\InstantiationTests.csv";
-        if (!File.Exists(inputFilePath)) return;
+        if (!File.Exists(inputFilePath)) return false;
 
         using StreamReader reader = new(inputFilePath);
         while (reader.ReadLine() is { } line)
@@ -51,12 +48,14 @@ internal static class BasicTesting
 
             AssertStringsAreEqual(hhSimple, String.Join(",", instances));
         }
+     
+        return true;
     }
 
-    public static void PerformOnLaunchBatchTests()
+    internal static Boolean PerformOnLaunchBatchTests()
     {
         const String inputFilePath = @"..\..\..\data\OnLaunchBatch.txt";
-        if (!File.Exists(inputFilePath)) return;
+        if (!File.Exists(inputFilePath)) return false;
 
         var balancers = new[] { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
 
@@ -75,5 +74,12 @@ internal static class BasicTesting
                 writerFull.WriteLine("====================================");
             }
         }
+     
+        return true;
+    }
+
+    private static void AssertStringsAreEqual(String lhs, String rhs)
+    {
+        if (lhs != rhs) throw new Exception($"{lhs} is not equal to {rhs}");
     }
 }

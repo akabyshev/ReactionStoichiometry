@@ -13,8 +13,6 @@ internal sealed partial class MainForm : Form
         _instantiationTool.Owner = this;
     }
 
-    private void On_buttonBalance_Click(Object sender, EventArgs e) => Balance();
-
     internal void Balance()
     {
         textBoxInput.Text = textBoxInput.Text.Replace(" ", String.Empty);
@@ -37,6 +35,8 @@ internal sealed partial class MainForm : Form
             _instantiationTool.Visible = true;
         }
     }
+
+    private void On_buttonBalance_Click(Object sender, EventArgs e) => Balance();
 
     private void On_textBoxInput_TextChanged(Object sender, EventArgs e) => SyncControls();
 

@@ -4,10 +4,10 @@ using System.Diagnostics;
 
 internal static class Program
 {
-    public const Double GOOD_ENOUGH_DOUBLE_ZERO = 1e-10;
-    public const Int32 LETTER_LABEL_THRESHOLD = 7;
-    public const String MULTIPLICATION_SYMBOL = "·";
-    public const String FAILED_BALANCING_OUTCOME = "<FAIL>";
+    internal const Double GOOD_ENOUGH_DOUBLE_ZERO = 1e-10;
+    internal const Int32 LETTER_LABEL_THRESHOLD = 7;
+    internal const String MULTIPLICATION_SYMBOL = "·";
+    internal const String FAILED_BALANCING_OUTCOME = "<FAIL>";
 
     /// <summary>
     ///     The main entry point for the application.
@@ -18,14 +18,12 @@ internal static class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
-        Application.EnableVisualStyles();
 
         #if DEBUG
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        BasicTesting.PerformBasicParserTests();
-        BasicTesting.PerformInstantiationTests();
-        BasicTesting.PerformOnLaunchBatchTests();
+        if (!BasicTesting.PerformBasicParserTests() || !BasicTesting.PerformInstantiationTests() || !BasicTesting.PerformOnLaunchBatchTests())
+            throw new InvalidOperationException("Tests failed");
         stopwatch.Stop();
         Debug.WriteLine($"Tests look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
         #endif

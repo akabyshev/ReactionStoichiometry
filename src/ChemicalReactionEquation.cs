@@ -8,10 +8,10 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
     private readonly List<String> _elements = new();
     private readonly List<String> _entities = new();
 
-    public readonly Int32 ReactantsCount;
-    public readonly String Skeletal;
+    internal readonly Int32 ReactantsCount;
+    internal readonly String Skeletal;
 
-    public ChemicalReactionEquation(String s)
+    internal ChemicalReactionEquation(String s)
     {
         Skeletal = s;
         if (!SeemsFine(Skeletal)) throw new ArgumentException("Invalid string");
@@ -29,9 +29,9 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
     public String GetEntity(Int32 i) => _entities[i];
     #endregion
 
-    public String GetElement(Int32 i) => _elements[i];
+    internal String GetElement(Int32 i) => _elements[i];
 
-    public void Parse(out Matrix<Double> matrix)
+    internal void Parse(out Matrix<Double> matrix)
     {
         matrix = Matrix<Double>.Build.Dense(_elements.Count, EntitiesCount);
         for (var r = 0; r < _elements.Count; r++)
@@ -69,7 +69,7 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
         _elements.Remove("Qp");
     }
 
-    public String AssembleEquationString<T>(T[] vector, Func<T, Boolean> mustInclude, Func<T, String> toString, Func<Int32, T, Boolean> isReactant)
+    internal String AssembleEquationString<T>(T[] vector, Func<T, Boolean> mustInclude, Func<T, String> toString, Func<Int32, T, Boolean> isReactant)
     {
         if (vector.Length != EntitiesCount) throw new ArgumentOutOfRangeException(nameof(vector), "Array size mismatch");
 

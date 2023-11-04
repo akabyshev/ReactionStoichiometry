@@ -124,7 +124,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
 
 internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
 {
-    public BalancerRisteskiDouble(String equation) : base(equation, Utils.ScaleDoubles)
+    internal BalancerRisteskiDouble(String equation) : base(equation, Utils.ScaleDoubles)
     {
     }
 
@@ -133,7 +133,7 @@ internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
 
 internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
 {
-    public BalancerRisteskiRational(String equation) : base(equation, Utils.ScaleRationals)
+    internal BalancerRisteskiRational(String equation) : base(equation, Utils.ScaleRationals)
     {
     }
 

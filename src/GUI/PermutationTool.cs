@@ -2,9 +2,9 @@
 
 internal sealed partial class PermutationTool : Form
 {
-    public PermutationTool() => InitializeComponent();
+    internal PermutationTool() => InitializeComponent();
 
-    public void Init(String s)
+    internal void Init(String s)
     {
         listLHS.Items.Clear();
         listRHS.Items.Clear();

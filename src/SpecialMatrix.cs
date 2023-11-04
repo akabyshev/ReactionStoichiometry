@@ -13,11 +13,11 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         CopyValues(Data, matrix.ToArray(), convert);
     }
 
-    public Int32 RowCount => Data.GetLength(0);
-    public Int32 ColumnCount => Data.GetLength(1);
+    internal Int32 RowCount => Data.GetLength(0);
+    internal Int32 ColumnCount => Data.GetLength(1);
     protected BasicOperations Basics { get; init; }
 
-    public Boolean IsIdentityMatrix
+    internal Boolean IsIdentityMatrix
     {
         get
         {
@@ -35,10 +35,7 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         }
     }
 
-    protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
-    internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => !Basics.IsZero(Data[i, c]));
-
-    public IEnumerable<T> GetRow(Int32 r)
+    internal IEnumerable<T> GetRow(Int32 r)
     {
         var result = new T[ColumnCount];
         for (var c = 0; c < ColumnCount; c++)
@@ -49,7 +46,7 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         return result;
     }
 
-    public T[,] ToArray()
+    internal T[,] ToArray()
     {
         var result = new T[RowCount, ColumnCount];
         for (var r = 0; r < RowCount; r++)
@@ -81,7 +78,9 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         return sb.ToString();
     }
 
-    public Matrix<T> ToMatrix() => Matrix<T>.Build.DenseOfArray(Data);
+    internal Matrix<T> ToMatrix() => Matrix<T>.Build.DenseOfArray(Data);
+
+    protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
 
     protected static void CopyValues<T2>(T[,] array, T2[,] source, Func<T2, T> convert)
     {
@@ -93,6 +92,8 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
             }
         }
     }
+
+    internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => !Basics.IsZero(Data[i, c]));
 
     #region Nested type: BasicOperations
     protected struct BasicOperations

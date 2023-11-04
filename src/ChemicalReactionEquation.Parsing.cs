@@ -15,7 +15,7 @@ internal sealed partial class ChemicalReactionEquation
     private const String SKELETAL_STRUCTURE = @$"^(?:{ENTITY_ALPHABET}\+)*{ENTITY_ALPHABET}={ENTITY_ALPHABET}(?:\+{ENTITY_ALPHABET})*$";
     private const String ELEMENT_TEMPLATE = @"X(\d+(\.\d+)*)";
 
-    public static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
+    internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 
     internal static String Unfold(in String s)
     {
