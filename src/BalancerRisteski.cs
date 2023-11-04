@@ -27,7 +27,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
 
     protected override void BalanceImplementation()
     {
-        M.MapIndexedInplace((_, c, value) => c >= Equation.ReactantsCount ? -value : value);
+        Equation.CompositionMatrix.MapIndexedInplace((_, c, value) => c >= Equation.ReactantsCount ? -value : value);
         var reducedMatrix = GetReducedMatrix();
         if (reducedMatrix.IsIdentityMatrix) throw new BalancerException("This SLE is unsolvable");
         Details.AddRange(Utils.PrettyPrintMatrix("Matrix in RREF", reducedMatrix.ToArray()));
@@ -128,7 +128,7 @@ internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
     {
     }
 
-    protected override SpecialMatrixReducedDouble GetReducedMatrix() => SpecialMatrixReducedDouble.CreateInstance(M);
+    protected override SpecialMatrixReducedDouble GetReducedMatrix() => SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix);
 }
 
 internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
@@ -137,5 +137,5 @@ internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
     {
     }
 
-    protected override SpecialMatrixReducedRational GetReducedMatrix() => SpecialMatrixReducedRational.CreateInstance(M);
+    protected override SpecialMatrixReducedRational GetReducedMatrix() => SpecialMatrixReducedRational.CreateInstance(Equation.CompositionMatrix);
 }

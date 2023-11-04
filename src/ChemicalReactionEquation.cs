@@ -7,28 +7,59 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
 {
     private readonly List<String> _elements = new();
     private readonly List<String> _entities = new();
+    internal readonly Matrix<Double> CompositionMatrix;
 
     internal readonly Int32 ReactantsCount;
     internal readonly String Skeletal;
 
     internal ChemicalReactionEquation(String s)
     {
+        if (!SeemsFine(s)) throw new ArgumentException("Invalid string");
+
         Skeletal = s;
-        if (!SeemsFine(Skeletal)) throw new ArgumentException("Invalid string");
         ReactantsCount = Skeletal.Split('=')[0].Split('+').Length;
+        _entities.AddRange(Regex.Split(Skeletal, DIVIDER_CHARS));
 
         var chargeSymbols = new[] { "Qn", "Qp" };
         _elements.AddRange(Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Concat(chargeSymbols).Distinct());
         _elements.Add("{e}");
 
-        _entities.AddRange(Regex.Split(Skeletal, DIVIDER_CHARS));
+        Parse(out CompositionMatrix);
     }
 
-    internal String GetElement(Int32 i) => _elements[i];
+    internal String AssembleEquationString<T>(T[] vector, Func<T, Boolean> mustInclude, Func<T, String> toString, Func<Int32, T, Boolean> isReactant)
+    {
+        if (vector.Length != EntitiesCount) throw new ArgumentOutOfRangeException(nameof(vector), "Array size mismatch");
 
-    internal void Parse(out Matrix<Double> matrix)
+        List<String> l = new();
+        List<String> r = new();
+
+        for (var i = 0; i < EntitiesCount; i++)
+        {
+            if (mustInclude(vector[i])) (isReactant(i, vector[i]) ? l : r).Add(toString(vector[i]) + GetEntity(i));
+        }
+
+        if (l.Count == 0 || r.Count == 0) return "Invalid coefficients";
+
+        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
+    }
+
+    internal IEnumerable<String> MatrixAsStrings()
+    {
+        var result = new List<String>();
+        result.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", CompositionMatrix.ToArray(), GetEntity, GetElement));
+        result.Add(
+            $"RxC: {CompositionMatrix.RowCount}x{CompositionMatrix.ColumnCount}, rank = {CompositionMatrix.Rank()}, nullity = {CompositionMatrix.Nullity()}");
+
+        return result;
+    }
+
+    private String GetElement(Int32 i) => _elements[i];
+
+    private void Parse(out Matrix<Double> matrix)
     {
         matrix = Matrix<Double>.Build.Dense(_elements.Count, EntitiesCount);
+
         for (var r = 0; r < _elements.Count; r++)
         {
             Regex regex = new(ELEMENT_TEMPLATE.Replace("X", _elements[r]));
@@ -62,23 +93,6 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
         _elements.Remove("Qn");
         matrix = matrix.RemoveRow(_elements.IndexOf("Qp"));
         _elements.Remove("Qp");
-    }
-
-    internal String AssembleEquationString<T>(T[] vector, Func<T, Boolean> mustInclude, Func<T, String> toString, Func<Int32, T, Boolean> isReactant)
-    {
-        if (vector.Length != EntitiesCount) throw new ArgumentOutOfRangeException(nameof(vector), "Array size mismatch");
-
-        List<String> l = new();
-        List<String> r = new();
-
-        for (var i = 0; i < EntitiesCount; i++)
-        {
-            if (mustInclude(vector[i])) (isReactant(i, vector[i]) ? l : r).Add(toString(vector[i]) + GetEntity(i));
-        }
-
-        if (l.Count == 0 || r.Count == 0) return "Invalid coefficients";
-
-        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
 
     #region IChemicalEntityList Members

@@ -30,14 +30,16 @@ internal sealed class BalancerThorne : Balancer
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", inverse.ToArray()));
 
 
-        _independentEquations = Enumerable.Range(inverse.ColumnCount - M.Nullity(), M.Nullity())
+        _independentEquations = Enumerable.Range(inverse.ColumnCount - Equation.CompositionMatrix.Nullity(), Equation.CompositionMatrix.Nullity())
                                           .Select(c => Utils.ScaleDoubles(inverse.Column(c)))
                                           .ToList();
     }
 
     private Matrix<Double> GetAugmentedMatrix()
     {
-        var reduced = M.RowCount == M.ColumnCount ? SpecialMatrixReducedDouble.CreateInstance(M).ToMatrix() : M.Clone();
+        var reduced = Equation.CompositionMatrix.RowCount == Equation.CompositionMatrix.ColumnCount ?
+            SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).ToMatrix() :
+            Equation.CompositionMatrix.Clone();
 
         if (reduced.RowCount == reduced.ColumnCount) throw new BalancerException("Matrix in RREF is still square");
 

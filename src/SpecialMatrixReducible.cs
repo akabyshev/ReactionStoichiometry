@@ -1,6 +1,8 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Globalization;
 using MathNet.Numerics.LinearAlgebra;
+using Rationals;
 
 internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
@@ -63,5 +65,49 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
         var dataNoZeroRows = new T[RowCount - bottomZeroRows, ColumnCount];
         CopyValues(dataNoZeroRows, Data, static r => r);
         Data = dataNoZeroRows;
+    }
+}
+
+internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
+{
+    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x) =>
+        Basics = new BasicOperations
+                 {
+                     Add = static (d1, d2) => d1 + d2,
+                     Subtract = static (d1, d2) => d1 - d2,
+                     Multiply = static (d1, d2) => d1 * d2,
+                     Divide = static (d1, d2) => d1 / d2,
+                     IsZero = static d => !Utils.IsNonZeroDouble(d),
+                     IsOne = static d => !Utils.IsNonZeroDouble(1.0d - d),
+                     AsString = static d => d.ToString(CultureInfo.InvariantCulture)
+                 };
+
+    internal static SpecialMatrixReducedDouble CreateInstance(Matrix<Double> matrix)
+    {
+        var result = new SpecialMatrixReducedDouble(matrix);
+        result.Reduce();
+        return result;
+    }
+}
+
+internal sealed class SpecialMatrixReducedRational : SpecialMatrixReducible<Rational>
+{
+    private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix, static x => Rational.ParseDecimal(x.ToString(CultureInfo.InvariantCulture))) =>
+        Basics = new BasicOperations
+                 {
+                     Add = Rational.Add,
+                     Subtract = Rational.Subtract,
+                     Multiply = Rational.Multiply,
+                     Divide = Rational.Divide,
+                     IsZero = static r => r.IsZero,
+                     IsOne = static r => r.IsOne,
+                     AsString = static r => r.ToString("C")
+                 };
+
+    internal static SpecialMatrixReducedRational CreateInstance(Matrix<Double> matrix)
+    {
+        var result = new SpecialMatrixReducedRational(matrix);
+        result.Reduce();
+        return result;
     }
 }

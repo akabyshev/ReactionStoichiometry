@@ -17,7 +17,7 @@ internal static class Utils
         else if (typeof(T) == typeof(Rational))
             printer = static v => PrettyPrintRational((Rational)(v as Object)!);
         else
-            throw new NotImplementedException($"Printer is not implemented for type {typeof(T)}");
+            throw new NotImplementedException($"Not implemented for type {typeof(T)}");
 
         List<String> result = new() { $"[[{title}]]" };
 
@@ -63,8 +63,9 @@ internal static class Utils
 
     internal static BigInteger[] ScaleRationals(IEnumerable<Rational> rationals)
     {
-        var multiple = rationals.Select(static r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
-        var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
+        var enumerable = rationals as Rational[] ?? rationals.ToArray();
+        var multiple = enumerable.Select(static r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
+        var wholes = enumerable.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
         var divisor = wholes.Aggregate(Euclid.GreatestCommonDivisor);
         return wholes.Select(x => x / divisor).ToArray();
     }
