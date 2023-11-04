@@ -35,6 +35,37 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         }
     }
 
+    public override String ToString()
+    {
+        StringBuilder sb = new();
+
+        for (var r = 0; r < RowCount; r++)
+        {
+            for (var c = 0; c < ColumnCount; c++)
+            {
+                sb.Append(Basics.AsString(Data[r, c]));
+                if (c < ColumnCount - 1) sb.Append('\t');
+            }
+
+            sb.Append('\n');
+        }
+
+        return sb.ToString();
+    }
+
+    protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
+
+    protected static void CopyValues<T2>(T[,] array, T2[,] source, Func<T2, T> convert)
+    {
+        for (var r = 0; r < array.GetLength(0); r++)
+        {
+            for (var c = 0; c < array.GetLength(1); c++)
+            {
+                array[r, c] = convert(source[r, c]);
+            }
+        }
+    }
+
     internal IEnumerable<T> GetRow(Int32 r)
     {
         var result = new T[ColumnCount];
@@ -60,38 +91,7 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         return result;
     }
 
-    public override String ToString()
-    {
-        StringBuilder sb = new();
-
-        for (var r = 0; r < RowCount; r++)
-        {
-            for (var c = 0; c < ColumnCount; c++)
-            {
-                sb.Append(Basics.AsString(Data[r, c]));
-                if (c < ColumnCount - 1) sb.Append('\t');
-            }
-
-            sb.Append('\n');
-        }
-
-        return sb.ToString();
-    }
-
     internal Matrix<T> ToMatrix() => Matrix<T>.Build.DenseOfArray(Data);
-
-    protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
-
-    protected static void CopyValues<T2>(T[,] array, T2[,] source, Func<T2, T> convert)
-    {
-        for (var r = 0; r < array.GetLength(0); r++)
-        {
-            for (var c = 0; c < array.GetLength(1); c++)
-            {
-                array[r, c] = convert(source[r, c]);
-            }
-        }
-    }
 
     internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => !Basics.IsZero(Data[i, c]));
 

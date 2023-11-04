@@ -21,16 +21,16 @@ internal sealed partial class InstantiationTool : Form
 
             var expr = _balancer.GetCoefficientExpressionString(i);
 
-            if (!String.IsNullOrEmpty(expr))
-            {
-                theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
-                theGrid.Rows[i].Cells["Expression"].Value = expr;
-            }
-            else
+            if (String.IsNullOrEmpty(expr))
             {
                 theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
                 theGrid.Rows[i].Cells["Expression"].Value = "free variable";
                 theGrid.Rows[i].Cells["Value"].Value = 0;
+            }
+            else
+            {
+                theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
+                theGrid.Rows[i].Cells["Expression"].Value = expr;
             }
         }
 

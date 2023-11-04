@@ -18,14 +18,15 @@ internal sealed partial class PermutationTool : Form
 
     private void OnListMouseDoubleClick(Object sender, MouseEventArgs e)
     {
-        if (((ListBox)sender).SelectedItems.Count != 1) return;
-        var item = ((ListBox)sender).SelectedItems[0] ?? throw new InvalidOperationException();
-        var indexNew = ((ListBox)sender).Items.Count - 1;
+        var list = (ListBox)sender;
+        if (list.SelectedItems.Count != 1) return;
+        var item = list.SelectedItems[0] ?? throw new InvalidOperationException();
+        var indexNew = list.Items.Count - 1;
 
-        ((ListBox)sender).Items.Remove(item);
-        ((ListBox)sender).Items.Insert(indexNew, item);
+        list.Items.Remove(item);
+        list.Items.Insert(indexNew, item);
 
-        ((ListBox)sender).SelectedItems.Clear();
+        list.SelectedItems.Clear();
         PassTheStringBack();
     }
 

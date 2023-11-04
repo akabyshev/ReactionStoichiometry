@@ -43,12 +43,12 @@ internal static class BasicTesting
             if (String.IsNullOrEmpty(parts[1])) continue;
             var instances = parts[1]
                             .Split(';')
-                            .Select(static s => s.Trim('(', ')').Split(',').Select(BigInteger.Parse).ToArray())
-                            .Select(parametersSet => bRisteski.Instantiate(parametersSet).readable);
+                            .Select(static s => s.Trim('(', ')').Split(',').Select(BigInteger.Parse))
+                            .Select(parametersSet => bRisteski.Instantiate(parametersSet.ToArray()).readable);
 
             AssertStringsAreEqual(hhSimple, String.Join(",", instances));
         }
-     
+
         return true;
     }
 
@@ -74,7 +74,7 @@ internal static class BasicTesting
                 writerFull.WriteLine("====================================");
             }
         }
-     
+
         return true;
     }
 

@@ -7,7 +7,7 @@ internal sealed class BalancerThorne : Balancer
 {
     private List<BigInteger[]>? _independentEquations;
 
-    internal BalancerThorne(String equation) : base(equation)
+    public BalancerThorne(String equation) : base(equation)
     {
     }
 
@@ -31,7 +31,7 @@ internal sealed class BalancerThorne : Balancer
 
 
         _independentEquations = Enumerable.Range(inverse.ColumnCount - M.Nullity(), M.Nullity())
-                                          .Select(c => Utils.ScaleDoubles(inverse.Column(c).ToArray()))
+                                          .Select(c => Utils.ScaleDoubles(inverse.Column(c)))
                                           .ToList();
     }
 
@@ -46,7 +46,7 @@ internal sealed class BalancerThorne : Balancer
         var submatrixRightIdentity = Matrix<Double>.Build.DenseIdentity(nullity);
         var result = reduced.Stack(submatrixLeftZeroes.Append(submatrixRightIdentity));
 
-        result.CoerceZero(Program.GOOD_ENOUGH_DOUBLE_ZERO);
+        result.CoerceZero(Program.GOOD_ENOUGH_FLOAT_PRECISION);
 
         return result;
     }

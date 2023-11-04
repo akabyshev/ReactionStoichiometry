@@ -5,16 +5,6 @@ using MathNet.Numerics.LinearAlgebra;
 
 internal abstract class Balancer : IChemicalEntityList
 {
-    #region OutputFormat enum
-    internal enum OutputFormat
-    {
-        Plain,
-        OutcomeCommaSeparated,
-        OutcomeNewLineSeparated,
-        Html
-    }
-    #endregion
-
     protected readonly List<String> Details = new();
 
     protected readonly ChemicalReactionEquation Equation;
@@ -40,10 +30,13 @@ internal abstract class Balancer : IChemicalEntityList
 
     protected abstract IEnumerable<String> Outcome { get; }
 
-    #region IChemicalEntityList Members
-    public Int32 EntitiesCount => Equation.EntitiesCount;
-    public String GetEntity(Int32 i) => Equation.GetEntity(i);
-    #endregion
+    protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
+        Equation.AssembleEquationString(coefficients,
+                                        static value => value != BigInteger.Zero,
+                                        static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
+                                        static (_, value) => value < 0);
+
+    protected abstract void BalanceImplementation();
 
     internal String ToString(OutputFormat format)
     {
@@ -78,11 +71,18 @@ internal abstract class Balancer : IChemicalEntityList
         }
     }
 
-    protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
-        Equation.AssembleEquationString(coefficients,
-                                        static value => value != BigInteger.Zero,
-                                        static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
-                                        static (_, value) => value < 0);
+    #region IChemicalEntityList Members
+    public Int32 EntitiesCount => Equation.EntitiesCount;
+    public String GetEntity(Int32 i) => Equation.GetEntity(i);
+    #endregion
 
-    protected abstract void BalanceImplementation();
+    #region Nested type: OutputFormat
+    internal enum OutputFormat
+    {
+        Plain,
+        OutcomeCommaSeparated,
+        OutcomeNewLineSeparated,
+        Html
+    }
+    #endregion
 }

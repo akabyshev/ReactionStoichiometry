@@ -59,7 +59,7 @@ internal static class Utils
     internal static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
 
     internal static BigInteger[] ScaleDoubles(IEnumerable<Double> doubles) =>
-        ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Program.GOOD_ENOUGH_DOUBLE_ZERO)).ToArray());
+        ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Program.GOOD_ENOUGH_FLOAT_PRECISION)));
 
     internal static BigInteger[] ScaleRationals(IEnumerable<Rational> rationals)
     {
@@ -69,5 +69,5 @@ internal static class Utils
         return wholes.Select(x => x / divisor).ToArray();
     }
 
-    internal static Boolean IsNonZeroDouble(Double d) => Math.Abs(d) > Program.GOOD_ENOUGH_DOUBLE_ZERO;
+    internal static Boolean IsNonZeroDouble(Double d) => Math.Abs(d) > Program.GOOD_ENOUGH_FLOAT_PRECISION;
 }

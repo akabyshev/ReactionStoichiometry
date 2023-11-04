@@ -24,11 +24,6 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
         _entities.AddRange(Regex.Split(Skeletal, DIVIDER_CHARS));
     }
 
-    #region IChemicalEntityList Members
-    public Int32 EntitiesCount => _entities.Count;
-    public String GetEntity(Int32 i) => _entities[i];
-    #endregion
-
     internal String GetElement(Int32 i) => _elements[i];
 
     internal void Parse(out Matrix<Double> matrix)
@@ -85,4 +80,9 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
 
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);
     }
+
+    #region IChemicalEntityList Members
+    public Int32 EntitiesCount => _entities.Count;
+    public String GetEntity(Int32 i) => _entities[i];
+    #endregion
 }
