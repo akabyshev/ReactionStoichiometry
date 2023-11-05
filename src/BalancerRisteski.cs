@@ -16,7 +16,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
     {
         get
         {
-            if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return new[] { Program.FAILED_BALANCING_OUTCOME };
+            if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return new[] { "<FAIL>" };
 
             List<String> lines = new() { EquationWithPlaceholders() + ", where" };
             lines.AddRange(_dependentCoefficientExpressions.Keys.Select(i => $"{LabelFor(i)} = {GetCoefficientExpressionString(i)}"));
@@ -30,6 +30,8 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
     {
         var reducedMatrix = GetReducedSignedMatrix();
         BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "This SLE is unsolvable");
+
+
         Details.AddRange(Utils.PrettyPrintMatrix("Reduced signed matrix", reducedMatrix.ToArray()));
 
         _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
@@ -51,13 +53,14 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
     protected abstract SpecialMatrixReducible<T> GetReducedSignedMatrix();
 
     private String EquationWithPlaceholders() =>
-        Equation.AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
-                                        static _ => true,
-                                        static value => value + Program.MULTIPLICATION_SYMBOL,
-                                        (index, _) => index < Equation.OriginalReactantsCount);
+        Utils.AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
+                                     static _ => true,
+                                     static value => value + Properties.Settings.Default.MULTIPLICATION_SYMBOL,
+                                     GetEntity,
+                                     (index, _) => index < Equation.OriginalReactantsCount);
 
     #region IBalancerInstantiatable Members
-    public String LabelFor(Int32 i) => EntitiesCount > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
+    public String LabelFor(Int32 i) => EntitiesCount > Properties.Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     public String? GetCoefficientExpressionString(Int32 index)
     {

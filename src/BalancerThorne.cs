@@ -16,7 +16,7 @@ internal sealed class BalancerThorne : Balancer
         get
         {
             // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (_independentEquations == null) return new[] { Program.FAILED_BALANCING_OUTCOME };
+            if (_independentEquations == null) return new[] { "<FAIL>" };
 
             return _independentEquations.Select(EquationWithIntegerCoefficients);
         }
@@ -26,9 +26,9 @@ internal sealed class BalancerThorne : Balancer
     {
         var augmentedMatrix = GetAugmentedMatrix();
         BalancerException.ThrowIf(!Utils.IsNonZeroDouble(augmentedMatrix.Determinant()), "Augmented matrix can't be inverted");
+
         var inverse = augmentedMatrix.Inverse();
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", inverse.ToArray()));
-
 
         _independentEquations = Enumerable.Range(inverse.ColumnCount - Equation.CompositionMatrix.Nullity(), Equation.CompositionMatrix.Nullity())
                                           .Select(c => Utils.ScaleDoubles(inverse.Column(c)))
@@ -48,7 +48,7 @@ internal sealed class BalancerThorne : Balancer
         var submatrixRightIdentity = Matrix<Double>.Build.DenseIdentity(nullity);
         var result = reduced.Stack(submatrixLeftZeroes.Append(submatrixRightIdentity));
 
-        result.CoerceZero(Program.GOOD_ENOUGH_FLOAT_PRECISION);
+        result.CoerceZero(Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION);
 
         return result;
     }

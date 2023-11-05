@@ -1,14 +1,13 @@
 ﻿namespace ReactionStoichiometry;
 
+using System;
 using System.Numerics;
 using MathNet.Numerics;
 using Rationals;
 
 internal static class Utils
 {
-    internal static IEnumerable<String> PrettyPrintMatrix<T>(String title,
-                                                             in T[,] matrix,
-                                                             Func<Int32, String>? columnHeaders = null)
+    internal static IEnumerable<String> PrettyPrintMatrix<T>(String title, in T[,] matrix, Func<Int32, String>? columnHeaders = null)
     {
         Func<T, String> printer;
         if (typeof(T) == typeof(Double))
@@ -58,7 +57,7 @@ internal static class Utils
     internal static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
 
     internal static BigInteger[] ScaleDoubles(IEnumerable<Double> doubles) =>
-        ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Program.GOOD_ENOUGH_FLOAT_PRECISION)));
+        ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION)));
 
     internal static BigInteger[] ScaleRationals(IEnumerable<Rational> rationals)
     {
@@ -69,5 +68,24 @@ internal static class Utils
         return wholes.Select(x => x / divisor).ToArray();
     }
 
-    internal static Boolean IsNonZeroDouble(Double d) => Math.Abs(d) > Program.GOOD_ENOUGH_FLOAT_PRECISION;
+    internal static Boolean IsNonZeroDouble(Double d) => Math.Abs(d) > Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION;
+
+    internal static String AssembleEquationString<T>(T[] values,
+                                                     Func<T, Boolean> filter,
+                                                     Func<T, String> adapter,
+                                                     Func<Int32, String> stringsSource,
+                                                     Func<Int32, T, Boolean> predicateLeftHandSide)
+    {
+        List<String> l = new();
+        List<String> r = new();
+
+        for (var i = 0; i < values.Length; i++)
+        {
+            if (filter(values[i])) (predicateLeftHandSide(i, values[i]) ? l : r).Add(adapter(values[i]) + stringsSource(i));
+        }
+
+        if (l.Count == 0 || r.Count == 0) return "Invalid input";
+
+        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
+    }
 }

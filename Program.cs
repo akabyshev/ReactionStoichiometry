@@ -4,11 +4,6 @@ using System.Diagnostics;
 
 internal static class Program
 {
-    internal const Double GOOD_ENOUGH_FLOAT_PRECISION = 1e-10;
-    internal const Int32 LETTER_LABEL_THRESHOLD = 7;
-    internal const String MULTIPLICATION_SYMBOL = "·";
-    internal const String FAILED_BALANCING_OUTCOME = "<FAIL>";
-
     /// <summary>
     ///     The main entry point for the application.
     /// </summary>

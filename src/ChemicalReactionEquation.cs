@@ -20,23 +20,6 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
         CompositionMatrix = GetCompositionMatrix();
     }
 
-    internal String AssembleEquationString<T>(T[] vector, Func<T, Boolean> mustInclude, Func<T, String> toString, Func<Int32, T, Boolean> isReactant)
-    {
-        if (vector.Length != EntitiesCount) throw new ArgumentOutOfRangeException(nameof(vector), "Array size mismatch");
-
-        List<String> l = new();
-        List<String> r = new();
-
-        for (var i = 0; i < EntitiesCount; i++)
-        {
-            if (mustInclude(vector[i])) (isReactant(i, vector[i]) ? l : r).Add(toString(vector[i]) + GetEntity(i));
-        }
-
-        if (l.Count == 0 || r.Count == 0) return "Invalid coefficients";
-
-        return String.Join(" + ", l) + " = " + String.Join(" + ", r);
-    }
-
     internal IEnumerable<String> MatrixAsStrings()
     {
         var result = new List<String>();

@@ -14,10 +14,11 @@ internal abstract class Balancer : IChemicalEntityList
     protected abstract IEnumerable<String> Outcome { get; }
 
     protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
-        Equation.AssembleEquationString(coefficients,
-                                        static value => value != BigInteger.Zero,
-                                        static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Program.MULTIPLICATION_SYMBOL,
-                                        static (_, value) => value < 0);
+        Utils.AssembleEquationString(coefficients,
+                                     static value => value != BigInteger.Zero,
+                                     static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Properties.Settings.Default.MULTIPLICATION_SYMBOL,
+                                     GetEntity,
+                                     static (_, value) => value < 0);
 
     protected abstract void BalanceImplementation();
 
