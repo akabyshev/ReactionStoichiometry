@@ -12,7 +12,7 @@ internal sealed partial class PermutationTool : Form
         ChemicalReactionEquation e = new(s);
         for (var i = 0; i < e.EntitiesCount; i++)
         {
-            (i < e.ReactantsCount ? listLHS : listRHS).Items.Add(e.GetEntity(i));
+            (i < e.OriginalReactantsCount ? listLHS : listRHS).Items.Add(e.GetEntity(i));
         }
     }
 

@@ -27,7 +27,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
 
     protected override void BalanceImplementation()
     {
-        Equation.CompositionMatrix.MapIndexedInplace((_, c, value) => c >= Equation.ReactantsCount ? -value : value);
+        Equation.CompositionMatrix.MapIndexedInplace((_, c, value) => c >= Equation.OriginalReactantsCount ? -value : value);
         var reducedMatrix = GetReducedMatrix();
         if (reducedMatrix.IsIdentityMatrix) throw new BalancerException("This SLE is unsolvable");
         Details.AddRange(Utils.PrettyPrintMatrix("Matrix in RREF", reducedMatrix.ToArray()));
@@ -56,7 +56,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
         Equation.AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
                                         static _ => true,
                                         static value => value + Program.MULTIPLICATION_SYMBOL,
-                                        (index, _) => index < Equation.ReactantsCount);
+                                        (index, _) => index < Equation.OriginalReactantsCount);
 
     #region IBalancerInstantiatable Members
     public String LabelFor(Int32 i) => EntitiesCount > Program.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
@@ -112,7 +112,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
 
             calculated /= kvp.Value[kvp.Key];
 
-            if (kvp.Key >= Equation.ReactantsCount) calculated *= -1;
+            if (kvp.Key >= Equation.OriginalReactantsCount) calculated *= -1;
 
             result[kvp.Key] = calculated;
         }
