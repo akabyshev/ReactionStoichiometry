@@ -1,5 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
+using System;
 using System.Text.RegularExpressions;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -59,8 +60,6 @@ internal sealed partial class ChemicalReactionEquation
         return result;
     }
 
-    private sealed record ChargeFormattingRule(String Pattern, String Readable);
-
     private Matrix<Double> GetCompositionMatrix()
     {
         var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Union(new[] { "Qn", "Qp", "{e}" }).ToList();
@@ -77,14 +76,15 @@ internal sealed partial class ChemicalReactionEquation
             }
         }
 
+        var (indexQn, indexQp, indexE) = (elements.IndexOf("Qn"), elements.IndexOf("Qp"), elements.IndexOf("{e}"));
         foreach (var i in Enumerable.Range(0, _entities.Count))
         {
-            foreach (var rule in new[] { new ChargeFormattingRule(@"Qn(\d*)$", "{$1-}"), new ChargeFormattingRule(@"Qp(\d*)$", "{$1+}") })
+            foreach (var rule in new[] { new { Pseudoelement = "Qn", Sign = "-" }, new { Pseudoelement = "Qp", Sign = "+" } })
             {
-                _entities[i] = Regex.Replace(_entities[i], rule.Pattern, rule.Readable);
+                _entities[i] = Regex.Replace(_entities[i], rule.Pseudoelement + @"(\d*)$", "{" + "$1" + rule.Sign + "}");
             }
-            data[elements.IndexOf("{e}"), i] = data[elements.IndexOf("Qp"), i] - data[elements.IndexOf("Qn"), i];
-            (data[elements.IndexOf("Qp"), i], data[elements.IndexOf("Qn"), i]) = (0, 0);
+            data[indexE, i] = - data[indexQn, i] + data[indexQp, i];
+            (data[indexQn, i], data[indexQp, i]) = (0, 0);
         }
 
         return data.ToMatrixWithoutZeroRows();
