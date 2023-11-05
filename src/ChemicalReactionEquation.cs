@@ -1,27 +1,23 @@
 ﻿namespace ReactionStoichiometry;
 
 using MathNet.Numerics.LinearAlgebra;
-using System.Text.RegularExpressions;
 
 internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
 {
-    private readonly List<String> _elements;
     private readonly List<String> _entities;
     internal readonly Matrix<Double> CompositionMatrix;
+    internal readonly Int32 OriginalReactantsCount;
 
     internal readonly String Skeletal;
-    internal Int32 OriginalReactantsCount => Skeletal.Split('=')[0].Count(static c => c == '+');
 
     internal ChemicalReactionEquation(String s)
     {
         if (!SeemsFine(s)) throw new ArgumentException("Invalid string");
 
         Skeletal = s;
-        _entities = Skeletal.Split(new[] { '=', '+' }).ToList();
-        _elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Union(new[] { "Qn", "Qp", "{e}" }).ToList();
-
-        CompositionMatrix = Matrix<Double>.Build.Dense(_elements.Count, _entities.Count);
-        FillCompositionMatrix(ref CompositionMatrix);
+        OriginalReactantsCount = 1 + Skeletal.Split('=')[0].Count(static c => c == '+');
+        _entities = Skeletal.Split('=', '+').ToList();
+        CompositionMatrix = GetCompositionMatrix();
     }
 
     internal String AssembleEquationString<T>(T[] vector, Func<T, Boolean> mustInclude, Func<T, String> toString, Func<Int32, T, Boolean> isReactant)
@@ -44,7 +40,7 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
     internal IEnumerable<String> MatrixAsStrings()
     {
         var result = new List<String>();
-        result.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", CompositionMatrix.ToArray(), GetEntity, i=> _elements[i]));
+        result.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", CompositionMatrix.ToArray(), GetEntity));
         result.Add(
             $"RxC: {CompositionMatrix.RowCount}x{CompositionMatrix.ColumnCount}, rank = {CompositionMatrix.Rank()}, nullity = {CompositionMatrix.Nullity()}");
 

@@ -1,12 +1,11 @@
 ﻿namespace ReactionStoichiometry;
 
-using System.Globalization;
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
 internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
-    protected SpecialMatrixReducible(Matrix<Double> matrix, Func<Double, T> convert) : base(matrix, convert)
+    protected SpecialMatrixReducible(Matrix<Double> matrix, Func<Double, T> convert, BasicOperations basics) : base(matrix, convert, basics)
     {
     }
 
@@ -60,6 +59,7 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
             leadColumnIndex++;
         }
 
+        // TODO: check ToMatrixWithoutZeroRows
         var bottomZeroRows = Enumerable.Range(0, RowCount).Reverse().TakeWhile(r => CountNonZeroesInRow(r) == 0).Count();
 
         var dataNoZeroRows = new T[RowCount - bottomZeroRows, ColumnCount];
@@ -70,17 +70,9 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
 
 internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
 {
-    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x) =>
-        Basics = new BasicOperations
-                 {
-                     Add = static (d1, d2) => d1 + d2,
-                     Subtract = static (d1, d2) => d1 - d2,
-                     Multiply = static (d1, d2) => d1 * d2,
-                     Divide = static (d1, d2) => d1 / d2,
-                     IsZero = static d => !Utils.IsNonZeroDouble(d),
-                     IsOne = static d => !Utils.IsNonZeroDouble(1.0d - d),
-                     AsString = static d => d.ToString(CultureInfo.InvariantCulture)
-                 };
+    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x, DefinedBasicOperations.BasicOperationsOfDouble)
+    {
+    }
 
     internal static SpecialMatrixReducedDouble CreateInstance(Matrix<Double> matrix)
     {
@@ -92,17 +84,11 @@ internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double
 
 internal sealed class SpecialMatrixReducedRational : SpecialMatrixReducible<Rational>
 {
-    private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix, static x => Rational.ParseDecimal(x.ToString(CultureInfo.InvariantCulture))) =>
-        Basics = new BasicOperations
-                 {
-                     Add = Rational.Add,
-                     Subtract = Rational.Subtract,
-                     Multiply = Rational.Multiply,
-                     Divide = Rational.Divide,
-                     IsZero = static r => r.IsZero,
-                     IsOne = static r => r.IsOne,
-                     AsString = static r => r.ToString("C")
-                 };
+    private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix,
+                                                                       static x => Rational.ParseDecimal(x.ToString()),
+                                                                       DefinedBasicOperations.BasicOperationsOfRational)
+    {
+    }
 
     internal static SpecialMatrixReducedRational CreateInstance(Matrix<Double> matrix)
     {

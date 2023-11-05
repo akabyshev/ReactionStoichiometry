@@ -9,18 +9,7 @@ internal abstract class Balancer : IChemicalEntityList
     protected readonly ChemicalReactionEquation Equation;
     private String _statusMessage = String.Empty;
 
-    protected Balancer(String equation)
-    {
-        try
-        {
-            Equation = new ChemicalReactionEquation(equation);
-            Details.AddRange(Equation.MatrixAsStrings());
-        }
-        catch (Exception e)
-        {
-            throw new BalancerException($"Parsing failed: {e.Message}");
-        }
-    }
+    protected Balancer(String equation) => Equation = new ChemicalReactionEquation(equation);
 
     protected abstract IEnumerable<String> Outcome { get; }
 
@@ -54,6 +43,8 @@ internal abstract class Balancer : IChemicalEntityList
 
     internal void Balance()
     {
+        Details.AddRange(Equation.MatrixAsStrings());
+
         try
         {
             BalanceImplementation();

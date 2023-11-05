@@ -2,20 +2,28 @@
 
 using System.Text;
 using MathNet.Numerics.LinearAlgebra;
+using Rationals;
 
 internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
+    protected readonly BasicOperations Basics;
     protected T[,] Data;
 
-    protected SpecialMatrix(Matrix<Double> matrix, Func<Double, T> convert)
+    protected SpecialMatrix(Int32 rows, Int32 columns, BasicOperations basics)
     {
+        Basics = basics;
+        Data = new T[rows, columns];
+    }
+
+    protected SpecialMatrix(Matrix<Double> matrix, Func<Double, T> convert, BasicOperations basics)
+    {
+        Basics = basics;
         Data = new T[matrix.RowCount, matrix.ColumnCount];
         CopyValues(Data, matrix.ToArray(), convert);
     }
 
     internal Int32 RowCount => Data.GetLength(0);
     internal Int32 ColumnCount => Data.GetLength(1);
-    protected BasicOperations Basics { get; init; }
 
     internal Boolean IsIdentityMatrix
     {
@@ -53,8 +61,6 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         return sb.ToString();
     }
 
-    protected Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
-
     protected static void CopyValues<T2>(T[,] array, T2[,] source, Func<T2, T> convert)
     {
         for (var r = 0; r < array.GetLength(0); r++)
@@ -65,6 +71,8 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
             }
         }
     }
+
+    internal Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
 
     internal IEnumerable<T> GetRow(Int32 r)
     {
@@ -96,7 +104,7 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
     internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => !Basics.IsZero(Data[i, c]));
 
     #region Nested type: BasicOperations
-    protected struct BasicOperations
+    internal struct BasicOperations
     {
         // ReSharper disable once NotAccessedField.Global
         internal Func<T, T, T> Add;
@@ -108,4 +116,46 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         internal Func<T, String> AsString;
     }
     #endregion
+
+    internal Matrix<T> ToMatrixWithoutZeroRows() => Matrix<T>.Build.DenseOfRows(Enumerable.Range(0, RowCount).Where(r => CountNonZeroesInRow(r) != 0).Select(GetRow));
+}
+
+internal sealed class DefinedBasicOperations
+{
+    internal static SpecialMatrix<Double>.BasicOperations BasicOperationsOfDouble =>
+        new()
+        {
+            Add = static (d1, d2) => d1 + d2,
+            Subtract = static (d1, d2) => d1 - d2,
+            Multiply = static (d1, d2) => d1 * d2,
+            Divide = static (d1, d2) => d1 / d2,
+            IsZero = static d => !Utils.IsNonZeroDouble(d),
+            IsOne = static d => !Utils.IsNonZeroDouble(1.0d - d),
+            AsString = static d => d.ToString()
+        };
+
+    internal static SpecialMatrix<Rational>.BasicOperations BasicOperationsOfRational =>
+        new()
+        {
+            Add = Rational.Add,
+            Subtract = Rational.Subtract,
+            Multiply = Rational.Multiply,
+            Divide = Rational.Divide,
+            IsZero = static r => r.IsZero,
+            IsOne = static r => r.IsOne,
+            AsString = static r => r.ToString("C")
+        };
+}
+
+internal sealed class SpecialMatrixWritableDouble : SpecialMatrix<Double>
+{
+    internal SpecialMatrixWritableDouble(Int32 rows, Int32 columns) : base(rows, columns, DefinedBasicOperations.BasicOperationsOfDouble)
+    {
+    }
+
+    internal Double this[Int32 r, Int32 c]
+    {
+        get => Data[r, c];
+        set => Data[r, c] = value;
+    }
 }

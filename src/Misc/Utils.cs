@@ -8,8 +8,7 @@ internal static class Utils
 {
     internal static IEnumerable<String> PrettyPrintMatrix<T>(String title,
                                                              in T[,] matrix,
-                                                             Func<Int32, String>? columnHeaders = null,
-                                                             Func<Int32, String>? rowHeaders = null)
+                                                             Func<Int32, String>? columnHeaders = null)
     {
         Func<T, String> printer;
         if (typeof(T) == typeof(Double))
@@ -32,7 +31,7 @@ internal static class Utils
         for (var r = 0; r < matrix.GetLength(0); r++)
         {
             line.Clear();
-            line.Add(rowHeaders != null ? rowHeaders(r) : $"R#{r + 1}");
+            line.Add($"R#{r + 1}");
 
             for (var c = 0; c < matrix.GetLength(1); c++)
             {

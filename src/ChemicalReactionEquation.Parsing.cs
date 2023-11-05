@@ -1,7 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
-using MathNet.Numerics.LinearAlgebra;
 using System.Text.RegularExpressions;
+using MathNet.Numerics.LinearAlgebra;
 
 internal sealed partial class ChemicalReactionEquation
 {
@@ -59,40 +59,34 @@ internal sealed partial class ChemicalReactionEquation
         return result;
     }
 
-    private void FillCompositionMatrix(ref Matrix<Double> matrix)
+    private sealed record ChargeFormattingRule(String Pattern, String Readable);
+
+    private Matrix<Double> GetCompositionMatrix()
     {
-        for (var r = 0; r < _elements.Count; r++)
+        var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Union(new[] { "Qn", "Qp", "{e}" }).ToList();
+
+        var data = new SpecialMatrixWritableDouble(elements.Count, _entities.Count);
+
+        for (var r = 0; r < elements.Count; r++)
         {
-            Regex regex = new(ELEMENT_TEMPLATE.Replace("X", _elements[r]));
+            Regex regex = new(ELEMENT_TEMPLATE.Replace("X", elements[r]));
 
             for (var c = 0; c < _entities.Count; c++)
             {
-                var s = UnfoldEntity(_entities[c]);
-                matrix[r, c] += regex.Matches(s).Sum(static match => Double.Parse(match.Groups[1].Value));
+                data[r, c] += regex.Matches(UnfoldEntity(_entities[c])).Sum(static match => Double.Parse(match.Groups[1].Value));
             }
         }
 
-        var chargeParsingRules = new[] { new[] { "Qn", @"Qn(\d*)$", "{$1-}" }, new[] { "Qp", @"Qp(\d*)$", "{$1+}" } };
-        for (var i = 0; i < EntitiesCount; i++)
+        foreach (var i in Enumerable.Range(0, _entities.Count))
         {
-            foreach (var chargeParsingRule in chargeParsingRules)
+            foreach (var rule in new[] { new ChargeFormattingRule(@"Qn(\d*)$", "{$1-}"), new ChargeFormattingRule(@"Qp(\d*)$", "{$1+}") })
             {
-                _entities[i] = Regex.Replace(_entities[i], chargeParsingRule[1], chargeParsingRule[2]);
+                _entities[i] = Regex.Replace(_entities[i], rule.Pattern, rule.Readable);
             }
+            data[elements.IndexOf("{e}"), i] = data[elements.IndexOf("Qp"), i] - data[elements.IndexOf("Qn"), i];
+            (data[elements.IndexOf("Qp"), i], data[elements.IndexOf("Qn"), i]) = (0, 0);
         }
 
-        var totalCharge = matrix.Row(_elements.IndexOf("Qp")) - matrix.Row(_elements.IndexOf("Qn"));
-        matrix.SetRow(_elements.IndexOf("{e}"), totalCharge);
-
-        if (!totalCharge.Any(Utils.IsNonZeroDouble))
-        {
-            matrix = matrix.RemoveRow(_elements.IndexOf("{e}"));
-            _elements.Remove("{e}");
-        }
-
-        matrix = matrix.RemoveRow(_elements.IndexOf("Qn"));
-        _elements.Remove("Qn");
-        matrix = matrix.RemoveRow(_elements.IndexOf("Qp"));
-        _elements.Remove("Qp");
+        return data.ToMatrixWithoutZeroRows();
     }
 }

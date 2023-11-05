@@ -1,6 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
+using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
 internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
@@ -27,30 +28,27 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
 
     protected override void BalanceImplementation()
     {
-        Equation.CompositionMatrix.MapIndexedInplace((_, c, value) => c >= Equation.OriginalReactantsCount ? -value : value);
-        var reducedMatrix = GetReducedMatrix();
-        if (reducedMatrix.IsIdentityMatrix) throw new BalancerException("This SLE is unsolvable");
-        Details.AddRange(Utils.PrettyPrintMatrix("Matrix in RREF", reducedMatrix.ToArray()));
-
+        var reducedMatrix = GetReducedSignedMatrix();
+        BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "This SLE is unsolvable");
+        Details.AddRange(Utils.PrettyPrintMatrix("Reduced signed matrix", reducedMatrix.ToArray()));
 
         _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
-                                                     .Select(r =>
-                                                             {
-                                                                 var row = _scaleToIntegers(reducedMatrix.GetRow(r));
-                                                                 return new
-                                                                        {
-                                                                            DependentCoefficientIndex = Array.FindIndex(row, static i => i != 0),
-                                                                            Coefficients = row
-                                                                        };
-                                                             })
-                                                     .ToDictionary(static item => item.DependentCoefficientIndex, static item => item.Coefficients);
+                                                     .Select(r => _scaleToIntegers(reducedMatrix.GetRow(r)))
+                                                     .ToDictionary(static row => Array.FindIndex(row, static i => i != 0), static row => row);
 
         _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
                                             .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) && reducedMatrix.CountNonZeroesInColumn(c) > 0)
                                             .ToList();
     }
 
-    protected abstract SpecialMatrixReducible<T> GetReducedMatrix();
+    protected Matrix<Double> GetSignedCompositionMatrix()
+    {
+        var result = Equation.CompositionMatrix.Clone();
+        result.MapIndexedInplace((_, c, value) => c >= Equation.OriginalReactantsCount ? -value : value);
+        return result;
+    }
+
+    protected abstract SpecialMatrixReducible<T> GetReducedSignedMatrix();
 
     private String EquationWithPlaceholders() =>
         Equation.AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
@@ -107,13 +105,9 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
         foreach (var kvp in _dependentCoefficientExpressions!)
         {
             var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, (sum, i) => sum + result[i] * kvp.Value[i]);
-
-            if (calculated % kvp.Value[kvp.Key] != 0) throw new BalancerException("Non-integer coefficient, try other SLE params");
-
+            BalancerException.ThrowIf(calculated % kvp.Value[kvp.Key] != 0, "Non-integer coefficient, try other SLE params");
             calculated /= kvp.Value[kvp.Key];
-
             if (kvp.Key >= Equation.OriginalReactantsCount) calculated *= -1;
-
             result[kvp.Key] = calculated;
         }
 
@@ -128,7 +122,7 @@ internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
     {
     }
 
-    protected override SpecialMatrixReducedDouble GetReducedMatrix() => SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix);
+    protected override SpecialMatrixReducedDouble GetReducedSignedMatrix() => SpecialMatrixReducedDouble.CreateInstance(GetSignedCompositionMatrix());
 }
 
 internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
@@ -137,5 +131,5 @@ internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
     {
     }
 
-    protected override SpecialMatrixReducedRational GetReducedMatrix() => SpecialMatrixReducedRational.CreateInstance(Equation.CompositionMatrix);
+    protected override SpecialMatrixReducedRational GetReducedSignedMatrix() => SpecialMatrixReducedRational.CreateInstance(GetSignedCompositionMatrix());
 }

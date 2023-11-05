@@ -25,7 +25,7 @@ internal sealed class BalancerThorne : Balancer
     protected override void BalanceImplementation()
     {
         var augmentedMatrix = GetAugmentedMatrix();
-        if (!Utils.IsNonZeroDouble(augmentedMatrix.Determinant())) throw new BalancerException("Augmented matrix can't be inverted");
+        BalancerException.ThrowIf(!Utils.IsNonZeroDouble(augmentedMatrix.Determinant()), "Augmented matrix can't be inverted");
         var inverse = augmentedMatrix.Inverse();
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", inverse.ToArray()));
 
@@ -41,7 +41,7 @@ internal sealed class BalancerThorne : Balancer
             SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).ToMatrix() :
             Equation.CompositionMatrix.Clone();
 
-        if (reduced.RowCount == reduced.ColumnCount) throw new BalancerException("Matrix in RREF is still square");
+        BalancerException.ThrowIf(reduced.RowCount == reduced.ColumnCount, "Reduced matrix is still square");
 
         var nullity = reduced.Nullity();
         var submatrixLeftZeroes = Matrix<Double>.Build.Dense(nullity, reduced.ColumnCount - nullity);

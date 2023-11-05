@@ -22,8 +22,8 @@ internal static class Program
         #if DEBUG
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        if (!BasicTesting.PerformBasicParserTests() || !BasicTesting.PerformInstantiationTests() || !BasicTesting.PerformOnLaunchBatchTests())
-            throw new InvalidOperationException("Tests failed");
+        var pass = BasicTesting.PerformBasicParserTests() && BasicTesting.PerformOnLaunchBatchTests() && BasicTesting.PerformInstantiationTests();
+        if (!pass) throw new InvalidOperationException("Tests failed");
         stopwatch.Stop();
         Debug.WriteLine($"Tests look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
         #endif
