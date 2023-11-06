@@ -52,9 +52,9 @@ internal static class BasicTesting
         return true;
     }
 
-    internal static Boolean PerformOnLaunchBatchTests()
+    internal static Boolean PerformOnLaunchTests()
     {
-        const String inputFilePath = @"..\..\..\data\OnLaunchBatch.txt";
+        const String inputFilePath = @"..\..\..\data\OnLaunch.txt";
         if (!File.Exists(inputFilePath)) return false;
 
         var balancers = new[] { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };

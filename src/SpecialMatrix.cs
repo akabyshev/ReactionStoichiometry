@@ -72,8 +72,6 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         }
     }
 
-    internal Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
-
     internal IEnumerable<T> GetRow(Int32 r)
     {
         var result = new T[ColumnCount];
@@ -101,6 +99,8 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
 
     internal Matrix<T> ToMatrix() => Matrix<T>.Build.DenseOfArray(Data);
 
+    //internal Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
+    // todo: replace to Any() and delete both?
     internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => !Basics.IsZero(Data[i, c]));
 
     #region Nested type: BasicOperations
@@ -116,8 +116,6 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         internal Func<T, String> AsString;
     }
     #endregion
-
-    internal Matrix<T> ToMatrixWithoutZeroRows() => Matrix<T>.Build.DenseOfRows(Enumerable.Range(0, RowCount).Where(r => CountNonZeroesInRow(r) != 0).Select(GetRow));
 }
 
 internal sealed class DefinedBasicOperations
@@ -129,8 +127,8 @@ internal sealed class DefinedBasicOperations
             Subtract = static (d1, d2) => d1 - d2,
             Multiply = static (d1, d2) => d1 * d2,
             Divide = static (d1, d2) => d1 / d2,
-            IsZero = static d => !Utils.IsNonZeroDouble(d),
-            IsOne = static d => !Utils.IsNonZeroDouble(1.0d - d),
+            IsZero = static d => Utils.IsZeroDouble(d),
+            IsOne = static d => Utils.IsZeroDouble(1.0d - d),
             AsString = static d => d.ToString()
         };
 
@@ -145,17 +143,4 @@ internal sealed class DefinedBasicOperations
             IsOne = static r => r.IsOne,
             AsString = static r => r.ToString("C")
         };
-}
-
-internal sealed class SpecialMatrixWritableDouble : SpecialMatrix<Double>
-{
-    internal SpecialMatrixWritableDouble(Int32 rows, Int32 columns) : base(rows, columns, DefinedBasicOperations.BasicOperationsOfDouble)
-    {
-    }
-
-    internal Double this[Int32 r, Int32 c]
-    {
-        get => Data[r, c];
-        set => Data[r, c] = value;
-    }
 }

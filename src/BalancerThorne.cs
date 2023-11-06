@@ -24,8 +24,10 @@ internal sealed class BalancerThorne : Balancer
 
     protected override void BalanceImplementation()
     {
+        BalancerException.ThrowIf(Equation.CompositionMatrix.Nullity() == 0, "Zero null-space");
+
         var augmentedMatrix = GetAugmentedSquareMatrix();
-        BalancerException.ThrowIf(!Utils.IsNonZeroDouble(augmentedMatrix.Determinant()), "Augmented matrix can't be inverted");
+        BalancerException.ThrowIf(Utils.IsZeroDouble(augmentedMatrix.Determinant()), "Augmented matrix can't be inverted");
 
         var inverse = augmentedMatrix.Inverse();
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", inverse.ToArray()));

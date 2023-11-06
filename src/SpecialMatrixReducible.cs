@@ -59,12 +59,7 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
             leadColumnIndex++;
         }
 
-        // TODO: check ToMatrixWithoutZeroRows
-        var bottomZeroRows = Enumerable.Range(0, RowCount).Reverse().TakeWhile(r => CountNonZeroesInRow(r) == 0).Count();
-
-        var dataNoZeroRows = new T[RowCount - bottomZeroRows, ColumnCount];
-        CopyValues(dataNoZeroRows, Data, static r => r);
-        Data = dataNoZeroRows;
+        Data = Utils.WithoutTrailingZeroRows(Data, Basics.IsZero);
     }
 }
 

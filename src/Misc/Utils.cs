@@ -68,7 +68,7 @@ internal static class Utils
         return wholes.Select(x => x / divisor).ToArray();
     }
 
-    internal static Boolean IsNonZeroDouble(Double d) => Math.Abs(d) > Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION;
+    internal static Boolean IsZeroDouble(Double d) => Math.Abs(d) < Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION;
 
     internal static String AssembleEquationString<T>(T[] values,
                                                      Func<T, Boolean> filter,
@@ -87,5 +87,32 @@ internal static class Utils
         if (l.Count == 0 || r.Count == 0) return "Invalid input";
 
         return String.Join(" + ", l) + " = " + String.Join(" + ", r);
+    }
+
+    internal static T[,] WithoutTrailingZeroRows<T>(T[,] array, Func<T, Boolean> predicateIsZero)
+    {
+        var indexLastCopiedRow = array.GetLength(0) - 1;
+        while (indexLastCopiedRow >= 0 && IsRowAllZeroes(indexLastCopiedRow))
+        {
+            indexLastCopiedRow--;
+        }
+
+        if (indexLastCopiedRow < 0) throw new InvalidOperationException("All-zeroes matrix");
+
+        var result = new T[indexLastCopiedRow + 1, array.GetLength(1)];
+        for (var r = 0; r < result.GetLength(0); r++)
+            for (var c = 0; c < result.GetLength(1); c++)
+                result[r, c] = array[r, c];
+
+        return result;
+
+        Boolean IsRowAllZeroes(Int32 r)
+        {
+            for (var c = 0; c < array.GetLength(1); c++)
+            {
+                if (!predicateIsZero(array[r, c])) return false;
+            }
+            return true;
+        }
     }
 }

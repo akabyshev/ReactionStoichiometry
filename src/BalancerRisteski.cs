@@ -35,7 +35,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
         Details.AddRange(Utils.PrettyPrintMatrix("Reduced signed matrix", reducedMatrix.ToArray()));
 
         _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
-                                                     .Select(r => _scaleToIntegers(reducedMatrix.GetRow(r)))
+                                                     .Select(r => _scaleToIntegers(reducedMatrix.GetRow(r)).Select(static i => -i).ToArray())
                                                      .ToDictionary(static row => Array.FindIndex(row, static i => i != 0), static row => row);
 
         _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
@@ -62,6 +62,8 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
     #region IBalancerInstantiatable Members
     public String LabelFor(Int32 i) => EntitiesCount > Properties.Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
+    // TODO: this has a lot of common logic with EquationWithPlaceholders that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
+    // "a = c/2" vs "2a = c" thing
     public String? GetCoefficientExpressionString(Int32 index)
     {
         if (_dependentCoefficientExpressions == null) throw new InvalidOperationException();
@@ -74,19 +76,19 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
                                        .Where(i => expression[i] != 0)
                                        .Select(i =>
                                                {
-                                                   var coefficient = (-expression[i]).ToString();
-                                                   if (coefficient == "1") coefficient = String.Empty;
-                                                   if (coefficient == "-1") coefficient = "-";
+                                                   var coefficient = expression[i] + Properties.Settings.Default.MULTIPLICATION_SYMBOL;
+                                                   if (expression[i] == 1) coefficient = String.Empty;
+                                                   if (expression[i] == -1) coefficient = "-";
                                                    return $"{coefficient}{LabelFor(i)}";
                                                })
                                        .ToList();
 
         var result = String.Join(" + ", numeratorParts).Replace("+ -", "- ");
 
-        if (expression[index] != 1)
+        if (expression[index] != -1)
         {
             if (numeratorParts.Count > 1) result = $"({result})";
-            result = $"{result}/{expression[index]}";
+            result = $"{result}/{BigInteger.Abs(expression[index])}";
         }
 
         if (result == String.Empty) result = "0";

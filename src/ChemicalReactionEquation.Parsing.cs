@@ -62,9 +62,11 @@ internal sealed partial class ChemicalReactionEquation
 
     private Matrix<Double> GetCompositionMatrix()
     {
-        var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Union(new[] { "Qn", "Qp", "{e}" }).ToList();
+        var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
+        var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Except(pseudoElementsOfCharge).ToList();
+        elements.AddRange(pseudoElementsOfCharge);  // it is important to have those as trailing rows of the matrix
 
-        var data = new SpecialMatrixWritableDouble(elements.Count, _entities.Count);
+        var data = new Double[elements.Count, _entities.Count];
 
         for (var r = 0; r < elements.Count; r++)
         {
@@ -76,17 +78,15 @@ internal sealed partial class ChemicalReactionEquation
             }
         }
 
-        var (indexQn, indexQp, indexE) = (elements.IndexOf("Qn"), elements.IndexOf("Qp"), elements.IndexOf("{e}"));
-        foreach (var i in Enumerable.Range(0, _entities.Count))
-        {
-            foreach (var rule in new[] { new { Pseudoelement = "Qn", Sign = "-" }, new { Pseudoelement = "Qp", Sign = "+" } })
-            {
-                _entities[i] = Regex.Replace(_entities[i], rule.Pseudoelement + @"(\d*)$", "{" + "$1" + rule.Sign + "}");
-            }
-            data[indexE, i] = - data[indexQn, i] + data[indexQp, i];
-            (data[indexQn, i], data[indexQp, i]) = (0, 0);
-        }
+        var (indexE, indexQn, indexQp) = (elements.IndexOf("{e}"), elements.IndexOf("Qn"), elements.IndexOf("Qp"));
+        for (var c = 0; c < _entities.Count; c++) (data[indexE, c], data[indexQn, c], data[indexQp, c]) = (-data[indexQn, c] + data[indexQp, c], 0, 0);
 
-        return data.ToMatrixWithoutZeroRows();
+        return Matrix<Double>.Build.DenseOfArray(Utils.WithoutTrailingZeroRows(data, Utils.IsZeroDouble));
     }
 }
+
+//might use some day
+//foreach (var rule in new[] { new { Pseudoelement = "Qn", Sign = "-" }, new { Pseudoelement = "Qp", Sign = "+" } })
+//{
+//    _entities[i] = Regex.Replace(_entities[i], rule.Pseudoelement + @"(\d*)$", "{" + "$1" + rule.Sign + "}");
+//}
