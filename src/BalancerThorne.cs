@@ -24,7 +24,7 @@ internal sealed class BalancerThorne : Balancer
 
     protected override void BalanceImplementation()
     {
-        var augmentedMatrix = GetAugmentedMatrix();
+        var augmentedMatrix = GetAugmentedSquareMatrix();
         BalancerException.ThrowIf(!Utils.IsNonZeroDouble(augmentedMatrix.Determinant()), "Augmented matrix can't be inverted");
 
         var inverse = augmentedMatrix.Inverse();
@@ -35,21 +35,32 @@ internal sealed class BalancerThorne : Balancer
                                           .ToList();
     }
 
-    private Matrix<Double> GetAugmentedMatrix()
+    private Matrix<Double> GetAugmentedSquareMatrix()
     {
-        var reduced = Equation.CompositionMatrix.RowCount == Equation.CompositionMatrix.ColumnCount ?
-            SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).ToMatrix() :
-            Equation.CompositionMatrix.Clone();
+        Matrix<Double>? reduced;
+        if (Equation.CompositionMatrix.RowCount >= Equation.CompositionMatrix.ColumnCount)
+        {
+            reduced = SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).ToMatrix();
+            BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount, "Can't (yet?) work with this kind of equations");
+        }
+        else
+            reduced = Equation.CompositionMatrix.Clone();
 
-        BalancerException.ThrowIf(reduced.RowCount == reduced.ColumnCount, "Reduced matrix is still square");
+        var rowDeficit = reduced.ColumnCount - reduced.RowCount;
+        var augmentingRows = Matrix<Double>.Build.Dense(rowDeficit, reduced.ColumnCount - rowDeficit).Append(Matrix<Double>.Build.DenseIdentity(rowDeficit));
 
-        var nullity = reduced.Nullity();
-        var submatrixLeftZeroes = Matrix<Double>.Build.Dense(nullity, reduced.ColumnCount - nullity);
-        var submatrixRightIdentity = Matrix<Double>.Build.DenseIdentity(nullity);
-        var result = reduced.Stack(submatrixLeftZeroes.Append(submatrixRightIdentity));
-
+        var result = reduced.Stack(augmentingRows);
         result.CoerceZero(Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION);
-
         return result;
+    }
+
+    internal override String ToString(OutputFormat format)
+    {
+        if (format != OutputFormat.OutcomeVectorNotation) return base.ToString(format);
+
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (_independentEquations == null) return "<FAIL>";
+
+        return String.Join(" and ", _independentEquations.Select(static v => '(' + String.Join(", ", v) + ')'));
     }
 }

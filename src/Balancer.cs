@@ -22,14 +22,15 @@ internal abstract class Balancer : IChemicalEntityList
 
     protected abstract void BalanceImplementation();
 
-    internal String ToString(OutputFormat format)
+    internal virtual String ToString(OutputFormat format)
     {
         return format switch
         {
-            OutputFormat.Plain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
-            OutputFormat.Html => Fill(OutputTemplateStrings.HTML_OUTPUT),
-            OutputFormat.OutcomeCommaSeparated => String.Join(',', Outcome),
-            OutputFormat.OutcomeNewLineSeparated => String.Join(Environment.NewLine, Outcome),
+            OutputFormat.FullPlain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
+            OutputFormat.FullHtml => Fill(OutputTemplateStrings.HTML_OUTPUT),
+            OutputFormat.OutcomeOnlyCommas => String.Join(',', Outcome),
+            OutputFormat.OutcomeOnlyNewLine => String.Join(Environment.NewLine, Outcome),
+            OutputFormat.OutcomeVectorNotation => $"Error: {format} not supported by {GetType().Name}",
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 
@@ -37,7 +38,7 @@ internal abstract class Balancer : IChemicalEntityList
         {
             return template.Replace("%Skeletal%", Equation.Skeletal)
                            .Replace("%Details%", String.Join(Environment.NewLine, Details))
-                           .Replace("%Outcome%", ToString(OutputFormat.OutcomeNewLineSeparated))
+                           .Replace("%Outcome%", ToString(OutputFormat.OutcomeOnlyNewLine))
                            .Replace("%Diagnostics%", _statusMessage);
         }
     }
@@ -65,10 +66,11 @@ internal abstract class Balancer : IChemicalEntityList
     #region Nested type: OutputFormat
     internal enum OutputFormat
     {
-        Plain,
-        OutcomeCommaSeparated,
-        OutcomeNewLineSeparated,
-        Html
+        FullPlain,
+        OutcomeOnlyCommas,
+        OutcomeOnlyNewLine,
+        OutcomeVectorNotation,
+        FullHtml
     }
     #endregion
 }
