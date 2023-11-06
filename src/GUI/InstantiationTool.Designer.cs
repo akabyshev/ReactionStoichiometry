@@ -33,7 +33,7 @@
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             theGrid = new DataGridView();
-            Entity = new DataGridViewTextBoxColumn();
+            Substance = new DataGridViewTextBoxColumn();
             Expression = new DataGridViewTextBoxColumn();
             Value = new DataGridViewTextBoxColumn();
             IsFreeVariable = new DataGridViewCheckBoxColumn();
@@ -57,7 +57,7 @@
             theGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             theGrid.ColumnHeadersHeight = 58;
             theGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            theGrid.Columns.AddRange(new DataGridViewColumn[] { Entity, Expression, Value, IsFreeVariable });
+            theGrid.Columns.AddRange(new DataGridViewColumn[] { Substance, Expression, Value, IsFreeVariable });
             theGrid.Dock = DockStyle.Fill;
             theGrid.Location = new Point(0, 47);
             theGrid.Name = "theGrid";
@@ -77,15 +77,15 @@
             theGrid.TabIndex = 3;
             theGrid.CellEndEdit += OnCellEndEdit;
             // 
-            // Entity
+            // Substance
             // 
-            Entity.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            Entity.HeaderText = "Entity";
-            Entity.MinimumWidth = 12;
-            Entity.Name = "Entity";
-            Entity.ReadOnly = true;
-            Entity.SortMode = DataGridViewColumnSortMode.NotSortable;
-            Entity.Width = 107;
+            Substance.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            Substance.HeaderText = "Substance";
+            Substance.MinimumWidth = 12;
+            Substance.Name = "Substance";
+            Substance.ReadOnly = true;
+            Substance.SortMode = DataGridViewColumnSortMode.NotSortable;
+            Substance.Width = 107;
             // 
             // Expression
             // 
@@ -148,7 +148,7 @@
         #endregion
         private TextBox txtInstance;
         private DataGridView theGrid;
-        private DataGridViewTextBoxColumn Entity;
+        private DataGridViewTextBoxColumn Substance;
         private DataGridViewTextBoxColumn Expression;
         private DataGridViewTextBoxColumn Value;
         private DataGridViewCheckBoxColumn IsFreeVariable;

@@ -13,11 +13,11 @@ internal sealed partial class InstantiationTool : Form
         _balancer = balancer;
 
         theGrid.Rows.Clear();
-        theGrid.RowCount = _balancer.EntitiesCount;
-        for (var i = 0; i < _balancer.EntitiesCount; i++)
+        theGrid.RowCount = _balancer.SubstancesCount;
+        for (var i = 0; i < _balancer.SubstancesCount; i++)
         {
             theGrid.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
-            theGrid.Rows[i].Cells["Entity"].Value = _balancer.GetEntity(i);
+            theGrid.Rows[i].Cells["Substance"].Value = _balancer.GetSubstance(i);
 
             var expr = _balancer.GetCoefficientExpressionString(i);
 

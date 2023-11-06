@@ -11,15 +11,15 @@ internal sealed partial class ChemicalReactionEquation
     private const String NO_INDEX_CLOSING_PARENTHESIS = @$"{CLOSING_PARENTHESIS}(?!\d)";
     private const String NO_INDEX_ELEMENT = $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
     private const String INNERMOST_PARENTHESES_WITH_INDEX = @$"{OPENING_PARENTHESIS}([^{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+){CLOSING_PARENTHESIS}(\d+)";
-    private const String ENTITY_ALPHABET = @$"[A-Za-z0-9\.{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
-    private const String SKELETAL_STRUCTURE = @$"^(?:{ENTITY_ALPHABET}\+)*{ENTITY_ALPHABET}={ENTITY_ALPHABET}(?:\+{ENTITY_ALPHABET})*$";
+    private const String SUBSTANCE_ALPHABET = @$"[A-Za-z0-9\.{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
+    private const String SKELETAL_STRUCTURE = @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
     private const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
 
     internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 
-    internal static String UnfoldEntity(in String entity)
+    internal static String UnfoldSubstance(in String substance)
     {
-        var result = entity;
+        var result = substance;
 
         {
             Regex regex = new(NO_INDEX_ELEMENT);
@@ -65,20 +65,20 @@ internal sealed partial class ChemicalReactionEquation
         var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Except(pseudoElementsOfCharge).ToList();
         elements.AddRange(pseudoElementsOfCharge); // it is important to have those as trailing rows of the matrix
 
-        var data = new Double[elements.Count, _entities.Count];
+        var data = new Double[elements.Count, _substances.Count];
 
         for (var r = 0; r < elements.Count; r++)
         {
             Regex regex = new(ELEMENT_TEMPLATE.Replace("X", elements[r]));
 
-            for (var c = 0; c < _entities.Count; c++)
+            for (var c = 0; c < _substances.Count; c++)
             {
-                data[r, c] += regex.Matches(UnfoldEntity(_entities[c])).Sum(static match => Double.Parse(match.Groups[1].Value));
+                data[r, c] += regex.Matches(UnfoldSubstance(_substances[c])).Sum(static match => Double.Parse(match.Groups[1].Value));
             }
         }
 
         var (indexE, indexQn, indexQp) = (elements.IndexOf("{e}"), elements.IndexOf("Qn"), elements.IndexOf("Qp"));
-        for (var c = 0; c < _entities.Count; c++)
+        for (var c = 0; c < _substances.Count; c++)
         {
             data[indexE, c] = -data[indexQn, c] + data[indexQp, c];
             data[indexQn, c] = 0;

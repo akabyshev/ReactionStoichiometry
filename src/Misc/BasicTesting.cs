@@ -14,7 +14,7 @@ internal static class BasicTesting
         {
             if (line.StartsWith("#") || line.Length == 0) continue;
             var parts = line.Split("\t");
-            AssertStringsAreEqual(ChemicalReactionEquation.UnfoldEntity(parts[0]), parts[1]);
+            AssertStringsAreEqual(ChemicalReactionEquation.UnfoldSubstance(parts[0]), parts[1]);
         }
 
         return true;

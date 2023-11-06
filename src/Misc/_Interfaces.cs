@@ -2,13 +2,13 @@
 
 using System.Numerics;
 
-internal interface IChemicalEntityList
+internal interface ISubstancesList
 {
-    internal Int32 EntitiesCount { get; }
-    internal String GetEntity(Int32 i);
+    internal Int32 SubstancesCount { get; }
+    internal String GetSubstance(Int32 i);
 }
 
-internal interface IBalancerInstantiatable : IChemicalEntityList
+internal interface IBalancerInstantiatable : ISubstancesList
 {
     internal String LabelFor(Int32 i);
     internal String? GetCoefficientExpressionString(Int32 index);

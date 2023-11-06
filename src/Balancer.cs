@@ -3,7 +3,7 @@
 using System.Numerics;
 using Properties;
 
-internal abstract class Balancer : IChemicalEntityList
+internal abstract class Balancer : ISubstancesList
 {
     protected readonly List<String> Details = new();
 
@@ -39,7 +39,7 @@ internal abstract class Balancer : IChemicalEntityList
         Utils.AssembleEquationString(coefficients,
                                      static value => value != BigInteger.Zero,
                                      static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Settings.Default.MULTIPLICATION_SYMBOL,
-                                     GetEntity,
+                                     GetSubstance,
                                      static (_, value) => value < 0);
 
     protected abstract void BalanceImplementation();
@@ -59,9 +59,9 @@ internal abstract class Balancer : IChemicalEntityList
         }
     }
 
-    #region IChemicalEntityList Members
-    public Int32 EntitiesCount => Equation.EntitiesCount;
-    public String GetEntity(Int32 i) => Equation.GetEntity(i);
+    #region ISubstancesList Members
+    public Int32 SubstancesCount => Equation.SubstancesCount;
+    public String GetSubstance(Int32 i) => Equation.GetSubstance(i);
     #endregion
 
     #region Nested type: OutputFormat

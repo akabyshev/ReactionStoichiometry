@@ -2,9 +2,9 @@
 
 using MathNet.Numerics.LinearAlgebra;
 
-internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
+internal sealed partial class ChemicalReactionEquation : ISubstancesList
 {
-    private readonly List<String> _entities;
+    private readonly List<String> _substances;
     internal readonly Matrix<Double> CompositionMatrix;
     internal readonly Int32 OriginalReactantsCount;
 
@@ -16,22 +16,22 @@ internal sealed partial class ChemicalReactionEquation : IChemicalEntityList
 
         Skeletal = s;
         OriginalReactantsCount = 1 + Skeletal.Split('=')[0].Count(static c => c == '+');
-        _entities = Skeletal.Split('=', '+').ToList();
+        _substances = Skeletal.Split('=', '+').ToList();
         CompositionMatrix = GetCompositionMatrix();
     }
 
     internal IEnumerable<String> MatrixAsStrings()
     {
         var result = new List<String>();
-        result.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", CompositionMatrix.ToArray(), GetEntity));
+        result.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", CompositionMatrix.ToArray(), GetSubstance));
         result.Add(
             $"RxC: {CompositionMatrix.RowCount}x{CompositionMatrix.ColumnCount}, rank = {CompositionMatrix.Rank()}, nullity = {CompositionMatrix.Nullity()}");
 
         return result;
     }
 
-    #region IChemicalEntityList Members
-    public Int32 EntitiesCount => _entities.Count;
-    public String GetEntity(Int32 i) => _entities[i];
+    #region ISubstancesList Members
+    public Int32 SubstancesCount => _substances.Count;
+    public String GetSubstance(Int32 i) => _substances[i];
     #endregion
 }

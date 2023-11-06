@@ -54,14 +54,14 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
     protected abstract SpecialMatrixReducible<T> GetReducedSignedMatrix();
 
     private String EquationWithPlaceholders() =>
-        Utils.AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
+        Utils.AssembleEquationString(Enumerable.Range(0, SubstancesCount).Select(LabelFor).ToArray(),
                                      static _ => true,
                                      static value => value + Settings.Default.MULTIPLICATION_SYMBOL,
-                                     GetEntity,
+                                     GetSubstance,
                                      (index, _) => index < Equation.OriginalReactantsCount);
 
     #region IBalancerInstantiatable Members
-    public String LabelFor(Int32 i) => EntitiesCount > Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
+    public String LabelFor(Int32 i) => SubstancesCount > Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     // TODO: this has a lot of common logic with EquationWithPlaceholders that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
     // "a = c/2" vs "2a = c" thing
@@ -101,7 +101,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
     {
         if (parameters.Length != _freeCoefficientIndices!.Count) throw new ArgumentOutOfRangeException(nameof(parameters), "Array size mismatch");
 
-        var result = new BigInteger[EntitiesCount];
+        var result = new BigInteger[SubstancesCount];
 
         for (var i = 0; i < _freeCoefficientIndices.Count; i++)
         {
