@@ -1,6 +1,5 @@
 ﻿namespace ReactionStoichiometry;
 
-using System;
 using System.Text.RegularExpressions;
 using MathNet.Numerics.LinearAlgebra;
 
@@ -64,7 +63,7 @@ internal sealed partial class ChemicalReactionEquation
     {
         var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
         var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Except(pseudoElementsOfCharge).ToList();
-        elements.AddRange(pseudoElementsOfCharge);  // it is important to have those as trailing rows of the matrix
+        elements.AddRange(pseudoElementsOfCharge); // it is important to have those as trailing rows of the matrix
 
         var data = new Double[elements.Count, _entities.Count];
 
@@ -79,7 +78,12 @@ internal sealed partial class ChemicalReactionEquation
         }
 
         var (indexE, indexQn, indexQp) = (elements.IndexOf("{e}"), elements.IndexOf("Qn"), elements.IndexOf("Qp"));
-        for (var c = 0; c < _entities.Count; c++) (data[indexE, c], data[indexQn, c], data[indexQp, c]) = (-data[indexQn, c] + data[indexQp, c], 0, 0);
+        for (var c = 0; c < _entities.Count; c++)
+        {
+            data[indexE, c] = -data[indexQn, c] + data[indexQp, c];
+            data[indexQn, c] = 0;
+            data[indexQp, c] = 0;
+        }
 
         return Matrix<Double>.Build.DenseOfArray(Utils.WithoutTrailingZeroRows(data, Utils.IsZeroDouble));
     }

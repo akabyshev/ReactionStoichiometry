@@ -1,6 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
+using Properties;
 
 internal abstract class Balancer : IChemicalEntityList
 {
@@ -12,15 +13,6 @@ internal abstract class Balancer : IChemicalEntityList
     protected Balancer(String equation) => Equation = new ChemicalReactionEquation(equation);
 
     protected abstract IEnumerable<String> Outcome { get; }
-
-    protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
-        Utils.AssembleEquationString(coefficients,
-                                     static value => value != BigInteger.Zero,
-                                     static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Properties.Settings.Default.MULTIPLICATION_SYMBOL,
-                                     GetEntity,
-                                     static (_, value) => value < 0);
-
-    protected abstract void BalanceImplementation();
 
     internal virtual String ToString(OutputFormat format)
     {
@@ -42,6 +34,15 @@ internal abstract class Balancer : IChemicalEntityList
                            .Replace("%Diagnostics%", _statusMessage);
         }
     }
+
+    protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
+        Utils.AssembleEquationString(coefficients,
+                                     static value => value != BigInteger.Zero,
+                                     static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Settings.Default.MULTIPLICATION_SYMBOL,
+                                     GetEntity,
+                                     static (_, value) => value < 0);
+
+    protected abstract void BalanceImplementation();
 
     internal void Balance()
     {

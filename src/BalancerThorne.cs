@@ -2,6 +2,7 @@
 
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using Properties;
 
 internal sealed class BalancerThorne : Balancer
 {
@@ -37,25 +38,6 @@ internal sealed class BalancerThorne : Balancer
                                           .ToList();
     }
 
-    private Matrix<Double> GetAugmentedSquareMatrix()
-    {
-        Matrix<Double>? reduced;
-        if (Equation.CompositionMatrix.RowCount >= Equation.CompositionMatrix.ColumnCount)
-        {
-            reduced = SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).ToMatrix();
-            BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount, "Can't (yet?) work with this kind of equations");
-        }
-        else
-            reduced = Equation.CompositionMatrix.Clone();
-
-        var rowDeficit = reduced.ColumnCount - reduced.RowCount;
-        var augmentingRows = Matrix<Double>.Build.Dense(rowDeficit, reduced.ColumnCount - rowDeficit).Append(Matrix<Double>.Build.DenseIdentity(rowDeficit));
-
-        var result = reduced.Stack(augmentingRows);
-        result.CoerceZero(Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION);
-        return result;
-    }
-
     internal override String ToString(OutputFormat format)
     {
         if (format != OutputFormat.OutcomeVectorNotation) return base.ToString(format);
@@ -64,5 +46,26 @@ internal sealed class BalancerThorne : Balancer
         if (_independentEquations == null) return "<FAIL>";
 
         return String.Join(" and ", _independentEquations.Select(static v => '(' + String.Join(", ", v) + ')'));
+    }
+
+    private Matrix<Double> GetAugmentedSquareMatrix()
+    {
+        Matrix<Double>? reduced;
+        if (Equation.CompositionMatrix.RowCount >= Equation.CompositionMatrix.ColumnCount)
+        {
+            reduced = Matrix<Double>.Build.DenseOfArray(SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).Data);
+            BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount, "Can't (yet?) work with this kind of equations");
+        }
+        else
+        {
+            reduced = Equation.CompositionMatrix.Clone();
+        }
+
+        var rowDeficit = reduced.ColumnCount - reduced.RowCount;
+        var augmentingRows = Matrix<Double>.Build.Dense(rowDeficit, reduced.ColumnCount - rowDeficit).Append(Matrix<Double>.Build.DenseIdentity(rowDeficit));
+
+        var result = reduced.Stack(augmentingRows);
+        result.CoerceZero(Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION);
+        return result;
     }
 }

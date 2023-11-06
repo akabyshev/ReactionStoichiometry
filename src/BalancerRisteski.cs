@@ -2,6 +2,7 @@
 
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
+using Properties;
 using Rationals;
 
 internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
@@ -32,14 +33,14 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
         BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "This SLE is unsolvable");
 
 
-        Details.AddRange(Utils.PrettyPrintMatrix("Reduced signed matrix", reducedMatrix.ToArray()));
+        Details.AddRange(Utils.PrettyPrintMatrix("Reduced signed matrix", reducedMatrix.Data));
 
         _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
                                                      .Select(r => _scaleToIntegers(reducedMatrix.GetRow(r)).Select(static i => -i).ToArray())
                                                      .ToDictionary(static row => Array.FindIndex(row, static i => i != 0), static row => row);
 
         _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
-                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) && reducedMatrix.CountNonZeroesInColumn(c) > 0)
+                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) && !reducedMatrix.IsColumnAllZeroes(c))
                                             .ToList();
     }
 
@@ -55,12 +56,12 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
     private String EquationWithPlaceholders() =>
         Utils.AssembleEquationString(Enumerable.Range(0, EntitiesCount).Select(LabelFor).ToArray(),
                                      static _ => true,
-                                     static value => value + Properties.Settings.Default.MULTIPLICATION_SYMBOL,
+                                     static value => value + Settings.Default.MULTIPLICATION_SYMBOL,
                                      GetEntity,
                                      (index, _) => index < Equation.OriginalReactantsCount);
 
     #region IBalancerInstantiatable Members
-    public String LabelFor(Int32 i) => EntitiesCount > Properties.Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
+    public String LabelFor(Int32 i) => EntitiesCount > Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     // TODO: this has a lot of common logic with EquationWithPlaceholders that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
     // "a = c/2" vs "2a = c" thing
@@ -76,7 +77,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
                                        .Where(i => expression[i] != 0)
                                        .Select(i =>
                                                {
-                                                   var coefficient = expression[i] + Properties.Settings.Default.MULTIPLICATION_SYMBOL;
+                                                   var coefficient = expression[i] + Settings.Default.MULTIPLICATION_SYMBOL;
                                                    if (expression[i] == 1) coefficient = String.Empty;
                                                    if (expression[i] == -1) coefficient = "-";
                                                    return $"{coefficient}{LabelFor(i)}";

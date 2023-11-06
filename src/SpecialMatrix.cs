@@ -1,13 +1,11 @@
 ﻿namespace ReactionStoichiometry;
 
-using System.Text;
 using MathNet.Numerics.LinearAlgebra;
-using Rationals;
 
 internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
 {
-    protected readonly BasicOperations Basics;
-    protected T[,] Data;
+    private protected readonly BasicOperations Basics;
+    internal T[,] Data { get; private protected set; }
 
     protected SpecialMatrix(Int32 rows, Int32 columns, BasicOperations basics)
     {
@@ -18,8 +16,16 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
     protected SpecialMatrix(Matrix<Double> matrix, Func<Double, T> convert, BasicOperations basics)
     {
         Basics = basics;
-        Data = new T[matrix.RowCount, matrix.ColumnCount];
-        CopyValues(Data, matrix.ToArray(), convert);
+
+        var source = matrix.ToArray();
+        Data = new T[source.GetLength(0), source.GetLength(1)];
+        for (var r = 0; r < Data.GetLength(0); r++)
+        {
+            for (var c = 0; c < Data.GetLength(1); c++)
+            {
+                Data[r, c] = convert(source[r, c]);
+            }
+        }
     }
 
     internal Int32 RowCount => Data.GetLength(0);
@@ -43,35 +49,7 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         }
     }
 
-    public override String ToString()
-    {
-        StringBuilder sb = new();
-
-        for (var r = 0; r < RowCount; r++)
-        {
-            for (var c = 0; c < ColumnCount; c++)
-            {
-                sb.Append(Basics.AsString(Data[r, c]));
-                if (c < ColumnCount - 1) sb.Append('\t');
-            }
-
-            sb.Append('\n');
-        }
-
-        return sb.ToString();
-    }
-
-    protected static void CopyValues<T2>(T[,] array, T2[,] source, Func<T2, T> convert)
-    {
-        for (var r = 0; r < array.GetLength(0); r++)
-        {
-            for (var c = 0; c < array.GetLength(1); c++)
-            {
-                array[r, c] = convert(source[r, c]);
-            }
-        }
-    }
-
+    // todo: get rid of this
     internal IEnumerable<T> GetRow(Int32 r)
     {
         var result = new T[ColumnCount];
@@ -83,25 +61,15 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
         return result;
     }
 
-    internal T[,] ToArray()
+    // todo: get rid of this
+    internal Boolean IsColumnAllZeroes(Int32 c)
     {
-        var result = new T[RowCount, ColumnCount];
         for (var r = 0; r < RowCount; r++)
         {
-            for (var c = 0; c < ColumnCount; c++)
-            {
-                result[r, c] = Data[r, c];
-            }
+            if (!Basics.IsZero(Data[r, c])) return false;
         }
-
-        return result;
+        return true;
     }
-
-    internal Matrix<T> ToMatrix() => Matrix<T>.Build.DenseOfArray(Data);
-
-    //internal Int32 CountNonZeroesInRow(Int32 r) => Enumerable.Range(0, ColumnCount).Count(i => !Basics.IsZero(Data[r, i]));
-    // todo: replace to Any() and delete both?
-    internal Int32 CountNonZeroesInColumn(Int32 c) => Enumerable.Range(0, RowCount).Count(i => !Basics.IsZero(Data[i, c]));
 
     #region Nested type: BasicOperations
     internal struct BasicOperations
@@ -118,29 +86,3 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
     #endregion
 }
 
-internal sealed class DefinedBasicOperations
-{
-    internal static SpecialMatrix<Double>.BasicOperations BasicOperationsOfDouble =>
-        new()
-        {
-            Add = static (d1, d2) => d1 + d2,
-            Subtract = static (d1, d2) => d1 - d2,
-            Multiply = static (d1, d2) => d1 * d2,
-            Divide = static (d1, d2) => d1 / d2,
-            IsZero = static d => Utils.IsZeroDouble(d),
-            IsOne = static d => Utils.IsZeroDouble(1.0d - d),
-            AsString = static d => d.ToString()
-        };
-
-    internal static SpecialMatrix<Rational>.BasicOperations BasicOperationsOfRational =>
-        new()
-        {
-            Add = Rational.Add,
-            Subtract = Rational.Subtract,
-            Multiply = Rational.Multiply,
-            Divide = Rational.Divide,
-            IsZero = static r => r.IsZero,
-            IsOne = static r => r.IsOne,
-            AsString = static r => r.ToString("C")
-        };
-}

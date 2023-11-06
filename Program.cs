@@ -26,7 +26,7 @@ internal static class Program
         BatchTester.Run();
         stopwatch.Stop();
         Debug.WriteLine($"Batch look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
-#endif
+        #endif
 
         Application.Run(new MainForm());
     }

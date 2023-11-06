@@ -65,7 +65,7 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : s
 
 internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
 {
-    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x, DefinedBasicOperations.BasicOperationsOfDouble)
+    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x, MyBasicOperations.BasicOperationsOfDouble)
     {
     }
 
@@ -81,7 +81,7 @@ internal sealed class SpecialMatrixReducedRational : SpecialMatrixReducible<Rati
 {
     private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix,
                                                                        static x => Rational.ParseDecimal(x.ToString()),
-                                                                       DefinedBasicOperations.BasicOperationsOfRational)
+                                                                       MyBasicOperations.BasicOperationsOfRational)
     {
     }
 

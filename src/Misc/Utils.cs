@@ -1,13 +1,13 @@
 ﻿namespace ReactionStoichiometry;
 
-using System;
 using System.Numerics;
 using MathNet.Numerics;
+using Properties;
 using Rationals;
 
 internal static class Utils
 {
-    internal static IEnumerable<String> PrettyPrintMatrix<T>(String title, in T[,] matrix, Func<Int32, String>? columnHeaders = null)
+    internal static IEnumerable<String> PrettyPrintMatrix<T>(String title, in T[,] array, Func<Int32, String>? columnHeaders = null)
     {
         Func<T, String> printer;
         if (typeof(T) == typeof(Double))
@@ -23,18 +23,18 @@ internal static class Utils
         if (columnHeaders != null)
         {
             line.Add(String.Empty);
-            line.AddRange(Enumerable.Range(0, matrix.GetLength(1)).Select(columnHeaders));
+            line.AddRange(Enumerable.Range(0, array.GetLength(1)).Select(columnHeaders));
             result.Add(String.Join('\t', line));
         }
 
-        for (var r = 0; r < matrix.GetLength(0); r++)
+        for (var r = 0; r < array.GetLength(0); r++)
         {
             line.Clear();
             line.Add($"R#{r + 1}");
 
-            for (var c = 0; c < matrix.GetLength(1); c++)
+            for (var c = 0; c < array.GetLength(1); c++)
             {
-                line.Add(printer(matrix[r, c]));
+                line.Add(printer(array[r, c]));
             }
 
             result.Add(String.Join('\t', line));
@@ -57,7 +57,7 @@ internal static class Utils
     internal static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
 
     internal static BigInteger[] ScaleDoubles(IEnumerable<Double> doubles) =>
-        ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION)));
+        ScaleRationals(doubles.Select(static d => Rational.Approximate(d, Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION)));
 
     internal static BigInteger[] ScaleRationals(IEnumerable<Rational> rationals)
     {
@@ -68,7 +68,7 @@ internal static class Utils
         return wholes.Select(x => x / divisor).ToArray();
     }
 
-    internal static Boolean IsZeroDouble(Double d) => Math.Abs(d) < Properties.Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION;
+    internal static Boolean IsZeroDouble(Double d) => Math.Abs(d) < Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION;
 
     internal static String AssembleEquationString<T>(T[] values,
                                                      Func<T, Boolean> filter,
@@ -101,8 +101,12 @@ internal static class Utils
 
         var result = new T[indexLastCopiedRow + 1, array.GetLength(1)];
         for (var r = 0; r < result.GetLength(0); r++)
+        {
             for (var c = 0; c < result.GetLength(1); c++)
+            {
                 result[r, c] = array[r, c];
+            }
+        }
 
         return result;
 

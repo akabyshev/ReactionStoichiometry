@@ -1,5 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
+// todo: put this is resx
 internal static class OutputTemplateStrings
 {
     internal const String PLAIN_OUTPUT = "Input:\r\n%Skeletal%\r\n\r\n" +

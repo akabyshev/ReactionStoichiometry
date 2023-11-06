@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
-internal class BatchTester
+internal static class BatchTester
 {
     internal static void Run()
     {
