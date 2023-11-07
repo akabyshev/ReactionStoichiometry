@@ -6,7 +6,8 @@ using Properties;
 
 internal sealed class BalancerThorne : Balancer
 {
-    private List<BigInteger[]>? _independentEquations;
+    private List<BigInteger[]>? _independentReactions;
+    internal Int32 NumberOfIndependentReactions => _independentReactions!.Count;
 
     public BalancerThorne(String equation) : base(equation)
     {
@@ -17,9 +18,9 @@ internal sealed class BalancerThorne : Balancer
         get
         {
             // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (_independentEquations == null) return new[] { "<FAIL>" };
+            if (_independentReactions == null) return new[] { "<FAIL>" };
 
-            return _independentEquations.Select(EquationWithIntegerCoefficients);
+            return _independentReactions.Select(EquationWithIntegerCoefficients);
         }
     }
 
@@ -28,24 +29,29 @@ internal sealed class BalancerThorne : Balancer
         BalancerException.ThrowIf(Equation.CompositionMatrix.Nullity() == 0, "Zero null-space");
 
         var augmentedMatrix = GetAugmentedSquareMatrix();
-        BalancerException.ThrowIf(Utils.IsZeroDouble(augmentedMatrix.Determinant()), "Augmented matrix can't be inverted");
+        BalancerException.ThrowIf(Utils.IsZeroDouble(augmentedMatrix.Determinant()),
+                                  "Augmented matrix can't be inverted");
 
         var inverse = augmentedMatrix.Inverse();
         Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", inverse.ToArray()));
 
-        _independentEquations = Enumerable.Range(inverse.ColumnCount - Equation.CompositionMatrix.Nullity(), Equation.CompositionMatrix.Nullity())
-                                          .Select(c => Utils.ScaleDoubles(inverse.Column(c)))
-                                          .ToList();
+        _independentReactions = Enumerable
+                                .Range(inverse.ColumnCount - Equation.CompositionMatrix.Nullity(),
+                                       Equation.CompositionMatrix.Nullity())
+                                .Select(c => Utils.ScaleDoubles(inverse.Column(c)))
+                                .ToList();
     }
 
     internal override String ToString(OutputFormat format)
     {
-        if (format != OutputFormat.OutcomeVectorNotation) return base.ToString(format);
+        if (format != OutputFormat.VectorsNotation) return base.ToString(format);
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (_independentEquations == null) return "<FAIL>";
+        if (_independentReactions == null) return "<FAIL>";
 
-        return String.Join(" and ", _independentEquations.Select(static v => '(' + String.Join(", ", v) + ')'));
+        return NumberOfIndependentReactions +
+               ":" +
+               String.Join(",", _independentReactions.Select(static v => '(' + String.Join(", ", v) + ')'));
     }
 
     private Matrix<Double> GetAugmentedSquareMatrix()
@@ -53,8 +59,11 @@ internal sealed class BalancerThorne : Balancer
         Matrix<Double>? reduced;
         if (Equation.CompositionMatrix.RowCount >= Equation.CompositionMatrix.ColumnCount)
         {
-            reduced = Matrix<Double>.Build.DenseOfArray(SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).Data);
-            BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount, "Can't (yet?) work with this kind of equations");
+            reduced = Matrix<Double>.Build.DenseOfArray(SpecialMatrixReducedDouble
+                                                        .CreateInstance(Equation.CompositionMatrix)
+                                                        .Data);
+            BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount,
+                                      "The method fails on this kind of equations");
         }
         else
         {
@@ -62,7 +71,8 @@ internal sealed class BalancerThorne : Balancer
         }
 
         var rowDeficit = reduced.ColumnCount - reduced.RowCount;
-        var augmentingRows = Matrix<Double>.Build.Dense(rowDeficit, reduced.ColumnCount - rowDeficit).Append(Matrix<Double>.Build.DenseIdentity(rowDeficit));
+        var augmentingRows = Matrix<Double>.Build.Dense(rowDeficit, reduced.ColumnCount - rowDeficit)
+                                           .Append(Matrix<Double>.Build.DenseIdentity(rowDeficit));
 
         var result = reduced.Stack(augmentingRows);
         result.CoerceZero(Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION);

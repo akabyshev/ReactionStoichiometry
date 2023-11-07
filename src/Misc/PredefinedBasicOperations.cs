@@ -2,7 +2,7 @@
 
 namespace ReactionStoichiometry;
 
-internal static class MyBasicOperations
+internal static class PredefinedBasicOperations
 {
     internal static SpecialMatrix<Double>.BasicOperations BasicOperationsOfDouble =>
         new()

@@ -18,11 +18,11 @@ internal abstract class Balancer : ISubstancesList
     {
         return format switch
         {
-            OutputFormat.FullPlain => Fill(OutputTemplateStrings.PLAIN_OUTPUT),
-            OutputFormat.FullHtml => Fill(OutputTemplateStrings.HTML_OUTPUT),
+            OutputFormat.DetailedPlain => Fill(OutputFormatTemplates.PLAIN_OUTPUT),
+            OutputFormat.DetailedHtml => Fill(OutputFormatTemplates.HTML_OUTPUT),
             OutputFormat.OutcomeOnlyCommas => String.Join(',', Outcome),
             OutputFormat.OutcomeOnlyNewLine => String.Join(Environment.NewLine, Outcome),
-            OutputFormat.OutcomeVectorNotation => $"Error: {format} not supported by {GetType().Name}",
+            OutputFormat.VectorsNotation => $"Error: {format} not implemented by {GetType().Name}",
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 
@@ -67,11 +67,11 @@ internal abstract class Balancer : ISubstancesList
     #region Nested type: OutputFormat
     internal enum OutputFormat
     {
-        FullPlain,
+        DetailedPlain,
+        DetailedHtml,
         OutcomeOnlyCommas,
         OutcomeOnlyNewLine,
-        OutcomeVectorNotation,
-        FullHtml
+        VectorsNotation
     }
     #endregion
 }

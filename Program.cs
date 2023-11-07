@@ -1,6 +1,7 @@
 namespace ReactionStoichiometry;
 
 using System.Diagnostics;
+using TDD;
 
 internal static class Program
 {
@@ -17,15 +18,13 @@ internal static class Program
         #if DEBUG
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        var pass = BasicTesting.PerformBasicParserTests() && BasicTesting.PerformOnLaunchTests() && BasicTesting.PerformInstantiationTests();
+        var pass = TestParsing.Run() &&
+                   TestBatchDetailedPlain.Run() &&
+                   TestInstantiation.Run() &&
+                   TestBatchVectors.Run();
         if (!pass) throw new InvalidOperationException("Tests failed");
         stopwatch.Stop();
         Debug.WriteLine($"Tests look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
-
-        stopwatch.Restart();
-        BatchTester.Run();
-        stopwatch.Stop();
-        Debug.WriteLine($"Batch look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
         #endif
 
         Application.Run(new MainForm());

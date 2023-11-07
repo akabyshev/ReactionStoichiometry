@@ -21,12 +21,12 @@ internal sealed partial class MainForm : Form
         {
             var balancerThorne = new BalancerThorne(s);
             balancerThorne.Balance();
-            resultMT.Text = balancerThorne.ToString(Balancer.OutputFormat.OutcomeVectorNotation);
+            resultMT.Text = balancerThorne.ToString(Balancer.OutputFormat.VectorsNotation);
         }
         {
             var balancerRisteskiRational = new BalancerRisteskiRational(s);
             balancerRisteskiRational.Balance();
-            resultMR.Text = balancerRisteskiRational.ToString(Balancer.OutputFormat.FullPlain);
+            resultMR.Text = balancerRisteskiRational.ToString(Balancer.OutputFormat.DetailedPlain);
 
             _permutationTool.Init(s);
             _instantiationTool.Init(balancerRisteskiRational);

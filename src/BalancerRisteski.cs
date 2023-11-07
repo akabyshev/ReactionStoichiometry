@@ -11,8 +11,11 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
+    internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
+
     protected BalancerRisteski(String equation, Func<IEnumerable<T>, BigInteger[]> scale) : base(equation) => _scaleToIntegers = scale;
 
+    // implementations of Outcome share logic with ToString(). gotta do something
     protected override IEnumerable<String> Outcome
     {
         get
@@ -59,6 +62,20 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
                                      static value => value + Settings.Default.MULTIPLICATION_SYMBOL,
                                      GetSubstance,
                                      (index, _) => index < Equation.OriginalReactantsCount);
+
+    internal override String ToString(OutputFormat format)
+    {
+        if (format != OutputFormat.VectorsNotation) return base.ToString(format);
+
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return "<FAIL>";
+
+        return DegreesOfFreedom + ":(" +
+               String.Join(",",
+                           Enumerable.Range(0, Equation.SubstancesCount)
+                                     .Select(i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : GetCoefficientExpressionString(i))) +
+               ')';
+    }
 
     #region IBalancerInstantiatable Members
     public String LabelFor(Int32 i) => SubstancesCount > Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
