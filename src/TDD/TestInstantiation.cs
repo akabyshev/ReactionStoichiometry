@@ -1,6 +1,6 @@
-using System.Numerics;
-
 namespace ReactionStoichiometry.TDD;
+
+using System.Numerics;
 
 internal static class TestInstantiation
 {

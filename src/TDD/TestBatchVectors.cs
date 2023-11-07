@@ -18,7 +18,7 @@ internal static class TestBatchVectors
             while (reader.ReadLine() is { } line)
             {
                 if (line.StartsWith("#") || line.Length == 0) continue;
-                var balancer = (Balancer) Activator.CreateInstance(type, line.Replace(" ", String.Empty))!;
+                var balancer = (Balancer)Activator.CreateInstance(type, line.Replace(" ", String.Empty))!;
                 balancer.Balance();
 
                 writer.WriteLine(line);

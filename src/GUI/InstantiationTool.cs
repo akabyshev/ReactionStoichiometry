@@ -81,7 +81,7 @@ internal sealed partial class InstantiationTool : Form
         {
             var cv = theGrid.Rows[i].Cells["IsFreeVariable"].Value ?? throw new InvalidOperationException();
             var isFreeVarRow = Boolean.Parse(cv.ToString()!);
-            if (!isFreeVarRow) theGrid.Rows[i].Cells["Value"].Value = coefficients != null ? BigInteger.Abs(coefficients[i]) : String.Empty;
+            if (!isFreeVarRow) theGrid.Rows[i].Cells["Value"].Value = coefficients != null ? coefficients[i] : String.Empty;
         }
 
         AdaptFormSize();

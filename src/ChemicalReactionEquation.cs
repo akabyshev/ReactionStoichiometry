@@ -13,9 +13,9 @@ internal sealed partial class ChemicalReactionEquation : ISubstancesList
     internal ChemicalReactionEquation(String s)
     {
         if (!SeemsFine(s)) throw new ArgumentException("Invalid string");
-
         Skeletal = s;
         OriginalReactantsCount = 1 + Skeletal.Split('=')[0].Count(static c => c == '+');
+
         _substances = Skeletal.Split('=', '+').ToList();
         CompositionMatrix = GetCompositionMatrix();
     }

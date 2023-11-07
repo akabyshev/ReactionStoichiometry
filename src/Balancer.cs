@@ -38,9 +38,10 @@ internal abstract class Balancer : ISubstancesList
     protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
         Utils.AssembleEquationString(coefficients,
                                      static value => value != BigInteger.Zero,
-                                     static value => value == 1 || value == -1 ? String.Empty : BigInteger.Abs(value) + Settings.Default.MULTIPLICATION_SYMBOL,
+                                     static value =>
+                                         BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value) + Settings.Default.MULTIPLICATION_SYMBOL,
                                      GetSubstance,
-                                     static (_, value) => value < 0);
+                                     static value => value < 0);
 
     protected abstract void BalanceImplementation();
 

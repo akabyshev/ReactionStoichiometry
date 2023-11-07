@@ -1,6 +1,6 @@
-﻿using Rationals;
+﻿namespace ReactionStoichiometry;
 
-namespace ReactionStoichiometry;
+using Rationals;
 
 internal static class PredefinedBasicOperations
 {

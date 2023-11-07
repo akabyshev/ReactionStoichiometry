@@ -79,15 +79,18 @@ internal static class Utils
                                                      Func<T, Boolean> filter,
                                                      Func<T, String> adapter,
                                                      Func<Int32, String> stringsSource,
-                                                     Func<Int32, T, Boolean> predicateLeftHandSide)
+                                                     Func<T, Boolean> predicateLeftHandSide,
+                                                     Boolean allowEmptyRightSide = false)
     {
         List<String> l = new();
         List<String> r = new();
 
         for (var i = 0; i < values.Length; i++)
         {
-            if (filter(values[i])) (predicateLeftHandSide(i, values[i]) ? l : r).Add(adapter(values[i]) + stringsSource(i));
+            if (filter(values[i])) (predicateLeftHandSide(values[i]) ? l : r).Add(adapter(values[i]) + stringsSource(i));
         }
+
+        if (r.Count == 0 && allowEmptyRightSide) r.Add("0");
 
         if (l.Count == 0 || r.Count == 0) return "Invalid input";
 

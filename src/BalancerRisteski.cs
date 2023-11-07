@@ -1,19 +1,19 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
-using MathNet.Numerics.LinearAlgebra;
 using Properties;
 using Rationals;
 
-internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable where T : struct, IEquatable<T>, IFormattable
+internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
+    where T : struct, IEquatable<T>, IFormattable
 {
     private readonly Func<IEnumerable<T>, BigInteger[]> _scaleToIntegers;
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
-    internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
-
     protected BalancerRisteski(String equation, Func<IEnumerable<T>, BigInteger[]> scale) : base(equation) => _scaleToIntegers = scale;
+
+    internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
 
     // implementations of Outcome share logic with ToString(). gotta do something
     protected override IEnumerable<String> Outcome
@@ -32,7 +32,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
 
     protected override void BalanceImplementation()
     {
-        var reducedMatrix = GetReducedSignedMatrix();
+        var reducedMatrix = GetReducedMatrix();
         BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "This SLE is unsolvable");
 
 
@@ -47,21 +47,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
                                             .ToList();
     }
 
-    protected Matrix<Double> GetSignedCompositionMatrix()
-    {
-        var result = Equation.CompositionMatrix.Clone();
-        result.MapIndexedInplace((_, c, value) => c >= Equation.OriginalReactantsCount ? -value : value);
-        return result;
-    }
-
-    protected abstract SpecialMatrixReducible<T> GetReducedSignedMatrix();
-
-    private String EquationWithPlaceholders() =>
-        Utils.AssembleEquationString(Enumerable.Range(0, SubstancesCount).Select(LabelFor).ToArray(),
-                                     static _ => true,
-                                     static value => value + Settings.Default.MULTIPLICATION_SYMBOL,
-                                     GetSubstance,
-                                     (index, _) => index < Equation.OriginalReactantsCount);
+    protected abstract SpecialMatrixReducible<T> GetReducedMatrix();
 
     internal override String ToString(OutputFormat format)
     {
@@ -70,17 +56,26 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return "<FAIL>";
 
-        return DegreesOfFreedom + ":(" +
-               String.Join(",",
+        return DegreesOfFreedom +
+               ":{" +
+               String.Join(", ",
                            Enumerable.Range(0, Equation.SubstancesCount)
                                      .Select(i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : GetCoefficientExpressionString(i))) +
-               ')';
+               '}';
     }
+
+    private String EquationWithPlaceholders() =>
+        Utils.AssembleEquationString(Enumerable.Range(0, SubstancesCount).Select(LabelFor).ToArray(),
+                                     static _ => true,
+                                     static value => value + Settings.Default.MULTIPLICATION_SYMBOL,
+                                     GetSubstance,
+                                     static _ => true,
+                                     true);
 
     #region IBalancerInstantiatable Members
     public String LabelFor(Int32 i) => SubstancesCount > Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
-    // TODO: this has a lot of common logic with EquationWithPlaceholders that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
+    // TODO: this has a lot of common logic with EquationWithIntegerCoefficients that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
     // "a = c/2" vs "2a = c" thing
     public String? GetCoefficientExpressionString(Int32 index)
     {
@@ -130,8 +125,8 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable 
             var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, (sum, i) => sum + result[i] * kvp.Value[i]);
             BalancerException.ThrowIf(calculated % kvp.Value[kvp.Key] != 0, "Non-integer coefficient, try other SLE params");
             calculated /= kvp.Value[kvp.Key];
-            if (kvp.Key >= Equation.OriginalReactantsCount) calculated *= -1;
-            result[kvp.Key] = calculated;
+
+            result[kvp.Key] = -calculated;
         }
 
         return (result, EquationWithIntegerCoefficients(result));
@@ -145,7 +140,7 @@ internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
     {
     }
 
-    protected override SpecialMatrixReducedDouble GetReducedSignedMatrix() => SpecialMatrixReducedDouble.CreateInstance(GetSignedCompositionMatrix());
+    protected override SpecialMatrixReducedDouble GetReducedMatrix() => SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix);
 }
 
 internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
@@ -154,5 +149,5 @@ internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
     {
     }
 
-    protected override SpecialMatrixReducedRational GetReducedSignedMatrix() => SpecialMatrixReducedRational.CreateInstance(GetSignedCompositionMatrix());
+    protected override SpecialMatrixReducedRational GetReducedMatrix() => SpecialMatrixReducedRational.CreateInstance(Equation.CompositionMatrix);
 }

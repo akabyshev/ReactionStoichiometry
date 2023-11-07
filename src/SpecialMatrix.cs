@@ -2,10 +2,10 @@
 
 using MathNet.Numerics.LinearAlgebra;
 
-internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
+internal abstract class SpecialMatrix<T>
+    where T : struct, IEquatable<T>, IFormattable
 {
     private protected readonly BasicOperations Basics;
-    internal T[,] Data { get; private protected set; }
 
     protected SpecialMatrix(Int32 rows, Int32 columns, BasicOperations basics)
     {
@@ -27,6 +27,8 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
             }
         }
     }
+
+    internal T[,] Data { get; private protected set; }
 
     internal Int32 RowCount => Data.GetLength(0);
     internal Int32 ColumnCount => Data.GetLength(1);
@@ -85,4 +87,3 @@ internal abstract class SpecialMatrix<T> where T : struct, IEquatable<T>, IForma
     }
     #endregion
 }
-

@@ -3,7 +3,8 @@
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
-internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T> where T : struct, IEquatable<T>, IFormattable
+internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T>
+    where T : struct, IEquatable<T>, IFormattable
 {
     protected SpecialMatrixReducible(Matrix<Double> matrix, Func<Double, T> convert, BasicOperations basics) : base(matrix, convert, basics)
     {

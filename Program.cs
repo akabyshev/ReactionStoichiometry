@@ -18,11 +18,8 @@ internal static class Program
         #if DEBUG
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        var pass = TestParsing.Run() &&
-                   TestBatchDetailedPlain.Run() &&
-                   TestInstantiation.Run() &&
-                   TestBatchVectors.Run();
-        if (!pass) throw new InvalidOperationException("Tests failed");
+        var pass = TestParsing.Run() && TestInstantiation.Run() && TestBatchVectors.Run() && TestBatchDetailedPlain.Run();
+        if (!pass) throw new InvalidOperationException("At least one test failed");
         stopwatch.Stop();
         Debug.WriteLine($"Tests look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
         #endif
