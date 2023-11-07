@@ -67,6 +67,7 @@
             Controls.Add(listRHS);
             Controls.Add(listLHS);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            MinimizeBox = false;
             Name = "PermutationTool";
             Text = "PermutationTool";
             ResumeLayout(false);

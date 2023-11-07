@@ -18,7 +18,7 @@ internal sealed partial class PermutationTool : Form
 
     private void OnListMouseDoubleClick(Object sender, MouseEventArgs e)
     {
-        var list = (ListBox)sender;
+        var list = (ListBox) sender;
         if (list.SelectedItems.Count != 1) return;
         var item = list.SelectedItems[0] ?? throw new InvalidOperationException();
         var indexNew = list.Items.Count - 1;

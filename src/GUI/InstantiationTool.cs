@@ -11,7 +11,7 @@ internal sealed partial class InstantiationTool : Form
     internal void Init(IBalancerInstantiatable balancer)
     {
         _balancer = balancer;
-
+        txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
         theGrid.Rows.Clear();
         theGrid.RowCount = _balancer.SubstancesCount;
         for (var i = 0; i < _balancer.SubstancesCount; i++)
@@ -24,29 +24,34 @@ internal sealed partial class InstantiationTool : Form
             if (String.IsNullOrEmpty(expr))
             {
                 theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
-                theGrid.Rows[i].Cells["Expression"].Value = "free variable";
+                theGrid.Rows[i].Cells["Expression"].Value = "\u27a2";
                 theGrid.Rows[i].Cells["Value"].Value = 0;
+                theGrid.Rows[i].Cells["Value"].ReadOnly = false;
             }
             else
             {
                 theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
                 theGrid.Rows[i].Cells["Expression"].Value = expr;
+                theGrid.Rows[i].Cells["Value"].ReadOnly = true;
             }
         }
 
+        AdaptFormSize();
         Instantiate();
-        ApplyVisualStyle();
-        theGrid.Refresh();
     }
 
     private void ApplyVisualStyle()
     {
         for (var i = 0; i < theGrid.Rows.Count; i++)
         {
-            var cv = theGrid.Rows[i].Cells["IsFreeVariable"].Value ?? throw new InvalidOperationException();
-            var isFreeVarRow = Boolean.Parse(cv.ToString()!);
-            theGrid.Rows[i].Cells["Value"].Style.BackColor = isFreeVarRow ? Color.Bisque : Color.White;
-            theGrid.Rows[i].Cells["Value"].ReadOnly = !isFreeVarRow;
+            theGrid.Rows[i].DefaultCellStyle.BackColor = Color.White;
+
+            var cv = theGrid.Rows[i].Cells["Value"].Value;
+            if (cv == null || !BigInteger.TryParse(cv.ToString()!, out var value)) continue;
+
+            if (value > 0)
+                theGrid.Rows[i].DefaultCellStyle.BackColor = Color.LightSteelBlue;
+            else if (value < 0) theGrid.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
         }
     }
 
@@ -81,17 +86,17 @@ internal sealed partial class InstantiationTool : Form
         {
             var cv = theGrid.Rows[i].Cells["IsFreeVariable"].Value ?? throw new InvalidOperationException();
             var isFreeVarRow = Boolean.Parse(cv.ToString()!);
-            if (!isFreeVarRow) theGrid.Rows[i].Cells["Value"].Value = coefficients != null ? coefficients[i] : String.Empty;
+            if (!isFreeVarRow) theGrid.Rows[i].Cells["Value"].Value = coefficients != null ? coefficients[i] : "#VALUE!";
         }
 
-        AdaptFormSize();
+        ApplyVisualStyle();
     }
 
     private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => Instantiate();
 
     private void AdaptFormSize()
     {
-        Width = Owner.Width;
-        Height = txtInstance.Height * (1 + theGrid.RowCount + 1) + 120;
+        Width = Owner.Width / 2;
+        Height = 144 + txtInstance.Height + 50 * theGrid.RowCount + txtGeneralForm.Height;
     }
 }

@@ -21,7 +21,7 @@ internal sealed partial class MainForm : Form
         {
             var balancerThorne = new BalancerThorne(s);
             balancerThorne.Balance();
-            resultMT.Text = balancerThorne.ToString(Balancer.OutputFormat.VectorsNotation);
+            resultMT.Text = balancerThorne.ToString(Balancer.OutputFormat.DetailedPlain);
         }
         {
             var balancerRisteskiRational = new BalancerRisteskiRational(s);

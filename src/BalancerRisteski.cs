@@ -36,7 +36,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
         BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "This SLE is unsolvable");
 
 
-        Details.AddRange(Utils.PrettyPrintMatrix("Reduced signed matrix", reducedMatrix.Data));
+        Details.AddRange(Utils.PrettyPrintMatrix("Reduced matrix", reducedMatrix.Data));
 
         _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
                                                      .Select(r => _scaleToIntegers(reducedMatrix.GetRow(r)).Select(static i => -i).ToArray())
@@ -64,7 +64,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
                '}';
     }
 
-    private String EquationWithPlaceholders() =>
+    public String EquationWithPlaceholders() =>
         Utils.AssembleEquationString(Enumerable.Range(0, SubstancesCount).Select(LabelFor).ToArray(),
                                      static _ => true,
                                      static value => value + Settings.Default.MULTIPLICATION_SYMBOL,

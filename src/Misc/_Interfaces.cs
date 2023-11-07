@@ -10,6 +10,7 @@ internal interface ISubstancesList
 
 internal interface IBalancerInstantiatable : ISubstancesList
 {
+    String EquationWithPlaceholders();
     internal String LabelFor(Int32 i);
     internal String? GetCoefficientExpressionString(Int32 index);
     internal (BigInteger[] coefficients, String readable) Instantiate(BigInteger[] parameters);

@@ -30,7 +30,6 @@
         {
             containerOutput = new SplitContainer();
             resultMT = new TextBox();
-            statusStrip1 = new StatusStrip();
             resultMR = new TextBox();
             containerInput = new Panel();
             textBoxInput = new TextBox();
@@ -54,7 +53,6 @@
             // 
             // containerOutput.Panel2
             // 
-            containerOutput.Panel2.Controls.Add(statusStrip1);
             containerOutput.Panel2.Controls.Add(resultMR);
             containerOutput.Size = new Size(2368, 1465);
             containerOutput.SplitterDistance = 1215;
@@ -73,16 +71,6 @@
             resultMT.Size = new Size(1215, 1465);
             resultMT.TabIndex = 6;
             resultMT.WordWrap = false;
-            // 
-            // statusStrip1
-            // 
-            statusStrip1.ImageScalingSize = new Size(40, 40);
-            statusStrip1.LayoutStyle = ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            statusStrip1.Location = new Point(0, 1443);
-            statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1145, 22);
-            statusStrip1.TabIndex = 3;
-            statusStrip1.Text = "statusStrip1";
             // 
             // resultMR
             // 
@@ -158,7 +146,6 @@
         private Button buttonBalance;
         private TextBox resultMT;
         private TextBox resultMR;
-        private StatusStrip statusStrip1;
         internal TextBox textBoxInput;
     }
 }
