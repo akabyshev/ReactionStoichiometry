@@ -3,13 +3,9 @@
 using MathNet.Numerics.LinearAlgebra;
 using Rationals;
 
-internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T>
+internal abstract partial class SpecialMatrix<T>
     where T : struct, IEquatable<T>, IFormattable
 {
-    protected SpecialMatrixReducible(Matrix<Double> matrix, Func<Double, T> convert, BasicOperations basics) : base(matrix, convert, basics)
-    {
-    }
-
     protected void Reduce()
     {
         var leadColumnIndex = 0;
@@ -64,32 +60,40 @@ internal abstract class SpecialMatrixReducible<T> : SpecialMatrix<T>
     }
 }
 
-internal sealed class SpecialMatrixReducedDouble : SpecialMatrixReducible<Double>
+internal sealed class SpecialMatrixReducedDouble : SpecialMatrix<Double>
 {
-    private SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x, PredefinedBasicOperations.BasicOperationsOfDouble)
-    {
-    }
+    internal static BasicOperations BasicOperationsOfDouble =>
+        new()
+        {
+            Add = static (d1, d2) => d1 + d2,
+            Subtract = static (d1, d2) => d1 - d2,
+            Multiply = static (d1, d2) => d1 * d2,
+            Divide = static (d1, d2) => d1 / d2,
+            IsZero = static d => Utils.IsZeroDouble(d),
+            IsOne = static d => Utils.IsZeroDouble(1.0d - d),
+            AsString = static d => d.ToString()
+        };
 
-    internal static SpecialMatrixReducedDouble CreateInstance(Matrix<Double> matrix)
-    {
-        var result = new SpecialMatrixReducedDouble(matrix);
-        result.Reduce();
-        return result;
-    }
+    internal SpecialMatrixReducedDouble(Matrix<Double> matrix) : base(matrix, static x => x, BasicOperationsOfDouble) =>
+        Reduce();
 }
 
-internal sealed class SpecialMatrixReducedRational : SpecialMatrixReducible<Rational>
+internal sealed class SpecialMatrixReducedRational : SpecialMatrix<Rational>
 {
-    private SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix,
-                                                                       static x => Rational.ParseDecimal(x.ToString()),
-                                                                       PredefinedBasicOperations.BasicOperationsOfRational)
-    {
-    }
+    internal static BasicOperations BasicOperationsOfRational =>
+        new()
+        {
+            Add = Rational.Add,
+            Subtract = Rational.Subtract,
+            Multiply = Rational.Multiply,
+            Divide = Rational.Divide,
+            IsZero = static r => r.IsZero,
+            IsOne = static r => r.IsOne,
+            AsString = static r => r.ToString("C")
+        };
 
-    internal static SpecialMatrixReducedRational CreateInstance(Matrix<Double> matrix)
-    {
-        var result = new SpecialMatrixReducedRational(matrix);
-        result.Reduce();
-        return result;
-    }
+    internal SpecialMatrixReducedRational(Matrix<Double> matrix) : base(matrix,
+                                                                        static x => Rational.ParseDecimal(x.ToString()),
+                                                                        BasicOperationsOfRational) =>
+        Reduce();
 }

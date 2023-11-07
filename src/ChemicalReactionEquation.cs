@@ -23,7 +23,7 @@ internal sealed partial class ChemicalReactionEquation : ISubstancesList
     internal IEnumerable<String> MatrixAsStrings()
     {
         var result = new List<String>();
-        result.AddRange(Utils.PrettyPrintMatrix("Chemical composition matrix", CompositionMatrix.ToArray(), GetSubstance));
+        result.AddRange(Utils.PrettyPrint("Chemical composition matrix", CompositionMatrix.ToArray(), GetSubstance));
         result.Add(
             $"RxC: {CompositionMatrix.RowCount}x{CompositionMatrix.ColumnCount}, rank = {CompositionMatrix.Rank()}, nullity = {CompositionMatrix.Nullity()}");
 

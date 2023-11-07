@@ -2,7 +2,7 @@
 
 using MathNet.Numerics.LinearAlgebra;
 
-internal abstract class SpecialMatrix<T>
+internal abstract partial class SpecialMatrix<T>
     where T : struct, IEquatable<T>, IFormattable
 {
     private protected readonly BasicOperations Basics;
@@ -86,4 +86,6 @@ internal abstract class SpecialMatrix<T>
         internal Func<T, String> AsString;
     }
     #endregion
+
+    public T this[Int32 r, Int32 c] => Data[r, c];
 }

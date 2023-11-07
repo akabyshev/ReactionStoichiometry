@@ -28,11 +28,11 @@ internal sealed class BalancerThorne : Balancer
     {
         BalancerException.ThrowIf(Equation.CompositionMatrix.Nullity() == 0, "Zero null-space");
 
-        var augmentedMatrix = GetAugmentedSquareMatrix();
+        var augmentedMatrix = Matrix<Double>.Build.DenseOfArray(GetAugmentedSquareMatrix());
         BalancerException.ThrowIf(Utils.IsZeroDouble(augmentedMatrix.Determinant()), "Augmented matrix can't be inverted");
 
         var inverse = augmentedMatrix.Inverse();
-        Details.AddRange(Utils.PrettyPrintMatrix("Inverse of the augmented matrix", inverse.ToArray()));
+        Details.AddRange(Utils.PrettyPrint("Inverse of the augmented matrix", inverse.ToArray()));
 
         _independentReactions = Enumerable.Range(inverse.ColumnCount - Equation.CompositionMatrix.Nullity(), Equation.CompositionMatrix.Nullity())
                                           .Select(c => Utils.ScaleDoubles(inverse.Column(c)))
@@ -49,18 +49,11 @@ internal sealed class BalancerThorne : Balancer
         return NumberOfIndependentReactions + ":" + String.Join(", ", _independentReactions.Select(static v => '{' + String.Join(", ", v) + '}'));
     }
 
-    private Matrix<Double> GetAugmentedSquareMatrix()
+    private Double[,] GetAugmentedSquareMatrix()
     {
-        Matrix<Double> reduced;
-        if (Equation.CompositionMatrix.RowCount >= Equation.CompositionMatrix.ColumnCount)
-        {
-            reduced = Matrix<Double>.Build.DenseOfArray(SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).Data);
-            BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount, "The method fails on this kind of equations");
-        }
-        else
-        {
-            reduced = Equation.CompositionMatrix.Clone();
-        }
+        SpecialMatrix<Double> reduced = new SpecialMatrixReducedDouble(Equation.CompositionMatrix);
+        BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount, "The method fails on this kind of equations");
+
         var rowDeficit = reduced.ColumnCount - reduced.RowCount;
 
         var result = new Double[reduced.RowCount + rowDeficit, reduced.ColumnCount];
@@ -70,6 +63,6 @@ internal sealed class BalancerThorne : Balancer
 
         for (var r = 0; r < rowDeficit; r++) result[reduced.RowCount + r, reduced.RowCount + r] = 1.0d;
 
-        return Matrix<Double>.Build.DenseOfArray(result);
+        return result;
     }
 }

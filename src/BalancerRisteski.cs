@@ -36,7 +36,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
         BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "SLE is unsolvable");
 
 
-        Details.AddRange(Utils.PrettyPrintMatrix("Reduced matrix", reducedMatrix.Data));
+        Details.AddRange(Utils.PrettyPrint("Reduced matrix", reducedMatrix.Data));
 
         _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
                                                      .Select(r => _scaleToIntegers(reducedMatrix.GetRow(r)).Select(static i => -i).ToArray())
@@ -47,7 +47,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
                                             .ToList();
     }
 
-    protected abstract SpecialMatrixReducible<T> GetReducedMatrix();
+    protected abstract SpecialMatrix<T> GetReducedMatrix();
 
     internal override String ToString(OutputFormat format)
     {
@@ -140,7 +140,7 @@ internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
     {
     }
 
-    protected override SpecialMatrixReducedDouble GetReducedMatrix() => SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix);
+    protected override SpecialMatrixReducedDouble GetReducedMatrix() => new(Equation.CompositionMatrix);
 }
 
 internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
@@ -149,5 +149,5 @@ internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
     {
     }
 
-    protected override SpecialMatrixReducedRational GetReducedMatrix() => SpecialMatrixReducedRational.CreateInstance(Equation.CompositionMatrix);
+    protected override SpecialMatrixReducedRational GetReducedMatrix() => new(Equation.CompositionMatrix);
 }

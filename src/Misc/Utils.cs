@@ -12,7 +12,7 @@ internal static class Utils
         if (lhs != rhs) throw new Exception($"{lhs} is not equal to {rhs}");
     }
 
-    internal static IEnumerable<String> PrettyPrintMatrix<T>(String title, in T[,] array, Func<Int32, String>? columnHeaders = null)
+    internal static IEnumerable<String> PrettyPrint<T>(String title, in T[,] array, Func<Int32, String>? columnHeaders = null)
     {
         Func<T, String> printer;
         if (typeof(T) == typeof(Double))
