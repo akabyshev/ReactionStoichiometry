@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry
 {
-    partial class PermutationTool
+    partial class FormPermutation
     {
         /// <summary>
         /// Required designer variable.

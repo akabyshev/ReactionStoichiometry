@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry
 {
-    partial class InstantiationTool
+    partial class FormInstantiation
     {
         /// <summary>
         /// Required designer variable.

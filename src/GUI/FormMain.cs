@@ -1,11 +1,11 @@
 namespace ReactionStoichiometry;
 
-internal sealed partial class MainForm : Form
+internal sealed partial class FormMain : Form
 {
-    private readonly InstantiationTool _instantiationTool = new();
-    private readonly PermutationTool _permutationTool = new();
+    private readonly FormInstantiation _instantiationTool = new();
+    private readonly FormPermutation _permutationTool = new();
 
-    internal MainForm()
+    internal FormMain()
     {
         InitializeComponent();
         SyncControls();

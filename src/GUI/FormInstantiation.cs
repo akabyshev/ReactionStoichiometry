@@ -2,11 +2,11 @@
 
 using System.Numerics;
 
-internal sealed partial class InstantiationTool : Form
+internal sealed partial class FormInstantiation : Form
 {
     private IBalancerInstantiatable _balancer;
 
-    internal InstantiationTool() => InitializeComponent();
+    internal FormInstantiation() => InitializeComponent();
 
     internal void Init(IBalancerInstantiatable balancer)
     {

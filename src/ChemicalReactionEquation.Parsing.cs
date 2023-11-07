@@ -1,7 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Text.RegularExpressions;
-using MathNet.Numerics.LinearAlgebra;
 
 internal sealed partial class ChemicalReactionEquation
 {
@@ -62,13 +61,13 @@ internal sealed partial class ChemicalReactionEquation
         return result;
     }
 
-    private Matrix<Double> GetCompositionMatrix()
+    private Double[,] GetCompositionMatrix()
     {
         var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
         var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Except(pseudoElementsOfCharge).ToList();
         elements.AddRange(pseudoElementsOfCharge); // it is important to have those as trailing rows of the matrix
 
-        var data = new Double[elements.Count, _substances.Count];
+        var result = new Double[elements.Count, _substances.Count];
 
         for (var r = 0; r < elements.Count; r++)
         {
@@ -76,19 +75,19 @@ internal sealed partial class ChemicalReactionEquation
 
             for (var c = 0; c < _substances.Count; c++)
             {
-                data[r, c] += regex.Matches(UnfoldSubstance(_substances[c])).Sum(static match => Double.Parse(match.Groups[1].Value));
+                result[r, c] += regex.Matches(UnfoldSubstance(_substances[c])).Sum(static match => Double.Parse(match.Groups[1].Value));
             }
         }
 
         var (indexE, indexQn, indexQp) = (elements.IndexOf("{e}"), elements.IndexOf("Qn"), elements.IndexOf("Qp"));
         for (var c = 0; c < _substances.Count; c++)
         {
-            data[indexE, c] = -data[indexQn, c] + data[indexQp, c];
-            data[indexQn, c] = 0;
-            data[indexQp, c] = 0;
+            result[indexE, c] = -result[indexQn, c] + result[indexQp, c];
+            result[indexQn, c] = 0;
+            result[indexQp, c] = 0;
         }
 
-        return Matrix<Double>.Build.DenseOfArray(Utils.WithoutTrailingZeroRows(data, Utils.IsZeroDouble));
+        return Utils.WithoutTrailingZeroRows(result, Utils.IsZeroDouble);
     }
 }
 

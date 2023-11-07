@@ -24,6 +24,6 @@ internal static class Program
         Debug.WriteLine($"Tests look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
         #endif
 
-        Application.Run(new MainForm());
+        Application.Run(new FormMain());
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace ReactionStoichiometry;
 
-internal sealed partial class PermutationTool : Form
+internal sealed partial class FormPermutation : Form
 {
-    internal PermutationTool() => InitializeComponent();
+    internal FormPermutation() => InitializeComponent();
 
     internal void Init(String s)
     {
@@ -33,7 +33,7 @@ internal sealed partial class PermutationTool : Form
     private void PassTheStringBack()
     {
         var s = String.Join("+", listLHS.Items.OfType<String>()) + "=" + String.Join("+", listRHS.Items.OfType<String>());
-        (Owner as MainForm)!.textBoxInput.Text = s;
-        (Owner as MainForm)!.Balance();
+        (Owner as FormMain)!.textBoxInput.Text = s;
+        (Owner as FormMain)!.Balance();
     }
 }

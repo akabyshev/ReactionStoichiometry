@@ -17,7 +17,7 @@ internal sealed partial class ChemicalReactionEquation : ISubstancesList
         OriginalReactantsCount = 1 + Skeletal.Split('=')[0].Count(static c => c == '+');
 
         _substances = Skeletal.Split('=', '+').ToList();
-        CompositionMatrix = GetCompositionMatrix();
+        CompositionMatrix = Matrix<Double>.Build.DenseOfArray(GetCompositionMatrix());
     }
 
     internal IEnumerable<String> MatrixAsStrings()

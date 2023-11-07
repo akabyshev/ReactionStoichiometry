@@ -2,7 +2,6 @@
 
 using System.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using Properties;
 
 internal sealed class BalancerThorne : Balancer
 {
@@ -52,7 +51,7 @@ internal sealed class BalancerThorne : Balancer
 
     private Matrix<Double> GetAugmentedSquareMatrix()
     {
-        Matrix<Double>? reduced;
+        Matrix<Double> reduced;
         if (Equation.CompositionMatrix.RowCount >= Equation.CompositionMatrix.ColumnCount)
         {
             reduced = Matrix<Double>.Build.DenseOfArray(SpecialMatrixReducedDouble.CreateInstance(Equation.CompositionMatrix).Data);
@@ -62,13 +61,15 @@ internal sealed class BalancerThorne : Balancer
         {
             reduced = Equation.CompositionMatrix.Clone();
         }
-
         var rowDeficit = reduced.ColumnCount - reduced.RowCount;
-        var augmentingRows = Matrix<Double>.Build.Dense(rowDeficit, reduced.ColumnCount - rowDeficit)
-                                           .Append(Matrix<Double>.Build.DenseIdentity(rowDeficit));
 
-        var result = reduced.Stack(augmentingRows);
-        result.CoerceZero(Settings.Default.GOOD_ENOUGH_FLOAT_PRECISION);
-        return result;
+        var result = new Double[reduced.RowCount + rowDeficit, reduced.ColumnCount];
+        for (var r = 0; r < reduced.RowCount; r++)
+            for (var c = 0; c < reduced.ColumnCount; c++)
+                result[r, c] = reduced[r, c];
+
+        for (var r = 0; r < rowDeficit; r++) result[reduced.RowCount + r, reduced.RowCount + r] = 1.0d;
+
+        return Matrix<Double>.Build.DenseOfArray(result);
     }
 }

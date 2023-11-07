@@ -33,7 +33,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
     protected override void BalanceImplementation()
     {
         var reducedMatrix = GetReducedMatrix();
-        BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "This SLE is unsolvable");
+        BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "SLE is unsolvable");
 
 
         Details.AddRange(Utils.PrettyPrintMatrix("Reduced matrix", reducedMatrix.Data));
