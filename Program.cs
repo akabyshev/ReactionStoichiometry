@@ -19,8 +19,8 @@ internal static class Program
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         var pass = TestBasicParsing.Run()
-                //&& TestBasicBalancingRisteski.Run()
-                //&& TestBasicBalancingThorne.Run()
+                   //&& TestBasicBalancingRisteski.Run()
+                   //&& TestBasicBalancingThorne.Run()
                 && TestInstantiation.Run()
                 && TestBatchVectors.Run()
                 && TestBatchDetailedPlain.Run();

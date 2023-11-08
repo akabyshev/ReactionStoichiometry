@@ -3,14 +3,13 @@
 using System.Numerics;
 using Properties;
 
-internal class BalancerRisteski : Balancer, IBalancerInstantiatable
+internal class BalancerRisteski : Balancer
 {
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
     public BalancerRisteski(String equation) : base(equation)
     {
-
     }
 
     internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
@@ -30,23 +29,6 @@ internal class BalancerRisteski : Balancer, IBalancerInstantiatable
         }
     }
 
-    protected override void BalanceImplementation()
-    {
-        var reducedMatrix = RationalMatrix.CreateInstance(Equation.CompositionMatrix.Reduce(), static r => r);
-        BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "SLE is unsolvable");
-
-
-        Details.AddRange(reducedMatrix.PrettyPrint("Reduced matrix"));
-
-        _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
-                                                     .Select(r => Utils.ScaleRationals(reducedMatrix.GetRow(r)).Select(static i => -i).ToArray())
-                                                     .ToDictionary(static row => Array.FindIndex(row, static i => i != 0), static row => row);
-
-        _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
-                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) && !reducedMatrix.IsColumnAllZeroes(c))
-                                            .ToList();
-    }
-
     public override String ToString(OutputFormat format)
     {
         if (format != OutputFormat.VectorsNotation) return base.ToString(format);
@@ -54,23 +36,22 @@ internal class BalancerRisteski : Balancer, IBalancerInstantiatable
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return "<FAIL>";
 
-        return DegreesOfFreedom +
-               ":{" +
-               String.Join(", ",
-                           Enumerable.Range(0, Equation.SubstancesCount)
-                                     .Select(i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : GetCoefficientExpressionString(i))) +
-               '}';
+        return DegreesOfFreedom
+             + ":{"
+             + String.Join(", "
+                         , Enumerable.Range(0, Equation.SubstancesCount)
+                                     .Select(i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : GetCoefficientExpressionString(i)))
+             + '}';
     }
 
     public String EquationWithPlaceholders() =>
-        Utils.AssembleEquationString(Enumerable.Range(0, SubstancesCount).Select(LabelFor).ToArray(),
-                                     static _ => true,
-                                     static value => value + Settings.Default.MULTIPLICATION_SYMBOL,
-                                     GetSubstance,
-                                     static _ => true,
-                                     true);
+        Utils.AssembleEquationString(Enumerable.Range(0, SubstancesCount).Select(LabelFor).ToArray()
+                                   , static _ => true
+                                   , static value => value + Settings.Default.MULTIPLICATION_SYMBOL
+                                   , GetSubstance
+                                   , static _ => true
+                                   , true);
 
-    #region IBalancerInstantiatable Members
     public String LabelFor(Int32 i) => SubstancesCount > Settings.Default.LETTER_LABEL_THRESHOLD ? Utils.GenericLabel(i) : Utils.LetterLabel(i);
 
     // TODO: this has a lot of common logic with EquationWithIntegerCoefficients that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
@@ -129,5 +110,21 @@ internal class BalancerRisteski : Balancer, IBalancerInstantiatable
 
         return (result, EquationWithIntegerCoefficients(result));
     }
-    #endregion
+
+    protected override void BalanceImplementation()
+    {
+        var reducedMatrix = RationalMatrix.CreateInstance(Equation.CompositionMatrix.Reduce(), static r => r);
+        BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "SLE is unsolvable");
+
+
+        Details.AddRange(reducedMatrix.PrettyPrint("Reduced matrix"));
+
+        _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
+                                                     .Select(r => Utils.ScaleRationals(reducedMatrix.GetRow(r)).Select(static i => -i).ToArray())
+                                                     .ToDictionary(static row => Array.FindIndex(row, static i => i != 0), static row => row);
+
+        _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
+                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) && !reducedMatrix.IsColumnAllZeroes(c))
+                                            .ToList();
+    }
 }

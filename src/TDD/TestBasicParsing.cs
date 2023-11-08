@@ -12,7 +12,7 @@ internal static class TestBasicParsing
         {
             if (line.StartsWith("#") || line.Length == 0) continue;
             var parts = line.Split("\t");
-            Utils.AssertStringsAreEqual(ChemicalReactionEquation.UnfoldSubstance(parts[0]), parts[1]);
+            Utils.AssertStringsAreEqual(StringOperations.UnfoldSubstance(parts[0]), parts[1]);
         }
 
         return true;

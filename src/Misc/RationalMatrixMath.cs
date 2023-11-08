@@ -1,11 +1,13 @@
-﻿using Rationals;
+﻿namespace ReactionStoichiometry;
 
-namespace ReactionStoichiometry;
+using Rationals;
 
 internal static class RationalMatrixMath
 {
-    public static Int32 GetRank(Rational[,] matrix)
+    public static Int32 GetRank(Rational[,] source)
     {
+        var matrix = (Rational[,])source.Clone();
+
         var rowCount = matrix.GetLength(0);
         var colCount = matrix.GetLength(1);
 
@@ -82,7 +84,7 @@ internal static class RationalMatrixMath
     public static Rational[,] GetInverse(Rational[,] matrix)
     {
         var n = matrix.GetLength(0);
-        if (n != matrix.GetLength(1)) throw new ArgumentException("Non-square matrix can't be inverted");
+        if (n != matrix.GetLength(1)) throw new ArgumentException("Augmented matrix can't be inverted");
 
         var augmentedMatrix = new Rational[n, 2 * n];
 
@@ -130,8 +132,10 @@ internal static class RationalMatrixMath
         return result;
     }
 
-    public static Rational[,] GetReduced(Rational[,] matrix)
+    public static Rational[,] GetReduced(Rational[,] source)
     {
+        var matrix = (Rational[,])source.Clone();
+
         var rowCount = matrix.GetLength(0);
         var columnCount = matrix.GetLength(1);
 

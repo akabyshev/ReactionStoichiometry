@@ -1,13 +1,12 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Text.RegularExpressions;
-using Rationals;
 
-internal sealed partial class ChemicalReactionEquation
+internal static class StringOperations
 {
     private const String OPENING_PARENTHESIS = @"\(";
     private const String CLOSING_PARENTHESIS = @"\)";
-    private const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
+    internal const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
     private const String NO_INDEX_CLOSING_PARENTHESIS = @$"{CLOSING_PARENTHESIS}(?!\d)";
     private const String NO_INDEX_ELEMENT = $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
 
@@ -16,7 +15,7 @@ internal sealed partial class ChemicalReactionEquation
 
     private const String SUBSTANCE_ALPHABET = @$"[A-Za-z0-9\.{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
     private const String SKELETAL_STRUCTURE = @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
-    private const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
+    internal const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
 
     internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 
@@ -60,46 +59,6 @@ internal sealed partial class ChemicalReactionEquation
         }
 
         return result;
-    }
-
-    private Rational[,] GetCompositionMatrix()
-    {
-        var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
-        var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Except(pseudoElementsOfCharge).ToList();
-        elements.AddRange(pseudoElementsOfCharge); // it is important to have those as trailing rows of the matrix
-
-        var result = new Rational[elements.Count, _substances.Count];
-        for (var r = 0; r < elements.Count; r++)
-            for (var c = 0; c < _substances.Count; c++)
-                result[r, c] = 0;
-
-        for (var r = 0; r < elements.Count; r++)
-        {
-            Regex regex = new(ELEMENT_TEMPLATE.Replace("X", elements[r]));
-
-            for (var c = 0; c < _substances.Count; c++)
-            {
-                var matches = regex.Matches(UnfoldSubstance(_substances[c]));
-
-                Rational sum = 0;
-                for (var i = 0; i < matches.Count; i++)
-                {
-                    var match = matches[i];
-                    sum += Rational.ParseDecimal(match.Groups[1].Value);
-                }
-                result[r, c] += sum;
-            }
-        }
-
-        var (indexE, indexQn, indexQp) = (elements.IndexOf("{e}"), elements.IndexOf("Qn"), elements.IndexOf("Qp"));
-        for (var c = 0; c < _substances.Count; c++)
-        {
-            result[indexE, c] = -result[indexQn, c] + result[indexQp, c];
-            result[indexQn, c] = 0;
-            result[indexQp, c] = 0;
-        }
-
-        return Utils.WithoutTrailingZeroRows(result);
     }
 }
 

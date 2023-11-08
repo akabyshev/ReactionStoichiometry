@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace ReactionStoichiometry.TDD;
 
-namespace ReactionStoichiometry.TDD;
+using System.Diagnostics.CodeAnalysis;
 
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 internal static class TestBasicBalancingRisteski

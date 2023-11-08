@@ -45,7 +45,7 @@ internal sealed partial class FormMain : Form
         resultMT.Text = String.Empty;
         resultMR.Text = String.Empty;
 
-        buttonBalance.Enabled = ChemicalReactionEquation.SeemsFine(textBoxInput.Text.Replace(" ", String.Empty));
+        buttonBalance.Enabled = StringOperations.SeemsFine(textBoxInput.Text.Replace(" ", String.Empty));
         _instantiationTool.Visible = false;
         _permutationTool.Visible = false;
     }

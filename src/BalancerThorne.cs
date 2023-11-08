@@ -24,6 +24,16 @@ internal sealed class BalancerThorne : Balancer
         }
     }
 
+    public override String ToString(OutputFormat format)
+    {
+        if (format != OutputFormat.VectorsNotation) return base.ToString(format);
+
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (_independentReactions == null) return "<FAIL>";
+
+        return NumberOfIndependentReactions + ":" + String.Join(", ", _independentReactions.Select(static v => '{' + String.Join(", ", v) + '}'));
+    }
+
     protected override void BalanceImplementation()
     {
         BalancerException.ThrowIf(Equation.CompositionMatrix.Nullity == 0, "Zero null-space");
@@ -39,16 +49,6 @@ internal sealed class BalancerThorne : Balancer
                                           .ToList();
     }
 
-    public override String ToString(OutputFormat format)
-    {
-        if (format != OutputFormat.VectorsNotation) return base.ToString(format);
-
-        // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (_independentReactions == null) return "<FAIL>";
-
-        return NumberOfIndependentReactions + ":" + String.Join(", ", _independentReactions.Select(static v => '{' + String.Join(", ", v) + '}'));
-    }
-
     private Rational[,] GetAugmentedSquareMatrix()
     {
         var reduced = RationalMatrix.CreateInstance(Equation.CompositionMatrix.Reduce(), static r => r);
@@ -56,10 +56,17 @@ internal sealed class BalancerThorne : Balancer
 
         var result = new Rational[reduced.ColumnCount, reduced.ColumnCount];
         for (var r = 0; r < reduced.ColumnCount; r++)
+        {
             for (var c = 0; c < reduced.ColumnCount; c++)
+            {
                 result[r, c] = r < reduced.RowCount ? reduced[r, c] : Rational.Zero;
+            }
+        }
 
-        for (var r = 0; r < reduced.ColumnCount - reduced.RowCount; r++) result[reduced.RowCount + r, reduced.RowCount + r] = Rational.One;
+        for (var r = 0; r < reduced.ColumnCount - reduced.RowCount; r++)
+        {
+            result[reduced.RowCount + r, reduced.RowCount + r] = Rational.One;
+        }
 
         return result;
     }

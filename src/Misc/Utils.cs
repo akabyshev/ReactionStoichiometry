@@ -1,7 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
-using Rationals;
 using System.Numerics;
+using Rationals;
 
 internal static class Utils
 {
@@ -22,21 +22,17 @@ internal static class Utils
 
         static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
         {
-            if (a == 0 || b == 0)
-            {
-                return 0;
-            }
-
+            if (a == 0 || b == 0) return 0;
             return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
         }
     }
 
-    internal static String AssembleEquationString<T>(T[] values,
-                                                     Func<T, Boolean> filter,
-                                                     Func<T, String> adapter,
-                                                     Func<Int32, String> stringsSource,
-                                                     Func<T, Boolean> predicateLeftHandSide,
-                                                     Boolean allowEmptyRightSide = false)
+    internal static String AssembleEquationString<T>(T[] values
+                                                   , Func<T, Boolean> filter
+                                                   , Func<T, String> adapter
+                                                   , Func<Int32, String> stringsSource
+                                                   , Func<T, Boolean> predicateLeftHandSide
+                                                   , Boolean allowEmptyRightSide = false)
     {
         List<String> l = new();
         List<String> r = new();

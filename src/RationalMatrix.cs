@@ -6,6 +6,8 @@ internal sealed class RationalMatrix
 {
     private readonly Rational[,] _data;
 
+    private RationalMatrix(Rational[,] data) => _data = data;
+
     internal Int32 RowCount => _data.GetLength(0);
     internal Int32 ColumnCount => _data.GetLength(1);
     internal Int32 Nullity => ColumnCount - Rank;
@@ -29,7 +31,7 @@ internal sealed class RationalMatrix
         }
     }
 
-    private RationalMatrix(Rational[,] data) => _data = data;
+    internal Rational this[Int32 r, Int32 c] => _data[r, c];
 
     public static RationalMatrix CreateInstance<TSource>(TSource[,] source, Func<TSource, Rational> convert)
     {
@@ -42,7 +44,7 @@ internal sealed class RationalMatrix
             }
         }
 
-        result.Rank = RationalMatrixMath.GetRank((Rational[,])result._data.Clone());
+        result.Rank = RationalMatrixMath.GetRank(result._data);
         return result;
     }
 
@@ -104,8 +106,6 @@ internal sealed class RationalMatrix
         }
         return true;
     }
-
-    internal Rational this[Int32 r, Int32 c] => _data[r, c];
 
     internal Rational[,] Reduce() => RationalMatrixMath.GetReduced(_data);
 

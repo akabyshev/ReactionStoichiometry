@@ -4,11 +4,11 @@ using System.Numerics;
 
 internal sealed partial class FormInstantiation : Form
 {
-    private IBalancerInstantiatable _balancer;
+    private BalancerRisteski _balancer;
 
     internal FormInstantiation() => InitializeComponent();
 
-    internal void Init(IBalancerInstantiatable balancer)
+    internal void Init(BalancerRisteski balancer)
     {
         _balancer = balancer;
         txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
