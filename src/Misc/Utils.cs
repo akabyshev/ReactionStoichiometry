@@ -1,6 +1,5 @@
 ﻿namespace ReactionStoichiometry;
 
-using MathNet.Numerics;
 using Rationals;
 using System.Numerics;
 
@@ -16,10 +15,20 @@ internal static class Utils
 
     internal static BigInteger[] ScaleRationals(Rational[] rationals)
     {
-        var multiple = rationals.Select(static r => r.Denominator).Aggregate(Euclid.LeastCommonMultiple);
+        var multiple = rationals.Select(static r => r.Denominator).Aggregate(LeastCommonMultiple);
         var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
-        var divisor = wholes.Aggregate(Euclid.GreatestCommonDivisor);
+        var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
         return wholes.Select(x => x / divisor).ToArray();
+
+        static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
+        {
+            if (a == 0 || b == 0)
+            {
+                return 0;
+            }
+
+            return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
+        }
     }
 
     internal static String AssembleEquationString<T>(T[] values,
