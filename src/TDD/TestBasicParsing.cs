@@ -1,6 +1,6 @@
 namespace ReactionStoichiometry.TDD;
 
-internal static class TestParsing
+internal static class TestBasicParsing
 {
     internal static Boolean Run()
     {

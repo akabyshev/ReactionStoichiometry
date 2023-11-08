@@ -8,7 +8,7 @@ internal static class TestBatchDetailedPlain
     {
         if (!File.Exists(INPUT_FILE_PATH)) return false;
 
-        var balancers = new[] { typeof(BalancerThorne), typeof(BalancerRisteskiDouble), typeof(BalancerRisteskiRational) };
+        var balancers = new[] { typeof(BalancerThorne), typeof(BalancerRisteski) };
 
         foreach (var type in balancers)
         {
@@ -21,7 +21,7 @@ internal static class TestBatchDetailedPlain
                 var balancer = (Balancer)Activator.CreateInstance(type, line.Replace(" ", String.Empty))!;
                 balancer.Balance();
 
-                writer.WriteLine(balancer.ToString(Balancer.OutputFormat.DetailedPlain));
+                writer.WriteLine(balancer.ToString(OutputFormat.DetailedPlain));
                 writer.WriteLine("====================================");
             }
         }

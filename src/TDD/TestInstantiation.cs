@@ -17,13 +17,13 @@ internal static class TestInstantiation
             var parts = line.Split("\t");
             var eq = parts[0].Replace(" ", String.Empty);
 
-            var bRisteski = new BalancerRisteskiRational(eq);
+            var bRisteski = new BalancerRisteski(eq);
             var bThorne = new BalancerThorne(eq);
 
             bRisteski.Balance();
             bThorne.Balance();
 
-            var hhSimple = bThorne.ToString(Balancer.OutputFormat.OutcomeOnlyCommas);
+            var hhSimple = bThorne.ToString(OutputFormat.OutcomeOnlyCommas);
 
             if (String.IsNullOrEmpty(parts[1])) continue;
             var instances = parts[1]

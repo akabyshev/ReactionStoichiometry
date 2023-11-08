@@ -1,6 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Text.RegularExpressions;
+using Rationals;
 
 internal sealed partial class ChemicalReactionEquation
 {
@@ -61,13 +62,16 @@ internal sealed partial class ChemicalReactionEquation
         return result;
     }
 
-    private Double[,] GetCompositionMatrix()
+    private Rational[,] GetCompositionMatrix()
     {
         var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
         var elements = Regex.Matches(Skeletal, ELEMENT_SYMBOL).Select(static m => m.Value).Except(pseudoElementsOfCharge).ToList();
         elements.AddRange(pseudoElementsOfCharge); // it is important to have those as trailing rows of the matrix
 
-        var result = new Double[elements.Count, _substances.Count];
+        var result = new Rational[elements.Count, _substances.Count];
+        for (var r = 0; r < elements.Count; r++)
+            for (var c = 0; c < _substances.Count; c++)
+                result[r, c] = 0;
 
         for (var r = 0; r < elements.Count; r++)
         {
@@ -75,7 +79,15 @@ internal sealed partial class ChemicalReactionEquation
 
             for (var c = 0; c < _substances.Count; c++)
             {
-                result[r, c] += regex.Matches(UnfoldSubstance(_substances[c])).Sum(static match => Double.Parse(match.Groups[1].Value));
+                var matches = regex.Matches(UnfoldSubstance(_substances[c]));
+
+                Rational sum = 0;
+                for (var i = 0; i < matches.Count; i++)
+                {
+                    var match = matches[i];
+                    sum += Rational.ParseDecimal(match.Groups[1].Value);
+                }
+                result[r, c] += sum;
             }
         }
 
@@ -87,7 +99,7 @@ internal sealed partial class ChemicalReactionEquation
             result[indexQp, c] = 0;
         }
 
-        return Utils.WithoutTrailingZeroRows(result, Utils.IsZeroDouble);
+        return Utils.WithoutTrailingZeroRows(result);
     }
 }
 

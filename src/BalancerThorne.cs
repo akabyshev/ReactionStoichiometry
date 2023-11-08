@@ -1,7 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
-using MathNet.Numerics.LinearAlgebra;
+using Rationals;
 
 internal sealed class BalancerThorne : Balancer
 {
@@ -26,20 +26,20 @@ internal sealed class BalancerThorne : Balancer
 
     protected override void BalanceImplementation()
     {
-        BalancerException.ThrowIf(Equation.CompositionMatrix.Nullity() == 0, "Zero null-space");
+        BalancerException.ThrowIf(Equation.CompositionMatrix.Nullity == 0, "Zero null-space");
 
-        var augmentedMatrix = Matrix<Double>.Build.DenseOfArray(GetAugmentedSquareMatrix());
-        BalancerException.ThrowIf(Utils.IsZeroDouble(augmentedMatrix.Determinant()), "Augmented matrix can't be inverted");
+        var squareMatrix = RationalMatrix.CreateInstance(GetAugmentedSquareMatrix(), static v => v);
+        BalancerException.ThrowIf(squareMatrix.Determinant().IsZero, "Augmented matrix can't be inverted"); // todo: ?
 
-        var inverse = augmentedMatrix.Inverse();
-        Details.AddRange(Utils.PrettyPrint("Inverse of the augmented matrix", inverse.ToArray()));
+        var inverse = squareMatrix.Inverse();
+        Details.AddRange(inverse.PrettyPrint("Inverse of the augmented matrix"));
 
-        _independentReactions = Enumerable.Range(inverse.ColumnCount - Equation.CompositionMatrix.Nullity(), Equation.CompositionMatrix.Nullity())
-                                          .Select(c => Utils.ScaleDoubles(inverse.Column(c)))
+        _independentReactions = Enumerable.Range(inverse.ColumnCount - Equation.CompositionMatrix.Nullity, Equation.CompositionMatrix.Nullity)
+                                          .Select(c => Utils.ScaleRationals(inverse.GetColumn(c)))
                                           .ToList();
     }
 
-    internal override String ToString(OutputFormat format)
+    public override String ToString(OutputFormat format)
     {
         if (format != OutputFormat.VectorsNotation) return base.ToString(format);
 
@@ -49,19 +49,17 @@ internal sealed class BalancerThorne : Balancer
         return NumberOfIndependentReactions + ":" + String.Join(", ", _independentReactions.Select(static v => '{' + String.Join(", ", v) + '}'));
     }
 
-    private Double[,] GetAugmentedSquareMatrix()
+    private Rational[,] GetAugmentedSquareMatrix()
     {
-        SpecialMatrix<Double> reduced = new SpecialMatrixReducedDouble(Equation.CompositionMatrix);
+        var reduced = RationalMatrix.CreateInstance(Equation.CompositionMatrix.Reduce(), static r => r);
         BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount, "The method fails on this kind of equations");
 
-        var rowDeficit = reduced.ColumnCount - reduced.RowCount;
-
-        var result = new Double[reduced.RowCount + rowDeficit, reduced.ColumnCount];
-        for (var r = 0; r < reduced.RowCount; r++)
+        var result = new Rational[reduced.ColumnCount, reduced.ColumnCount];
+        for (var r = 0; r < reduced.ColumnCount; r++)
             for (var c = 0; c < reduced.ColumnCount; c++)
-                result[r, c] = reduced[r, c];
+                result[r, c] = r < reduced.RowCount ? reduced[r, c] : Rational.Zero;
 
-        for (var r = 0; r < rowDeficit; r++) result[reduced.RowCount + r, reduced.RowCount + r] = 1.0d;
+        for (var r = 0; r < reduced.ColumnCount - reduced.RowCount; r++) result[reduced.RowCount + r, reduced.RowCount + r] = Rational.One;
 
         return result;
     }

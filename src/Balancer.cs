@@ -14,7 +14,7 @@ internal abstract class Balancer : ISubstancesList
 
     protected abstract IEnumerable<String> Outcome { get; }
 
-    internal virtual String ToString(OutputFormat format)
+    public virtual String ToString(OutputFormat format)
     {
         return format switch
         {
@@ -45,7 +45,7 @@ internal abstract class Balancer : ISubstancesList
 
     protected abstract void BalanceImplementation();
 
-    internal void Balance()
+    public void Balance()
     {
         Details.AddRange(Equation.MatrixAsStrings());
 
@@ -64,15 +64,13 @@ internal abstract class Balancer : ISubstancesList
     public Int32 SubstancesCount => Equation.SubstancesCount;
     public String GetSubstance(Int32 i) => Equation.GetSubstance(i);
     #endregion
+}
 
-    #region Nested type: OutputFormat
-    internal enum OutputFormat
-    {
-        DetailedPlain,
-        DetailedHtml,
-        OutcomeOnlyCommas,
-        OutcomeOnlyNewLine,
-        VectorsNotation
-    }
-    #endregion
+internal enum OutputFormat
+{
+    DetailedPlain,
+    DetailedHtml,
+    OutcomeOnlyCommas,
+    OutcomeOnlyNewLine,
+    VectorsNotation
 }

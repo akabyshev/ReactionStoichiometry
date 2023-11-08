@@ -4,11 +4,12 @@ internal static class TestBatchVectors
 {
     private const String INPUT_FILE_PATH = @"D:\Solutions\ReactionStoichiometry\REFs\Batch\McMullen - 200 reactions\3-formatted.txt";
 
+    // ReSharper disable once UnusedMember.Global
     internal static Boolean Run()
     {
         if (!File.Exists(INPUT_FILE_PATH)) return false;
 
-        var balancers = new[] { typeof(BalancerThorne), /*typeof(BalancerRisteskiDouble), */typeof(BalancerRisteskiRational) };
+        var balancers = new[] { typeof(BalancerThorne), typeof(BalancerRisteski) };
 
         foreach (var type in balancers)
         {
@@ -22,7 +23,7 @@ internal static class TestBatchVectors
                 balancer.Balance();
 
                 writer.WriteLine(line);
-                writer.WriteLine('\t' + balancer.ToString(Balancer.OutputFormat.VectorsNotation));
+                writer.WriteLine('\t' + balancer.ToString(OutputFormat.VectorsNotation));
             }
         }
 

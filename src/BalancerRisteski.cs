@@ -2,16 +2,16 @@
 
 using System.Numerics;
 using Properties;
-using Rationals;
 
-internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
-    where T : struct, IEquatable<T>, IFormattable
+internal class BalancerRisteski : Balancer, IBalancerInstantiatable
 {
-    private readonly Func<IEnumerable<T>, BigInteger[]> _scaleToIntegers;
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
-    protected BalancerRisteski(String equation, Func<IEnumerable<T>, BigInteger[]> scale) : base(equation) => _scaleToIntegers = scale;
+    public BalancerRisteski(String equation) : base(equation)
+    {
+
+    }
 
     internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
 
@@ -32,14 +32,14 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
 
     protected override void BalanceImplementation()
     {
-        var reducedMatrix = GetReducedMatrix();
+        var reducedMatrix = RationalMatrix.CreateInstance(Equation.CompositionMatrix.Reduce(), static r => r);
         BalancerException.ThrowIf(reducedMatrix.IsIdentityMatrix, "SLE is unsolvable");
 
 
-        Details.AddRange(Utils.PrettyPrint("Reduced matrix", reducedMatrix.Data));
+        Details.AddRange(reducedMatrix.PrettyPrint("Reduced matrix"));
 
         _dependentCoefficientExpressions = Enumerable.Range(0, reducedMatrix.RowCount)
-                                                     .Select(r => _scaleToIntegers(reducedMatrix.GetRow(r)).Select(static i => -i).ToArray())
+                                                     .Select(r => Utils.ScaleRationals(reducedMatrix.GetRow(r)).Select(static i => -i).ToArray())
                                                      .ToDictionary(static row => Array.FindIndex(row, static i => i != 0), static row => row);
 
         _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
@@ -47,9 +47,7 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
                                             .ToList();
     }
 
-    protected abstract SpecialMatrix<T> GetReducedMatrix();
-
-    internal override String ToString(OutputFormat format)
+    public override String ToString(OutputFormat format)
     {
         if (format != OutputFormat.VectorsNotation) return base.ToString(format);
 
@@ -132,22 +130,4 @@ internal abstract class BalancerRisteski<T> : Balancer, IBalancerInstantiatable
         return (result, EquationWithIntegerCoefficients(result));
     }
     #endregion
-}
-
-internal sealed class BalancerRisteskiDouble : BalancerRisteski<Double>
-{
-    public BalancerRisteskiDouble(String equation) : base(equation, Utils.ScaleDoubles)
-    {
-    }
-
-    protected override SpecialMatrixReducedDouble GetReducedMatrix() => new(Equation.CompositionMatrix);
-}
-
-internal sealed class BalancerRisteskiRational : BalancerRisteski<Rational>
-{
-    public BalancerRisteskiRational(String equation) : base(equation, Utils.ScaleRationals)
-    {
-    }
-
-    protected override SpecialMatrixReducedRational GetReducedMatrix() => new(Equation.CompositionMatrix);
 }

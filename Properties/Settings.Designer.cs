@@ -23,15 +23,6 @@ namespace ReactionStoichiometry.Properties {
             }
         }
         
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1E-10")]
-        public double GOOD_ENOUGH_FLOAT_PRECISION {
-            get {
-                return ((double)(this["GOOD_ENOUGH_FLOAT_PRECISION"]));
-            }
-        }
-        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("7")]

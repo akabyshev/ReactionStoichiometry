@@ -1,11 +1,9 @@
 ﻿namespace ReactionStoichiometry;
 
-using MathNet.Numerics.LinearAlgebra;
-
 internal sealed partial class ChemicalReactionEquation : ISubstancesList
 {
     private readonly List<String> _substances;
-    internal readonly Matrix<Double> CompositionMatrix;
+    internal readonly RationalMatrix CompositionMatrix;
     internal readonly Int32 OriginalReactantsCount;
 
     internal readonly String Skeletal;
@@ -17,15 +15,15 @@ internal sealed partial class ChemicalReactionEquation : ISubstancesList
         OriginalReactantsCount = 1 + Skeletal.Split('=')[0].Count(static c => c == '+');
 
         _substances = Skeletal.Split('=', '+').ToList();
-        CompositionMatrix = Matrix<Double>.Build.DenseOfArray(GetCompositionMatrix());
+        CompositionMatrix = RationalMatrix.CreateInstance(GetCompositionMatrix(), static v => v);
     }
 
     internal IEnumerable<String> MatrixAsStrings()
     {
         var result = new List<String>();
-        result.AddRange(Utils.PrettyPrint("Chemical composition matrix", CompositionMatrix.ToArray(), GetSubstance));
+        result.AddRange(CompositionMatrix.PrettyPrint("Chemical composition matrix", GetSubstance));
         result.Add(
-            $"RxC: {CompositionMatrix.RowCount}x{CompositionMatrix.ColumnCount}, rank = {CompositionMatrix.Rank()}, nullity = {CompositionMatrix.Nullity()}");
+            $"RxC: {CompositionMatrix.RowCount}x{CompositionMatrix.ColumnCount}, rank = {CompositionMatrix.Rank}, nullity = {CompositionMatrix.Nullity}");
 
         return result;
     }
