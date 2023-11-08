@@ -3,7 +3,7 @@
 using System.Numerics;
 using Properties;
 
-internal abstract class Balancer
+public abstract class Balancer
 {
     protected readonly List<String> Details = new();
 
@@ -64,7 +64,7 @@ internal abstract class Balancer
     protected abstract void BalanceImplementation();
 }
 
-internal enum OutputFormat
+public enum OutputFormat
 {
     DetailedPlain
   , DetailedHtml

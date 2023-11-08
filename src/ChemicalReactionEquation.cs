@@ -3,7 +3,7 @@
 using System.Text.RegularExpressions;
 using Rationals;
 
-internal sealed class ChemicalReactionEquation
+public sealed class ChemicalReactionEquation
 {
     private readonly List<String> _substances;
     internal readonly RationalMatrix CompositionMatrix;

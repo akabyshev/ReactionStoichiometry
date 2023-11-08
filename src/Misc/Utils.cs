@@ -5,11 +5,6 @@ using Rationals;
 
 internal static class Utils
 {
-    internal static void AssertStringsAreEqual(String lhs, String rhs)
-    {
-        if (lhs != rhs) throw new Exception($"{lhs} is not equal to {rhs}");
-    }
-
     internal static String LetterLabel(Int32 n) => ((Char)('a' + n)).ToString();
     internal static String GenericLabel(Int32 n) => 'x' + (n + 1).ToString("D2");
 

@@ -3,7 +3,7 @@
 using System.Numerics;
 using Rationals;
 
-internal sealed class BalancerThorne : Balancer
+public sealed class BalancerThorne : Balancer
 {
     private List<BigInteger[]>? _independentReactions;
 

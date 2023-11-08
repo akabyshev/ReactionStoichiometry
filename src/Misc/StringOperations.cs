@@ -2,7 +2,7 @@
 
 using System.Text.RegularExpressions;
 
-internal static class StringOperations
+public static class StringOperations
 {
     private const String OPENING_PARENTHESIS = @"\(";
     private const String CLOSING_PARENTHESIS = @"\)";
@@ -19,7 +19,7 @@ internal static class StringOperations
 
     internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 
-    internal static String UnfoldSubstance(in String substance)
+    public static String UnfoldSubstance(in String substance)
     {
         var result = substance;
 

@@ -3,7 +3,7 @@
 using System.Numerics;
 using Properties;
 
-internal class BalancerRisteski : Balancer
+public class BalancerRisteski : Balancer
 {
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
