@@ -102,7 +102,7 @@
             textBoxInput.Name = "textBoxInput";
             textBoxInput.Size = new Size(2180, 47);
             textBoxInput.TabIndex = 4;
-            textBoxInput.Text = "KI + KClO3 + HCl = I2 + H2O + KCl";
+            textBoxInput.Text = "C6H12+KMnO4+H2SO4=C2H4O2+C4H8O+MnSO4+H2O+K2SO4";
             textBoxInput.TextChanged += On_textBoxInput_TextChanged;
             // 
             // buttonBalance
@@ -117,7 +117,7 @@
             buttonBalance.UseVisualStyleBackColor = true;
             buttonBalance.Click += On_buttonBalance_Click;
             // 
-            // MainForm
+            // FormMain
             // 
             AcceptButton = buttonBalance;
             AutoScaleMode = AutoScaleMode.None;
@@ -127,7 +127,7 @@
             DoubleBuffered = true;
             MaximizeBox = false;
             MinimumSize = new Size(2400, 1600);
-            Name = "MainForm";
+            Name = "FormMain";
             Text = "Balancing algo";
             containerOutput.Panel1.ResumeLayout(false);
             containerOutput.Panel1.PerformLayout();

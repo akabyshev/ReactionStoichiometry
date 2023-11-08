@@ -109,7 +109,9 @@ internal sealed class RationalMatrix
 
     internal Rational[,] Reduce() => RationalMatrixMath.GetReduced(_data);
 
+/*
     internal Rational Determinant() => RationalMatrixMath.GetDeterminant(_data);
+*/
 
     internal RationalMatrix Inverse() => CreateInstance(RationalMatrixMath.GetInverse(_data), static r => r);
 }

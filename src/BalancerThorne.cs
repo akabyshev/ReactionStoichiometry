@@ -39,7 +39,7 @@ public sealed class BalancerThorne : Balancer
         BalancerException.ThrowIf(Equation.CompositionMatrix.Nullity == 0, "Zero null-space");
 
         var squareMatrix = RationalMatrix.CreateInstance(GetAugmentedSquareMatrix(), static v => v);
-        BalancerException.ThrowIf(squareMatrix.Determinant().IsZero, "Augmented matrix can't be inverted"); // todo: ?
+        //BalancerException.ThrowIf(squareMatrix.Determinant().IsZero, "Augmented matrix can't be inverted"); // todo: ?
 
         var inverse = squareMatrix.Inverse();
         Details.AddRange(inverse.PrettyPrint("Inverse of the augmented matrix"));

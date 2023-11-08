@@ -96,7 +96,7 @@ internal sealed partial class FormInstantiation : Form
 
     private void AdaptFormSize()
     {
-        Width = Owner.Width / 2;
+        Width = Owner!.Width / 2;
         Height = 144 + txtInstance.Height + 50 * theGrid.RowCount + txtGeneralForm.Height;
     }
 }

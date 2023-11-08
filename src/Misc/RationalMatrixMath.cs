@@ -84,7 +84,7 @@ internal static class RationalMatrixMath
     public static Rational[,] GetInverse(Rational[,] matrix)
     {
         var n = matrix.GetLength(0);
-        if (n != matrix.GetLength(1)) throw new ArgumentException("Augmented matrix can't be inverted");
+        if (n != matrix.GetLength(1)) throw new ArgumentException("Non-square matrix passed to method");
 
         var augmentedMatrix = new Rational[n, 2 * n];
 
@@ -102,7 +102,7 @@ internal static class RationalMatrixMath
         {
             var pivot = augmentedMatrix[i, i];
 
-            if (pivot == 0) throw new ArgumentException("Singular matrix");
+            BalancerException.ThrowIf(pivot == 0, "Singular matrix");
 
             for (var j = 0; j < 2 * n; j++)
             {
@@ -120,7 +120,6 @@ internal static class RationalMatrixMath
             }
         }
 
-        // Extract the right half of the augmented matrix
         var result = new Rational[n, n];
         for (var r = 0; r < n; r++)
         {

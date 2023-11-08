@@ -24,12 +24,13 @@ internal sealed partial class FormMain : Form
             resultMT.Text = balancerThorne.ToString(OutputFormat.DetailedPlain);
         }
         {
-            var balancerRisteskiRational = new BalancerRisteski(s);
-            balancerRisteskiRational.Balance();
-            resultMR.Text = balancerRisteskiRational.ToString(OutputFormat.DetailedPlain);
+            var balancerRisteski = new BalancerRisteski(s);
+            balancerRisteski.Balance();
+            resultMR.Text = balancerRisteski.ToString(OutputFormat.DetailedPlain);
 
+            if (resultMR.Text.Contains("FAIL")) return; // todo: Boolean StatusSuccess
             _permutationTool.Init(s);
-            _instantiationTool.Init(balancerRisteskiRational);
+            _instantiationTool.Init(balancerRisteski);
 
             _permutationTool.Visible = true;
             _instantiationTool.Visible = true;
