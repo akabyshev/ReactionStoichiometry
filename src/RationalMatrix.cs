@@ -40,7 +40,7 @@ internal sealed class RationalMatrix
         {
             for (var c = 0; c < result._data.GetLength(1); c++)
             {
-                result._data[r, c] = convert(source[r, c]);
+                result._data[r, c] = convert(source[r, c]).CanonicalForm;
             }
         }
 
@@ -96,15 +96,6 @@ internal sealed class RationalMatrix
         }
 
         return result;
-    }
-
-    internal Boolean IsColumnAllZeroes(Int32 c)
-    {
-        for (var r = 0; r < RowCount; r++)
-        {
-            if (!_data[r, c].IsZero) return false;
-        }
-        return true;
     }
 
     internal Rational[,] Reduce() => RationalMatrixMath.GetReduced(_data);

@@ -124,7 +124,16 @@ public class BalancerRisteski : Balancer
                                                      .ToDictionary(static row => Array.FindIndex(row, static i => i != 0), static row => row);
 
         _freeCoefficientIndices = Enumerable.Range(0, reducedMatrix.ColumnCount)
-                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) && !reducedMatrix.IsColumnAllZeroes(c))
+                                            .Where(c => !_dependentCoefficientExpressions.ContainsKey(c) && !IsColumnAllZeroes(c))
                                             .ToList();
+        return;
+        Boolean IsColumnAllZeroes(Int32 c)
+        {
+            for (var r = 0; r < reducedMatrix.RowCount; r++)
+            {
+                if (!reducedMatrix[r, c].IsZero) return false;
+            }
+            return true;
+        }
     }
 }

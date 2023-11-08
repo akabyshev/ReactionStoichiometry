@@ -11,9 +11,9 @@ internal static class Utils
     internal static BigInteger[] ScaleRationals(Rational[] rationals)
     {
         var multiple = rationals.Select(static r => r.Denominator).Aggregate(LeastCommonMultiple);
-        var wholes = rationals.Select(x => (x * multiple).CanonicalForm.Numerator).ToArray();
+        var wholes = rationals.Select(r => (r * multiple).CanonicalForm.Numerator).ToArray();
         var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
-        return wholes.Select(x => x / divisor).ToArray();
+        return wholes.Select(r => r / divisor).ToArray();
 
         static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
         {

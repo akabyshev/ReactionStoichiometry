@@ -4,7 +4,7 @@ using System.Numerics;
 
 internal sealed partial class FormInstantiation : Form
 {
-    private BalancerRisteski _balancer;
+    private BalancerRisteski _balancer = null!;
 
     internal FormInstantiation() => InitializeComponent();
 
