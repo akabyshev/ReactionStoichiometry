@@ -12,19 +12,23 @@ public abstract class Balancer
       , DetailedHtml
       , OutcomeOnlyCommas
       , OutcomeOnlyNewLine
-      , VectorsNotation
+      , Vectors
     }
     #endregion
 
-    protected readonly List<String> Details = new();
+    protected readonly List<String> Details = new(); // TODO: make MT not access this, and make it private. after sorting out Inverse
 
-    protected readonly ChemicalReactionEquation Equation;
-    private String _statusMessage = String.Empty;
+    internal readonly ChemicalReactionEquation Equation;
+    internal String FailureMessage { get; private set; }
 
-    protected abstract IEnumerable<String> Outcome { get; }
-    internal Int32 SubstancesCount => Equation.SubstancesCount;
+    protected abstract void Balance();
+    protected abstract IEnumerable<String> Outcome(); // todo: name?
 
-    protected Balancer(String equation) => Equation = new ChemicalReactionEquation(equation);
+    protected Balancer(String equation)
+    {
+        Equation = new ChemicalReactionEquation(equation);
+        FailureMessage = String.Empty;
+    }
 
     public virtual String ToString(OutputFormat format)
     {
@@ -32,9 +36,9 @@ public abstract class Balancer
         {
             OutputFormat.DetailedPlain => Fill(OutputFormatTemplates.PLAIN_OUTPUT)
           , OutputFormat.DetailedHtml => Fill(OutputFormatTemplates.HTML_OUTPUT)
-          , OutputFormat.OutcomeOnlyCommas => String.Join(separator: ',', Outcome)
-          , OutputFormat.OutcomeOnlyNewLine => String.Join(Environment.NewLine, Outcome)
-          , OutputFormat.VectorsNotation => $"Error: {format} not implemented by {GetType().Name}"
+          , OutputFormat.OutcomeOnlyCommas => String.Join(separator: ',', Outcome())
+          , OutputFormat.OutcomeOnlyNewLine => String.Join(Environment.NewLine, Outcome())
+          , OutputFormat.Vectors => $"Error: {format} not implemented by {GetType().Name}"
           , _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
 
@@ -43,61 +47,63 @@ public abstract class Balancer
             return template.Replace(oldValue: "%Skeletal%", Equation.Skeletal)
                            .Replace(oldValue: "%Details%", String.Join(Environment.NewLine, Details))
                            .Replace(oldValue: "%Outcome%", ToString(OutputFormat.OutcomeOnlyNewLine))
-                           .Replace(oldValue: "%Diagnostics%", _statusMessage);
+                           .Replace(oldValue: "%Diagnostics%", FailureMessage);
         }
     }
 
-    public void Balance()
+    public Boolean Run()
     {
-        Details.AddRange(Equation.MatrixAsStrings());
+        Details.AddRange(Equation.CCM.ToString(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
+        Details.Add(
+            $"RxC: {Equation.CCM.RowCount()}x{Equation.CCM.ColumnCount()}, rank = {Equation.CompositionMatrixRank}, nullity = {Equation.CompositionMatrixNullity}");
+        Details.AddRange(Equation.MagicMatrix.ToString(title: "CCM in the special form"));
 
         try
         {
-            BalanceImplementation();
-            _statusMessage = "OK";
+            Balance();
         }
         catch (BalancerException e)
         {
-            _statusMessage = "This equation can't be balanced: " + e.Message;
+            FailureMessage = "This equation can't be balanced: " + e.Message;
+            return false;
         }
+
+        return true;
     }
 
+    // ReSharper disable once ArgumentsStyleNamedExpression
     public String EquationWithPlaceholders() =>
-        AssembleEquationString(Enumerable.Range(start: 0, SubstancesCount).Select(LabelFor).ToArray()
-                             , filter: static _ => true
-                             , adapter: static value => value + Settings.Default.MULTIPLICATION_SYMBOL
-                             , GetSubstance
-                             , predicateLeftHandSide: static _ => true
-                             , allowEmptyRightSide: true);
+        AssembleEquationString(Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
+                             , omit: static _ => false
+                             , adapter: LabelFor
+                             , predicateGoesToRHS: static _ => false
+                             , allowEmptyRHS: true);
 
-    protected String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
+    public String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
         AssembleEquationString(coefficients
-                             , filter: static value => value != BigInteger.Zero
-                             , adapter: static value =>
-                                            BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value) + Settings.Default.MULTIPLICATION_SYMBOL
-                             , GetSubstance
-                             , predicateLeftHandSide: static value => value < 0);
-
-    protected abstract void BalanceImplementation();
-
-    protected static String AssembleEquationString<T>(T[] values
-                                                    , Func<T, Boolean> filter
-                                                    , Func<T, String> adapter
-                                                    , Func<Int32, String> stringsSource
-                                                    , Func<T, Boolean> predicateLeftHandSide
-                                                    , Boolean allowEmptyRightSide = false)
+                             , omit: static value => value.IsZero
+                             , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
+                             , predicateGoesToRHS: static value => value > 0); // ReSharper disable twice InconsistentNaming
+    private String AssembleEquationString<T>(IReadOnlyList<T> values
+                                           , Func<T, Boolean> omit
+                                           , Func<T, String> adapter
+                                           , Func<T, Boolean> predicateGoesToRHS
+                                           , Boolean allowEmptyRHS = false)
     {
-        // todo: meh...
-
         List<String> l = new();
         List<String> r = new();
 
-        for (var i = 0; i < values.Length; i++)
+        for (var i = 0; i < values.Count; i++)
         {
-            if (filter(values[i])) (predicateLeftHandSide(values[i]) ? l : r).Add(adapter(values[i]) + stringsSource(i));
+            if (omit(values[i])) continue;
+
+            var token = adapter(values[i]);
+            if (token != String.Empty) token += Settings.Default.MULTIPLICATION_SYMBOL;
+
+            (predicateGoesToRHS(values[i]) ? r : l).Add(token + Equation.Substances[i]);
         }
 
-        if (r.Count == 0 && allowEmptyRightSide) r.Add(item: "0");
+        if (r.Count == 0 && allowEmptyRHS) r.Add(item: "0");
 
         if (l.Count == 0 || r.Count == 0) return "Invalid input";
 
@@ -105,7 +111,5 @@ public abstract class Balancer
     }
 
     internal String LabelFor(Int32 i) =>
-        SubstancesCount > Settings.Default.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
-
-    internal String GetSubstance(Int32 i) => Equation.GetSubstance(i);
+        Equation.Substances.Count > Settings.Default.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
 }

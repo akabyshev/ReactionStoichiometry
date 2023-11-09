@@ -9,24 +9,13 @@ public sealed class BalancerThorne : Balancer
 
     internal Int32 NumberOfIndependentReactions => _independentReactions!.Count;
 
-    protected override IEnumerable<String> Outcome
-    {
-        get
-        {
-            // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (_independentReactions == null) return new[] { "<FAIL>" };
-
-            return _independentReactions.Select(EquationWithIntegerCoefficients);
-        }
-    }
-
     public BalancerThorne(String equation) : base(equation)
     {
     }
 
     public override String ToString(OutputFormat format)
     {
-        if (format != OutputFormat.VectorsNotation) return base.ToString(format);
+        if (format != OutputFormat.Vectors) return base.ToString(format);
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (_independentReactions == null) return "<FAIL>";
@@ -36,34 +25,40 @@ public sealed class BalancerThorne : Balancer
              + String.Join(separator: ", ", _independentReactions.Select(selector: static v => '{' + String.Join(separator: ", ", v) + '}'));
     }
 
-    protected override void BalanceImplementation()
+    protected override IEnumerable<String> Outcome()
+    {
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (_independentReactions == null) return new[] { "<FAIL>" };
+
+        return _independentReactions.Select(EquationWithIntegerCoefficients);
+    }
+
+    protected override void Balance()
     {
         BalancerException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
 
         Rational[,] inverse;
         {
-            var reduced = Equation.CompositionMatrixReduced;
-            var (rowCount, columnCount) = (reduced.GetLength(dimension: 0), reduced.GetLength(dimension: 1));
-            BalancerException.ThrowIf(rowCount >= columnCount, message: "The method fails on this kind of equations");
+            BalancerException.ThrowIf(Equation.MagicMatrix.RowCount() >= Equation.MagicMatrix.ColumnCount(), message: "The method fails on this kind of equations");
 
-            var square = new Rational[columnCount, columnCount];
-            for (var r = 0; r < columnCount; r++)
+            var square = new Rational[Equation.MagicMatrix.ColumnCount(), Equation.MagicMatrix.ColumnCount()];
+            for (var r = 0; r < Equation.MagicMatrix.ColumnCount(); r++)
             {
-                for (var c = 0; c < columnCount; c++)
+                for (var c = 0; c < Equation.MagicMatrix.ColumnCount(); c++)
                 {
-                    square[r, c] = r < rowCount ? reduced[r, c] : 0;
+                    square[r, c] = r < Equation.MagicMatrix.RowCount() ? Equation.MagicMatrix[r, c] : 0;
                 }
             }
 
-            for (var r = 0; r < columnCount - rowCount; r++)
+            for (var r = 0; r < Equation.MagicMatrix.ColumnCount() - Equation.MagicMatrix.RowCount(); r++)
             {
-                square[rowCount + r, rowCount + r] = 1;
+                square[Equation.MagicMatrix.RowCount() + r, Equation.MagicMatrix.RowCount() + r] = 1;
             }
 
             inverse = RationalArrayOperations.GetInverse(square);
         }
 
-        Details.AddRange(inverse.ToString(title: "Inverse of the augmented matrix"));
+        Details.AddRange(inverse.ToString(title: "Inverse"));
 
         _independentReactions = Enumerable.Range(inverse.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
                                           .Select(selector: c => inverse.Column(c).ScaleToIntegers())

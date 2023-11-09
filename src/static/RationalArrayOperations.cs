@@ -1,6 +1,5 @@
 ﻿namespace ReactionStoichiometry;
 
-using System.Numerics;
 using Rationals;
 
 internal static class RationalArrayOperations
@@ -60,12 +59,13 @@ internal static class RationalArrayOperations
             leadColumnIndex++;
         }
 
-        CutTrailingAllZeroRows(ref result);
+        Normalize(ref result);
         return result;
     }
 
     internal static Rational[,] GetInverse(Rational[,] matrix)
     {
+        // todo: see sticky notes
         var n = matrix.GetLength(dimension: 0);
         if (n != matrix.GetLength(dimension: 1)) throw new ArgumentException(message: "Non-square matrix passed to method");
 
@@ -113,7 +113,7 @@ internal static class RationalArrayOperations
         return result;
     }
 
-    internal static void CutTrailingAllZeroRows(ref Rational[,] array)
+    internal static void Normalize(ref Rational[,] array)
     {
         var indexLastCopiedRow = array.GetLength(dimension: 0) - 1;
         while (indexLastCopiedRow >= 0)
@@ -136,12 +136,10 @@ internal static class RationalArrayOperations
         {
             for (var c = 0; c < newArray.GetLength(dimension: 1); c++)
             {
-                newArray[r, c] = array[r, c];
+                newArray[r, c] = array[r, c].CanonicalForm;
             }
         }
 
         array = newArray;
     }
-
-
 }

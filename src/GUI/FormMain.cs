@@ -20,15 +20,15 @@ internal sealed partial class FormMain : Form
 
         {
             var balancerThorne = new BalancerThorne(s);
-            balancerThorne.Balance();
+            balancerThorne.Run();
             resultMT.Text = balancerThorne.ToString(Balancer.OutputFormat.DetailedPlain);
         }
         {
             var balancerRisteski = new BalancerRisteski(s);
-            balancerRisteski.Balance();
+            var ok = balancerRisteski.Run();
             resultMR.Text = balancerRisteski.ToString(Balancer.OutputFormat.DetailedPlain);
 
-            if (resultMR.Text.Contains(value: "FAIL")) return; // todo: Boolean StatusSuccess
+            if (!ok) return;
             _permutationTool.Init(s);
             _instantiationTool.Init(balancerRisteski);
 

@@ -9,7 +9,7 @@
 ### Super challenging:
 C2952H4664N812O832S8Fe4 + Na2C4H3O4SAu + Fe(SCN)2 + Fe(NH4)2(SO4)2(H2O)6 + C4H8Cl2S + C8H12MgN2O8 = C55H72MgN4 + Na3.99Fe(CN)6 + Au0.987SC6H11O5 + HClO4 + H2S
 
-This one takes 40 seconds and 50 MB of RAM on my workstation.
+This one takes up to 20 seconds and 40 MB of RAM on my workstation PER METHOD (GUI = 2 methods)
 
 
 If you feel brave, try this equation (note that it takes a <b>LONG</b> time and <u><b>A LOT OF RAM</b></u> to solve):

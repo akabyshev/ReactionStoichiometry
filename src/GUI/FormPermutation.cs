@@ -10,9 +10,9 @@ internal sealed partial class FormPermutation : Form
         listRHS.Items.Clear();
 
         ChemicalReactionEquation e = new(s);
-        for (var i = 0; i < e.SubstancesCount; i++)
+        for (var i = 0; i < e.Substances.Count; i++)
         {
-            (i < e.OriginalReactantsCount ? listLHS : listRHS).Items.Add(e.GetSubstance(i));
+            (i < e.OriginalReactantsCount ? listLHS : listRHS).Items.Add(e.Substances[i]);
         }
     }
 

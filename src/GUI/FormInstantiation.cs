@@ -13,11 +13,11 @@ internal sealed partial class FormInstantiation : Form
         _balancer = balancer;
         txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
         theGrid.Rows.Clear();
-        theGrid.RowCount = _balancer.SubstancesCount;
-        for (var i = 0; i < _balancer.SubstancesCount; i++)
+        theGrid.RowCount = _balancer.Equation.Substances.Count;
+        for (var i = 0; i < _balancer.Equation.Substances.Count; i++)
         {
             theGrid.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
-            theGrid.Rows[i].Cells[columnName: "Substance"].Value = _balancer.GetSubstance(i);
+            theGrid.Rows[i].Cells[columnName: "Substance"].Value = _balancer.Equation.Substances[i];
 
             var expr = _balancer.AlgebraicExpressionForCoefficient(i);
 
@@ -69,7 +69,8 @@ internal sealed partial class FormInstantiation : Form
                 parameters.Add(BigInteger.Parse(cv.ToString()!));
             }
 
-            (coefficients, txtInstance.Text) = _balancer!.Instantiate(parameters.ToArray());
+            coefficients = _balancer!.Instantiate(parameters.ToArray());
+            txtInstance.Text = _balancer!.EquationWithIntegerCoefficients(coefficients);
         }
         catch (FormatException)
         {

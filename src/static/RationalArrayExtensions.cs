@@ -1,8 +1,7 @@
 namespace ReactionStoichiometry;
 
-using Rationals;
-using System.Linq;
 using System.Numerics;
+using Rationals;
 
 internal static class RationalArrayExtensions
 {

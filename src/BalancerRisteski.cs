@@ -10,27 +10,13 @@ public sealed class BalancerRisteski : Balancer
 
     internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
 
-    protected override IEnumerable<String> Outcome
-    {
-        get
-        {
-            if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return new[] { "<FAIL>" };
-
-            List<String> lines = new() { EquationWithPlaceholders() + ", where" };
-            lines.AddRange(_dependentCoefficientExpressions.Keys.Select(selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"));
-            lines.Add("for any {" + String.Join(separator: ", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
-
-            return lines;
-        }
-    }
-
     public BalancerRisteski(String equation) : base(equation)
     {
     }
 
     public override String ToString(OutputFormat format)
     {
-        if (format != OutputFormat.VectorsNotation) return base.ToString(format);
+        if (format != OutputFormat.Vectors) return base.ToString(format);
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return "<FAIL>";
@@ -38,28 +24,38 @@ public sealed class BalancerRisteski : Balancer
         return DegreesOfFreedom
              + ":{"
              + String.Join(separator: ", "
-                         , Enumerable.Range(start: 0, Equation.SubstancesCount)
+                         , Enumerable.Range(start: 0, Equation.Substances.Count)
                                      .Select(selector: i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : AlgebraicExpressionForCoefficient(i)))
              + '}';
     }
 
-    protected override void BalanceImplementation()
+    protected override IEnumerable<String> Outcome()
     {
-        BalancerException.ThrowIf(Equation.CompositionMatrixReduced.IsIdentityMatrix(), message: "SLE is unsolvable");
+        if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return new[] { "<FAIL>" };
 
-        Details.AddRange(Equation.CompositionMatrixReduced.ToString(title: "Reduced matrix"));
+        List<String> lines = new() { EquationWithPlaceholders() + ", where" };
+        lines.AddRange(_dependentCoefficientExpressions.Keys.Select(selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"));
+        lines.Add("for any {" + String.Join(separator: ", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
 
-        _dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.CompositionMatrixReduced.RowCount())
-                                                     .Select(selector: r => Equation.CompositionMatrixReduced.Row(r)
+        return lines;
+    }
+
+    protected override void Balance()
+    {
+        BalancerException.ThrowIf(Equation.MagicMatrix.IsIdentityMatrix(), message: "SLE is unsolvable");
+
+        _dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.MagicMatrix.RowCount())
+                                                     .Select(selector: r => Equation.MagicMatrix.Row(r)
                                                                                     .ScaleToIntegers()
                                                                                     .Select(selector: static i => -i)
                                                                                     .ToArray())
                                                      .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
                                                                  , elementSelector: static row => row);
 
-        _freeCoefficientIndices = Enumerable.Range(start: 0, Equation.CompositionMatrixReduced.ColumnCount())
+        _freeCoefficientIndices = Enumerable.Range(start: 0, Equation.MagicMatrix.ColumnCount())
                                             .Where(predicate: c => !_dependentCoefficientExpressions.ContainsKey(c)
-                                                                && Equation.CompositionMatrixReduced.Column(c).Any(static t => t != 0))
+                                                                && Equation.MagicMatrix.Column(c)
+                                                                           .Any(predicate: static t => t != 0))
                                             .ToList();
     }
 
@@ -98,12 +94,12 @@ public sealed class BalancerRisteski : Balancer
         return result;
     }
 
-    public (BigInteger[] coefficients, String readable) Instantiate(BigInteger[] parameters)
+    public BigInteger[] Instantiate(BigInteger[] parameters)
     {
         if (parameters.Length != _freeCoefficientIndices!.Count)
             throw new ArgumentOutOfRangeException(nameof(parameters), message: "Array size mismatch");
 
-        var result = new BigInteger[SubstancesCount];
+        var result = new BigInteger[Equation.Substances.Count];
 
         for (var i = 0; i < _freeCoefficientIndices.Count; i++)
         {
@@ -119,6 +115,6 @@ public sealed class BalancerRisteski : Balancer
             result[kvp.Key] = -calculated;
         }
 
-        return (result, EquationWithIntegerCoefficients(result));
+        return result;
     }
 }
