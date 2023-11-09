@@ -42,19 +42,19 @@ public sealed class BalancerRisteski : Balancer
 
     protected override void Balance()
     {
-        BalancerException.ThrowIf(Equation.MagicMatrix.IsIdentityMatrix(), message: "SLE is unsolvable");
+        BalancerException.ThrowIf(Equation.REF.IsIdentityMatrix(), message: "SLE is unsolvable");
 
-        _dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.MagicMatrix.RowCount())
-                                                     .Select(selector: r => Equation.MagicMatrix.Row(r)
+        _dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.REF.RowCount())
+                                                     .Select(selector: r => Equation.REF.Row(r)
                                                                                     .ScaleToIntegers()
                                                                                     .Select(selector: static i => -i)
                                                                                     .ToArray())
                                                      .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
                                                                  , elementSelector: static row => row);
 
-        _freeCoefficientIndices = Enumerable.Range(start: 0, Equation.MagicMatrix.ColumnCount())
+        _freeCoefficientIndices = Enumerable.Range(start: 0, Equation.REF.ColumnCount())
                                             .Where(predicate: c => !_dependentCoefficientExpressions.ContainsKey(c)
-                                                                && Equation.MagicMatrix.Column(c)
+                                                                && Equation.REF.Column(c)
                                                                            .Any(predicate: static t => t != 0))
                                             .ToList();
     }

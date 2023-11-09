@@ -1,5 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
+using System.Diagnostics;
 using System.Numerics;
 using Rationals;
 
@@ -39,26 +40,23 @@ public sealed class BalancerThorne : Balancer
 
         Rational[,] inverse;
         {
-            BalancerException.ThrowIf(Equation.MagicMatrix.RowCount() >= Equation.MagicMatrix.ColumnCount(), message: "The method fails on this kind of equations");
+            BalancerException.ThrowIf(Equation.REF.RowCount() >= Equation.REF.ColumnCount(), message: "The method fails on this kind of equations");
 
-            var square = new Rational[Equation.MagicMatrix.ColumnCount(), Equation.MagicMatrix.ColumnCount()];
-            for (var r = 0; r < Equation.MagicMatrix.ColumnCount(); r++)
+            var square = new Rational[Equation.REF.ColumnCount(), Equation.REF.ColumnCount()];
+            Array.Copy(Equation.REF, square, Equation.REF.Length);
+            for (var r = Equation.REF.RowCount(); r < square.RowCount(); r++)
             {
-                for (var c = 0; c < Equation.MagicMatrix.ColumnCount(); c++)
+                for (var c = 0; c < square.ColumnCount(); c++)
                 {
-                    square[r, c] = r < Equation.MagicMatrix.RowCount() ? Equation.MagicMatrix[r, c] : 0;
+                    square[r, c] = r == c ? 1 : 0;
                 }
             }
 
-            for (var r = 0; r < Equation.MagicMatrix.ColumnCount() - Equation.MagicMatrix.RowCount(); r++)
-            {
-                square[Equation.MagicMatrix.RowCount() + r, Equation.MagicMatrix.RowCount() + r] = 1;
-            }
-
             inverse = RationalArrayOperations.GetInverse(square);
-        }
 
-        Details.AddRange(inverse.ToString(title: "Inverse"));
+            Debug.WriteLine(square.ToString(title: "Square"));
+            Debug.WriteLine(inverse.ToString(title: "Inverse"));
+        }
 
         _independentReactions = Enumerable.Range(inverse.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
                                           .Select(selector: c => inverse.Column(c).ScaleToIntegers())

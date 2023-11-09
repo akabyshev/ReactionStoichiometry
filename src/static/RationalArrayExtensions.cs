@@ -43,6 +43,7 @@ internal static class RationalArrayExtensions
                 if (r != c && !me[r, c].IsZero) return false;
             }
         }
+
         return true;
     }
 

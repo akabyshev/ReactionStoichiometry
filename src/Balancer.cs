@@ -16,7 +16,7 @@ public abstract class Balancer
     }
     #endregion
 
-    protected readonly List<String> Details = new(); // TODO: make MT not access this, and make it private. after sorting out Inverse
+    private readonly List<String> _details = new();
 
     internal readonly ChemicalReactionEquation Equation;
     internal String FailureMessage { get; private set; }
@@ -45,7 +45,7 @@ public abstract class Balancer
         String Fill(String template)
         {
             return template.Replace(oldValue: "%Skeletal%", Equation.Skeletal)
-                           .Replace(oldValue: "%Details%", String.Join(Environment.NewLine, Details))
+                           .Replace(oldValue: "%Details%", String.Join(Environment.NewLine, _details))
                            .Replace(oldValue: "%Outcome%", ToString(OutputFormat.OutcomeOnlyNewLine))
                            .Replace(oldValue: "%Diagnostics%", FailureMessage);
         }
@@ -53,10 +53,10 @@ public abstract class Balancer
 
     public Boolean Run()
     {
-        Details.AddRange(Equation.CCM.ToString(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
-        Details.Add(
+        _details.AddRange(Equation.CCM.ToString(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
+        _details.Add(
             $"RxC: {Equation.CCM.RowCount()}x{Equation.CCM.ColumnCount()}, rank = {Equation.CompositionMatrixRank}, nullity = {Equation.CompositionMatrixNullity}");
-        Details.AddRange(Equation.MagicMatrix.ToString(title: "CCM in the special form"));
+        _details.AddRange(Equation.REF.ToString(title: "CCM in the special form"));
 
         try
         {

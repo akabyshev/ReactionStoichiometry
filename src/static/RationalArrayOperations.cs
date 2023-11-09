@@ -4,12 +4,12 @@ using Rationals;
 
 internal static class RationalArrayOperations
 {
-    internal static Rational[,] GetSpecialForm(Rational[,] source)
+    internal static Rational[,] GetRowEchelonForm(Rational[,] source)
     {
         var result = (Rational[,])source.Clone();
 
-        var rowCount = result.GetLength(dimension: 0);
-        var columnCount = result.GetLength(dimension: 1);
+        var rowCount = result.RowCount();
+        var columnCount = result.ColumnCount();
 
         var leadColumnIndex = 0;
         for (var r = 0; r < rowCount; r++)
@@ -59,15 +59,14 @@ internal static class RationalArrayOperations
             leadColumnIndex++;
         }
 
-        Normalize(ref result);
+        TrimAndGetCanonicalForms(ref result);
         return result;
     }
 
     internal static Rational[,] GetInverse(Rational[,] matrix)
     {
-        // todo: see sticky notes
-        var n = matrix.GetLength(dimension: 0);
-        if (n != matrix.GetLength(dimension: 1)) throw new ArgumentException(message: "Non-square matrix passed to method");
+        var n = matrix.RowCount();
+        if (n != matrix.ColumnCount()) throw new ArgumentException(message: "Non-square matrix");
 
         var augmentedMatrix = new Rational[n, 2 * n];
 
@@ -84,7 +83,11 @@ internal static class RationalArrayOperations
         {
             var pivot = augmentedMatrix[i, i];
 
-            BalancerException.ThrowIf(pivot == 0, message: "Singular matrix");
+            if (pivot == 0)
+            {
+                BalancerException.ThrowIf(GetDeterminant(matrix) != 0, message: "Assertion failed");
+                BalancerException.ThrowIf(condition: true, message: "Singular matrix");
+            }
 
             for (var j = 0; j < 2 * n; j++)
             {
@@ -113,33 +116,61 @@ internal static class RationalArrayOperations
         return result;
     }
 
-    internal static void Normalize(ref Rational[,] array)
+    private static Rational GetDeterminant(Rational[,] matrix)
     {
-        var indexLastCopiedRow = array.GetLength(dimension: 0) - 1;
-        while (indexLastCopiedRow >= 0)
+        var n = matrix.RowCount();
+        if (n != matrix.ColumnCount()) throw new ArgumentException(message: "Non-square matrix");
+
+        switch (n)
         {
-            var foundNonZero = false;
-            for (var c = 0; c < array.GetLength(dimension: 1); c++)
-            {
-                if (array[indexLastCopiedRow, c].IsZero) continue;
-                foundNonZero = true;
-                break;
-            }
-            if (foundNonZero) break;
-            indexLastCopiedRow--;
+            case 1: return matrix[0, 0];
+            case 2: return matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0];
         }
 
-        if (indexLastCopiedRow < 0) throw new InvalidOperationException(message: "All-zeroes matrix");
-
-        var newArray = new Rational[indexLastCopiedRow + 1, array.GetLength(dimension: 1)];
-        for (var r = 0; r < newArray.GetLength(dimension: 0); r++)
+        Rational determinant = 0;
+        for (var col = 0; col < n; col++)
         {
-            for (var c = 0; c < newArray.GetLength(dimension: 1); c++)
+            Rational subDeterminant;
+            var sign = col % 2 == 0 ? 1 : -1;
+
+            var subMatrix = new Rational[n - 1, n - 1];
+            for (var i = 1; i < n; i++)
             {
-                newArray[r, c] = array[r, c].CanonicalForm;
+                var subMatrixCol = 0;
+                for (var j = 0; j < n; j++)
+                {
+                    if (j == col) continue;
+                    subMatrix[i - 1, subMatrixCol] = matrix[i, j];
+                    subMatrixCol++;
+                }
+            }
+
+            subDeterminant = GetDeterminant(subMatrix);
+            determinant += sign * matrix[0, col] * subDeterminant;
+        }
+
+        return determinant;
+    }
+
+    internal static void TrimAndGetCanonicalForms(ref Rational[,] matrix)
+    {
+        var indexLastRowToCopy = matrix.RowCount() - 1;
+        while (indexLastRowToCopy >= 0 && matrix.Row(indexLastRowToCopy).All(static r => r == 0))
+        {
+            indexLastRowToCopy--;
+        }
+
+        if (indexLastRowToCopy == -1) throw new InvalidOperationException(message: "All-zeroes matrix");
+
+        var newArray = new Rational[indexLastRowToCopy + 1, matrix.ColumnCount()];
+        for (var r = 0; r < newArray.RowCount(); r++)
+        {
+            for (var c = 0; c < newArray.ColumnCount(); c++)
+            {
+                newArray[r, c] = matrix[r, c].CanonicalForm;
             }
         }
 
-        array = newArray;
+        matrix = newArray;
     }
 }
