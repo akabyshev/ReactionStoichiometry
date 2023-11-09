@@ -30,6 +30,9 @@ internal static class RationalMatrixOperations
         var leadColumnIndex = 0;
         for (var r = 0; r < matrix.RowCount(); r++)
         {
+            for (var c = 0; c < matrix.ColumnCount(); c++)
+                matrix[r, c] = matrix[r, c].CanonicalForm;
+
             if (leadColumnIndex >= matrix.ColumnCount())
                 break;
 
@@ -58,15 +61,18 @@ internal static class RationalMatrixOperations
                     matrix[r, c] /= div;
 
             #if PARALLEL_GAUSSIAN_ELIMINATION
+            // ReSharper disable twice InconsistentNaming
+            var captured_r = r;
+            var captured_leadColumnIndex = leadColumnIndex;
             Parallel.For(fromInclusive: 0
                        , matrix.RowCount()
                        , k =>
                          {
-                             if (k == r)
+                             if (k == captured_r)
                                  return;
-                             var factor = matrix[k, leadColumnIndex];
+                             var factor = matrix[k, captured_leadColumnIndex];
                              for (var c = 0; c < matrix.ColumnCount(); c++)
-                                 matrix[k, c] -= factor * matrix[r, c];
+                                 matrix[k, c] -= factor * matrix[captured_r, c];
                          });
             #else
             for (var k = 0; k < matrix.RowCount(); k++)
