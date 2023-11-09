@@ -4,7 +4,7 @@ using System.Numerics;
 
 internal sealed partial class FormInstantiation : Form
 {
-    private BalancerRisteski _balancer = null!;
+    private BalancerRisteski? _balancer;
 
     internal FormInstantiation() => InitializeComponent();
 
@@ -17,22 +17,22 @@ internal sealed partial class FormInstantiation : Form
         for (var i = 0; i < _balancer.SubstancesCount; i++)
         {
             theGrid.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
-            theGrid.Rows[i].Cells["Substance"].Value = _balancer.GetSubstance(i);
+            theGrid.Rows[i].Cells[columnName: "Substance"].Value = _balancer.GetSubstance(i);
 
-            var expr = _balancer.GetCoefficientExpressionString(i);
+            var expr = _balancer.AlgebraicExpressionForCoefficient(i);
 
             if (String.IsNullOrEmpty(expr))
             {
-                theGrid.Rows[i].Cells["IsFreeVariable"].Value = true;
-                theGrid.Rows[i].Cells["Expression"].Value = "\u27a2";
-                theGrid.Rows[i].Cells["Value"].Value = 0;
-                theGrid.Rows[i].Cells["Value"].ReadOnly = false;
+                theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
+                theGrid.Rows[i].Cells[columnName: "Expression"].Value = "\u27a2";
+                theGrid.Rows[i].Cells[columnName: "Value"].Value = 0;
+                theGrid.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
             }
             else
             {
-                theGrid.Rows[i].Cells["IsFreeVariable"].Value = false;
-                theGrid.Rows[i].Cells["Expression"].Value = expr;
-                theGrid.Rows[i].Cells["Value"].ReadOnly = true;
+                theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value = false;
+                theGrid.Rows[i].Cells[columnName: "Expression"].Value = expr;
+                theGrid.Rows[i].Cells[columnName: "Value"].ReadOnly = true;
             }
         }
 
@@ -46,7 +46,7 @@ internal sealed partial class FormInstantiation : Form
         {
             theGrid.Rows[i].DefaultCellStyle.BackColor = Color.White;
 
-            var cv = theGrid.Rows[i].Cells["Value"].Value;
+            var cv = theGrid.Rows[i].Cells[columnName: "Value"].Value;
             if (cv == null || !BigInteger.TryParse(cv.ToString()!, out var value)) continue;
 
             if (value > 0)
@@ -63,13 +63,13 @@ internal sealed partial class FormInstantiation : Form
             List<BigInteger> parameters = new();
             for (var i = 0; i < theGrid.Rows.Count; i++)
             {
-                if (!Boolean.Parse(theGrid.Rows[i].Cells["IsFreeVariable"].Value.ToString()!)) continue;
+                if (!Boolean.Parse(theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value.ToString()!)) continue;
 
-                var cv = theGrid.Rows[i].Cells["Value"].Value ?? throw new FormatException();
+                var cv = theGrid.Rows[i].Cells[columnName: "Value"].Value ?? throw new FormatException();
                 parameters.Add(BigInteger.Parse(cv.ToString()!));
             }
 
-            (coefficients, txtInstance.Text) = _balancer.Instantiate(parameters.ToArray());
+            (coefficients, txtInstance.Text) = _balancer!.Instantiate(parameters.ToArray());
         }
         catch (FormatException)
         {
@@ -84,9 +84,9 @@ internal sealed partial class FormInstantiation : Form
 
         for (var i = 0; i < theGrid.Rows.Count; i++)
         {
-            var cv = theGrid.Rows[i].Cells["IsFreeVariable"].Value ?? throw new InvalidOperationException();
+            var cv = theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value ?? throw new InvalidOperationException();
             var isFreeVarRow = Boolean.Parse(cv.ToString()!);
-            if (!isFreeVarRow) theGrid.Rows[i].Cells["Value"].Value = coefficients != null ? coefficients[i] : "#VALUE!";
+            if (!isFreeVarRow) theGrid.Rows[i].Cells[columnName: "Value"].Value = coefficients != null ? coefficients[i] : "#VALUE!";
         }
 
         ApplyVisualStyle();

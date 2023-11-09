@@ -7,10 +7,6 @@ public sealed class BalancerThorne : Balancer
 {
     private List<BigInteger[]>? _independentReactions;
 
-    public BalancerThorne(String equation) : base(equation)
-    {
-    }
-
     internal Int32 NumberOfIndependentReactions => _independentReactions!.Count;
 
     protected override IEnumerable<String> Outcome
@@ -24,6 +20,10 @@ public sealed class BalancerThorne : Balancer
         }
     }
 
+    public BalancerThorne(String equation) : base(equation)
+    {
+    }
+
     public override String ToString(OutputFormat format)
     {
         if (format != OutputFormat.VectorsNotation) return base.ToString(format);
@@ -31,43 +31,42 @@ public sealed class BalancerThorne : Balancer
         // ReSharper disable once ConvertIfStatementToReturnStatement
         if (_independentReactions == null) return "<FAIL>";
 
-        return NumberOfIndependentReactions + ":" + String.Join(", ", _independentReactions.Select(static v => '{' + String.Join(", ", v) + '}'));
+        return NumberOfIndependentReactions
+             + ":"
+             + String.Join(separator: ", ", _independentReactions.Select(selector: static v => '{' + String.Join(separator: ", ", v) + '}'));
     }
 
     protected override void BalanceImplementation()
     {
-        BalancerException.ThrowIf(Equation.CompositionMatrix.Nullity == 0, "Zero null-space");
+        BalancerException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
 
-        var squareMatrix = RationalMatrix.CreateInstance(GetAugmentedSquareMatrix(), static v => v);
-        //BalancerException.ThrowIf(squareMatrix.Determinant().IsZero, "Augmented matrix can't be inverted"); // todo: ?
-
-        var inverse = squareMatrix.Inverse();
-        Details.AddRange(inverse.PrettyPrint("Inverse of the augmented matrix"));
-
-        _independentReactions = Enumerable.Range(inverse.ColumnCount - Equation.CompositionMatrix.Nullity, Equation.CompositionMatrix.Nullity)
-                                          .Select(c => Utils.ScaleRationals(inverse.GetColumn(c)))
-                                          .ToList();
-    }
-
-    private Rational[,] GetAugmentedSquareMatrix()
-    {
-        var reduced = RationalMatrix.CreateInstance(Equation.CompositionMatrix.Reduce(), static r => r);
-        BalancerException.ThrowIf(reduced.RowCount >= reduced.ColumnCount, "The method fails on this kind of equations");
-
-        var result = new Rational[reduced.ColumnCount, reduced.ColumnCount];
-        for (var r = 0; r < reduced.ColumnCount; r++)
+        Rational[,] inverse;
         {
-            for (var c = 0; c < reduced.ColumnCount; c++)
+            var reduced = Equation.CompositionMatrixReduced;
+            var (rowCount, columnCount) = (reduced.GetLength(dimension: 0), reduced.GetLength(dimension: 1));
+            BalancerException.ThrowIf(rowCount >= columnCount, message: "The method fails on this kind of equations");
+
+            var square = new Rational[columnCount, columnCount];
+            for (var r = 0; r < columnCount; r++)
             {
-                result[r, c] = r < reduced.RowCount ? reduced[r, c] : Rational.Zero;
+                for (var c = 0; c < columnCount; c++)
+                {
+                    square[r, c] = r < rowCount ? reduced[r, c] : 0;
+                }
             }
+
+            for (var r = 0; r < columnCount - rowCount; r++)
+            {
+                square[rowCount + r, rowCount + r] = 1;
+            }
+
+            inverse = RationalArrayOperations.GetInverse(square);
         }
 
-        for (var r = 0; r < reduced.ColumnCount - reduced.RowCount; r++)
-        {
-            result[reduced.RowCount + r, reduced.RowCount + r] = Rational.One;
-        }
+        Details.AddRange(inverse.ToString(title: "Inverse of the augmented matrix"));
 
-        return result;
+        _independentReactions = Enumerable.Range(inverse.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
+                                          .Select(selector: c => inverse.Column(c).ScaleToIntegers())
+                                          .ToList();
     }
 }

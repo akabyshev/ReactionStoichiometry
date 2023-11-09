@@ -15,20 +15,20 @@ internal sealed partial class FormMain : Form
 
     internal void Balance()
     {
-        textBoxInput.Text = textBoxInput.Text.Replace(" ", String.Empty);
+        textBoxInput.Text = textBoxInput.Text.Replace(oldValue: " ", String.Empty);
         var s = textBoxInput.Text;
 
         {
             var balancerThorne = new BalancerThorne(s);
             balancerThorne.Balance();
-            resultMT.Text = balancerThorne.ToString(OutputFormat.DetailedPlain);
+            resultMT.Text = balancerThorne.ToString(Balancer.OutputFormat.DetailedPlain);
         }
         {
             var balancerRisteski = new BalancerRisteski(s);
             balancerRisteski.Balance();
-            resultMR.Text = balancerRisteski.ToString(OutputFormat.DetailedPlain);
+            resultMR.Text = balancerRisteski.ToString(Balancer.OutputFormat.DetailedPlain);
 
-            if (resultMR.Text.Contains("FAIL")) return; // todo: Boolean StatusSuccess
+            if (resultMR.Text.Contains(value: "FAIL")) return; // todo: Boolean StatusSuccess
             _permutationTool.Init(s);
             _instantiationTool.Init(balancerRisteski);
 
@@ -46,7 +46,7 @@ internal sealed partial class FormMain : Form
         resultMT.Text = String.Empty;
         resultMR.Text = String.Empty;
 
-        buttonBalance.Enabled = StringOperations.SeemsFine(textBoxInput.Text.Replace(" ", String.Empty));
+        buttonBalance.Enabled = StringOperations.SeemsFine(textBoxInput.Text.Replace(oldValue: " ", String.Empty));
         _instantiationTool.Visible = false;
         _permutationTool.Visible = false;
     }

@@ -6,30 +6,35 @@ using Rationals;
 public sealed class ChemicalReactionEquation
 {
     private readonly List<String> _substances;
-    internal readonly RationalMatrix CompositionMatrix;
     internal readonly Int32 OriginalReactantsCount;
-
     internal readonly String Skeletal;
+    internal readonly Rational[,] CompositionMatrix;
+    internal readonly Rational[,] CompositionMatrixReduced;
+    internal readonly Int32 CompositionMatrixRank;
+
+    internal Int32 CompositionMatrixNullity => CompositionMatrix.GetLength(dimension: 1) - CompositionMatrixRank;
+    internal Int32 SubstancesCount => _substances.Count;
 
     internal ChemicalReactionEquation(String s)
     {
-        if (!StringOperations.SeemsFine(s)) throw new ArgumentException("Invalid string");
+        if (!StringOperations.SeemsFine(s)) throw new ArgumentException(message: "Invalid string");
         Skeletal = s;
-        OriginalReactantsCount = 1 + Skeletal.Split('=')[0].Count(static c => c == '+');
+        OriginalReactantsCount = 1 + Skeletal.Split(separator: '=')[0].Count(predicate: static c => c == '+');
 
         _substances = Skeletal.Split('=', '+').ToList();
-        CompositionMatrix = RationalMatrix.CreateInstance(GetCompositionMatrix(), static v => v);
+        CompositionMatrix = GetCompositionMatrix();
+        CompositionMatrixReduced = RationalArrayOperations.GetSpecialForm(CompositionMatrix);
+        CompositionMatrixRank = CompositionMatrixReduced.GetLength(dimension: 0);
     }
 
-    public Int32 SubstancesCount => _substances.Count;
     public String GetSubstance(Int32 i) => _substances[i];
 
     internal IEnumerable<String> MatrixAsStrings()
     {
         var result = new List<String>();
-        result.AddRange(CompositionMatrix.PrettyPrint("Chemical composition matrix", GetSubstance));
+        result.AddRange(CompositionMatrix.ToString(title: "Chemical composition matrix", GetSubstance));
         result.Add(
-            $"RxC: {CompositionMatrix.RowCount}x{CompositionMatrix.ColumnCount}, rank = {CompositionMatrix.Rank}, nullity = {CompositionMatrix.Nullity}");
+            $"RxC: {CompositionMatrix.RowCount()}x{CompositionMatrix.ColumnCount()}, rank = {CompositionMatrixRank}, nullity = {CompositionMatrixNullity}");
 
         return result;
     }
@@ -37,7 +42,10 @@ public sealed class ChemicalReactionEquation
     private Rational[,] GetCompositionMatrix()
     {
         var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
-        var elements = Regex.Matches(Skeletal, StringOperations.ELEMENT_SYMBOL).Select(static m => m.Value).Except(pseudoElementsOfCharge).ToList();
+        var elements = Regex.Matches(Skeletal, StringOperations.ELEMENT_SYMBOL)
+                            .Select(selector: static m => m.Value)
+                            .Except(pseudoElementsOfCharge)
+                            .ToList();
         elements.AddRange(pseudoElementsOfCharge); // it is important to have those as trailing rows of the matrix
 
         var result = new Rational[elements.Count, _substances.Count];
@@ -51,7 +59,7 @@ public sealed class ChemicalReactionEquation
 
         for (var r = 0; r < elements.Count; r++)
         {
-            Regex regex = new(StringOperations.ELEMENT_TEMPLATE.Replace("X", elements[r]));
+            Regex regex = new(StringOperations.ELEMENT_TEMPLATE.Replace(oldValue: "X", elements[r]));
 
             for (var c = 0; c < _substances.Count; c++)
             {
@@ -61,13 +69,13 @@ public sealed class ChemicalReactionEquation
                 for (var i = 0; i < matches.Count; i++)
                 {
                     var match = matches[i];
-                    sum += Rational.ParseDecimal(match.Groups[1].Value);
+                    sum += Rational.ParseDecimal(match.Groups[groupnum: 1].Value);
                 }
                 result[r, c] += sum;
             }
         }
 
-        var (indexE, indexQn, indexQp) = (elements.IndexOf("{e}"), elements.IndexOf("Qn"), elements.IndexOf("Qp"));
+        var (indexE, indexQn, indexQp) = (elements.IndexOf(item: "{e}"), elements.IndexOf(item: "Qn"), elements.IndexOf(item: "Qp"));
         for (var c = 0; c < _substances.Count; c++)
         {
             result[indexE, c] = -result[indexQn, c] + result[indexQp, c];
@@ -75,6 +83,7 @@ public sealed class ChemicalReactionEquation
             result[indexQp, c] = 0;
         }
 
-        return Utils.WithoutTrailingZeroRows(result);
+        RationalArrayOperations.CutTrailingAllZeroRows(ref result);
+        return result;
     }
 }

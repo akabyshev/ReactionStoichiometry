@@ -20,7 +20,7 @@ internal sealed partial class FormPermutation : Form
     {
         var list = (ListBox)sender;
         if (list.SelectedItems.Count != 1) return;
-        var item = list.SelectedItems[0] ?? throw new InvalidOperationException();
+        var item = list.SelectedItems[index: 0] ?? throw new InvalidOperationException();
         var indexNew = list.Items.Count - 1;
 
         list.Items.Remove(item);
@@ -32,7 +32,7 @@ internal sealed partial class FormPermutation : Form
 
     private void PassTheStringBack()
     {
-        var s = String.Join("+", listLHS.Items.OfType<String>()) + "=" + String.Join("+", listRHS.Items.OfType<String>());
+        var s = String.Join(separator: "+", listLHS.Items.OfType<String>()) + "=" + String.Join(separator: "+", listRHS.Items.OfType<String>());
         (Owner as FormMain)!.textBoxInput.Text = s;
         (Owner as FormMain)!.Balance();
     }

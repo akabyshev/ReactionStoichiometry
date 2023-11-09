@@ -17,9 +17,7 @@ public static class StringOperations
     private const String SKELETAL_STRUCTURE = @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
     internal const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
 
-    internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
-
-    public static String UnfoldSubstance(in String substance)
+    public static String UnfoldSubstance(String substance)
     {
         var result = substance;
 
@@ -29,9 +27,9 @@ public static class StringOperations
             {
                 var match = regex.Match(result);
                 if (!match.Success) break;
-                var element = match.Groups[1].Value;
-                var rest = match.Groups[2].Value;
-                result = regex.Replace(result, element + "1" + rest, 1);
+                var element = match.Groups[groupnum: 1].Value;
+                var rest = match.Groups[groupnum: 2].Value;
+                result = regex.Replace(result, element + "1" + rest, count: 1);
             }
         }
         {
@@ -41,7 +39,7 @@ public static class StringOperations
                 var match = regex.Match(result);
                 if (!match.Success) break;
 
-                result = regex.Replace(result, ")1", 1);
+                result = regex.Replace(result, replacement: ")1", count: 1);
             }
         }
         {
@@ -50,16 +48,18 @@ public static class StringOperations
             {
                 var match = regex.Match(result);
                 if (!match.Success) break;
-                var token = match.Groups[1].Value;
-                var index = match.Groups[2].Value;
+                var token = match.Groups[groupnum: 1].Value;
+                var index = match.Groups[groupnum: 2].Value;
 
                 var repeated = String.Join(String.Empty, Enumerable.Repeat(token, Int32.Parse(index)));
-                result = regex.Replace(result, repeated, 1);
+                result = regex.Replace(result, repeated, count: 1);
             }
         }
 
         return result;
     }
+
+    internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 }
 
 //might use some day
