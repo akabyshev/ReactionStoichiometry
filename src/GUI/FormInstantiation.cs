@@ -47,11 +47,13 @@ internal sealed partial class FormInstantiation : Form
             theGrid.Rows[i].DefaultCellStyle.BackColor = Color.White;
 
             var cv = theGrid.Rows[i].Cells[columnName: "Value"].Value;
-            if (cv == null || !BigInteger.TryParse(cv.ToString()!, out var value)) continue;
+            if (cv == null || !BigInteger.TryParse(cv.ToString()!, out var value))
+                continue;
 
             if (value > 0)
                 theGrid.Rows[i].DefaultCellStyle.BackColor = Color.LightSteelBlue;
-            else if (value < 0) theGrid.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
+            else if (value < 0)
+                theGrid.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
         }
     }
 
@@ -63,7 +65,8 @@ internal sealed partial class FormInstantiation : Form
             List<BigInteger> parameters = new();
             for (var i = 0; i < theGrid.Rows.Count; i++)
             {
-                if (!Boolean.Parse(theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value.ToString()!)) continue;
+                if (!Boolean.Parse(theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value.ToString()!))
+                    continue;
 
                 var cv = theGrid.Rows[i].Cells[columnName: "Value"].Value ?? throw new FormatException();
                 parameters.Add(BigInteger.Parse(cv.ToString()!));
@@ -87,7 +90,8 @@ internal sealed partial class FormInstantiation : Form
         {
             var cv = theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value ?? throw new InvalidOperationException();
             var isFreeVarRow = Boolean.Parse(cv.ToString()!);
-            if (!isFreeVarRow) theGrid.Rows[i].Cells[columnName: "Value"].Value = coefficients != null ? coefficients[i] : "#VALUE!";
+            if (!isFreeVarRow)
+                theGrid.Rows[i].Cells[columnName: "Value"].Value = coefficients != null ? coefficients[i] : "#VALUE!";
         }
 
         ApplyVisualStyle();

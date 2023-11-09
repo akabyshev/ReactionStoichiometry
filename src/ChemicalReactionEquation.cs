@@ -7,10 +7,11 @@ public sealed class ChemicalReactionEquation
 {
     // ReSharper disable once InconsistentNaming
     internal readonly Rational[,] CCM;
-    // ReSharper disable once InconsistentNaming
-    internal readonly Rational[,] REF;
     internal readonly Int32 CompositionMatrixRank;
     internal readonly Int32 OriginalReactantsCount;
+
+    // ReSharper disable once InconsistentNaming
+    internal readonly Rational[,] REF;
     internal readonly String Skeletal;
     internal readonly List<String> Substances;
 
@@ -18,13 +19,19 @@ public sealed class ChemicalReactionEquation
 
     internal ChemicalReactionEquation(String s)
     {
-        if (!StringOperations.SeemsFine(s)) throw new ArgumentException(message: "Invalid string");
+        if (!StringOperations.SeemsFine(s))
+            throw new ArgumentException(message: "Invalid string");
         Skeletal = s;
         OriginalReactantsCount = 1 + Skeletal.Split(separator: '=')[0].Count(predicate: static c => c == '+');
 
         Substances = Skeletal.Split('=', '+').ToList();
         CCM = GetCompositionMatrix();
-        REF = RationalArrayOperations.GetRowEchelonForm(CCM);
+
+        REF = (Rational[,])CCM.Clone();
+        REF.GetIntoREF();
+
+        RationalMatrixOperations.TrimAndGetCanonicalForms(ref REF);
+
         CompositionMatrixRank = REF.RowCount();
     }
 
@@ -41,9 +48,7 @@ public sealed class ChemicalReactionEquation
         for (var r = 0; r < elements.Count; r++)
         {
             for (var c = 0; c < Substances.Count; c++)
-            {
                 result[r, c] = 0;
-            }
         }
 
         for (var r = 0; r < elements.Count; r++)
@@ -72,7 +77,7 @@ public sealed class ChemicalReactionEquation
             result[indexQp, c] = 0;
         }
 
-        RationalArrayOperations.TrimAndGetCanonicalForms(ref result);
+        RationalMatrixOperations.TrimAndGetCanonicalForms(ref result);
         return result;
     }
 }

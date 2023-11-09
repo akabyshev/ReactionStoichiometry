@@ -28,7 +28,8 @@ internal sealed partial class FormMain : Form
             var ok = balancerRisteski.Run();
             resultMR.Text = balancerRisteski.ToString(Balancer.OutputFormat.DetailedPlain);
 
-            if (!ok) return;
+            if (!ok)
+                return;
             _permutationTool.Init(s);
             _instantiationTool.Init(balancerRisteski);
 

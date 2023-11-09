@@ -13,9 +13,7 @@ internal static class RationalArrayExtensions
     {
         var result = new Rational[me.ColumnCount()];
         for (var c = 0; c < me.ColumnCount(); c++)
-        {
             result[c] = me[r, c];
-        }
 
         return result;
     }
@@ -24,30 +22,31 @@ internal static class RationalArrayExtensions
     {
         var result = new Rational[me.RowCount()];
         for (var r = 0; r < me.RowCount(); r++)
-        {
             result[r] = me[r, c];
-        }
 
         return result;
     }
 
     internal static Boolean IsIdentityMatrix(this Rational[,] me)
     {
-        if (me.RowCount() != me.ColumnCount()) return false;
+        if (me.RowCount() != me.ColumnCount())
+            return false;
 
         for (var r = 0; r < me.RowCount(); r++)
         {
             for (var c = 0; c < me.ColumnCount(); c++)
             {
-                if (r == c && !me[r, c].IsOne) return false;
-                if (r != c && !me[r, c].IsZero) return false;
+                if (r == c && !me[r, c].IsOne)
+                    return false;
+                if (r != c && !me[r, c].IsZero)
+                    return false;
             }
         }
 
         return true;
     }
 
-    internal static IEnumerable<String> ToString(this Rational[,] me, String title, Func<Int32, String>? columnHeaders = null)
+    internal static String Readable(this Rational[,] me, String title, Func<Int32, String>? columnHeaders = null)
     {
         List<String> result = new() { $"[[{title}]]" };
 
@@ -65,14 +64,12 @@ internal static class RationalArrayExtensions
             line.Add($"R#{r + 1}");
 
             for (var c = 0; c < me.ColumnCount(); c++)
-            {
                 line.Add(me[r, c].ToString(format: "C"));
-            }
 
             result.Add(String.Join(separator: '\t', line));
         }
 
-        return result;
+        return String.Join(Environment.NewLine, result);
     }
 
     internal static BigInteger[] ScaleToIntegers(this Rational[] rationals)
@@ -84,7 +81,8 @@ internal static class RationalArrayExtensions
 
         static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
         {
-            if (a == 0 || b == 0) return 0;
+            if (a == 0 || b == 0)
+                return 0;
             return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
         }
     }

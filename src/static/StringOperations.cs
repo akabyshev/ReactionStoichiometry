@@ -26,7 +26,8 @@ public static class StringOperations
             while (true)
             {
                 var match = regex.Match(result);
-                if (!match.Success) break;
+                if (!match.Success)
+                    break;
                 var element = match.Groups[groupnum: 1].Value;
                 var rest = match.Groups[groupnum: 2].Value;
                 result = regex.Replace(result, element + "1" + rest, count: 1);
@@ -37,7 +38,8 @@ public static class StringOperations
             while (true)
             {
                 var match = regex.Match(result);
-                if (!match.Success) break;
+                if (!match.Success)
+                    break;
 
                 result = regex.Replace(result, replacement: ")1", count: 1);
             }
@@ -47,7 +49,8 @@ public static class StringOperations
             while (true)
             {
                 var match = regex.Match(result);
-                if (!match.Success) break;
+                if (!match.Success)
+                    break;
                 var token = match.Groups[groupnum: 1].Value;
                 var index = match.Groups[groupnum: 2].Value;
 

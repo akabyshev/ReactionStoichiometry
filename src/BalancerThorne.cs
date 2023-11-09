@@ -1,6 +1,5 @@
 ﻿namespace ReactionStoichiometry;
 
-using System.Diagnostics;
 using System.Numerics;
 using Rationals;
 
@@ -16,10 +15,12 @@ public sealed class BalancerThorne : Balancer
 
     public override String ToString(OutputFormat format)
     {
-        if (format != OutputFormat.Vectors) return base.ToString(format);
+        if (format != OutputFormat.Vectors)
+            return base.ToString(format);
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (_independentReactions == null) return "<FAIL>";
+        if (_independentReactions == null)
+            return "<FAIL>";
 
         return NumberOfIndependentReactions
              + ":"
@@ -29,7 +30,8 @@ public sealed class BalancerThorne : Balancer
     protected override IEnumerable<String> Outcome()
     {
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (_independentReactions == null) return new[] { "<FAIL>" };
+        if (_independentReactions == null)
+            return new[] { "<FAIL>" };
 
         return _independentReactions.Select(EquationWithIntegerCoefficients);
     }
@@ -47,15 +49,10 @@ public sealed class BalancerThorne : Balancer
             for (var r = Equation.REF.RowCount(); r < square.RowCount(); r++)
             {
                 for (var c = 0; c < square.ColumnCount(); c++)
-                {
                     square[r, c] = r == c ? 1 : 0;
-                }
             }
 
-            inverse = RationalArrayOperations.GetInverse(square);
-
-            Debug.WriteLine(square.ToString(title: "Square"));
-            Debug.WriteLine(inverse.ToString(title: "Inverse"));
+            inverse = RationalMatrixOperations.GetInverse(square);
         }
 
         _independentReactions = Enumerable.Range(inverse.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)

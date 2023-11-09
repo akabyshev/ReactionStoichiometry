@@ -53,10 +53,13 @@ public abstract class Balancer
 
     public Boolean Run()
     {
-        _details.AddRange(Equation.CCM.ToString(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
-        _details.Add(
-            $"RxC: {Equation.CCM.RowCount()}x{Equation.CCM.ColumnCount()}, rank = {Equation.CompositionMatrixRank}, nullity = {Equation.CompositionMatrixNullity}");
-        _details.AddRange(Equation.REF.ToString(title: "CCM in the special form"));
+        _details.Add(Equation.CCM.Readable(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
+        _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
+                                 , Equation.CCM.RowCount()
+                                 , Equation.CCM.ColumnCount()
+                                 , Equation.CompositionMatrixRank
+                                 , Equation.CompositionMatrixNullity));
+        _details.Add(Equation.REF.Readable(title: "REF"));
 
         try
         {
@@ -84,6 +87,7 @@ public abstract class Balancer
                              , omit: static value => value.IsZero
                              , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
                              , predicateGoesToRHS: static value => value > 0); // ReSharper disable twice InconsistentNaming
+
     private String AssembleEquationString<T>(IReadOnlyList<T> values
                                            , Func<T, Boolean> omit
                                            , Func<T, String> adapter
@@ -95,17 +99,21 @@ public abstract class Balancer
 
         for (var i = 0; i < values.Count; i++)
         {
-            if (omit(values[i])) continue;
+            if (omit(values[i]))
+                continue;
 
             var token = adapter(values[i]);
-            if (token != String.Empty) token += Settings.Default.MULTIPLICATION_SYMBOL;
+            if (token != String.Empty)
+                token += Settings.Default.MULTIPLICATION_SYMBOL;
 
             (predicateGoesToRHS(values[i]) ? r : l).Add(token + Equation.Substances[i]);
         }
 
-        if (r.Count == 0 && allowEmptyRHS) r.Add(item: "0");
+        if (r.Count == 0 && allowEmptyRHS)
+            r.Add(item: "0");
 
-        if (l.Count == 0 || r.Count == 0) return "Invalid input";
+        if (l.Count == 0 || r.Count == 0)
+            return "Invalid input";
 
         return String.Join(separator: " + ", l) + " = " + String.Join(separator: " + ", r);
     }

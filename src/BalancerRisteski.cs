@@ -16,10 +16,12 @@ public sealed class BalancerRisteski : Balancer
 
     public override String ToString(OutputFormat format)
     {
-        if (format != OutputFormat.Vectors) return base.ToString(format);
+        if (format != OutputFormat.Vectors)
+            return base.ToString(format);
 
         // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return "<FAIL>";
+        if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
+            return "<FAIL>";
 
         return DegreesOfFreedom
              + ":{"
@@ -31,7 +33,8 @@ public sealed class BalancerRisteski : Balancer
 
     protected override IEnumerable<String> Outcome()
     {
-        if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null) return new[] { "<FAIL>" };
+        if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
+            return new[] { "<FAIL>" };
 
         List<String> lines = new() { EquationWithPlaceholders() + ", where" };
         lines.AddRange(_dependentCoefficientExpressions.Keys.Select(selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"));
@@ -54,8 +57,7 @@ public sealed class BalancerRisteski : Balancer
 
         _freeCoefficientIndices = Enumerable.Range(start: 0, Equation.REF.ColumnCount())
                                             .Where(predicate: c => !_dependentCoefficientExpressions.ContainsKey(c)
-                                                                && Equation.REF.Column(c)
-                                                                           .Any(predicate: static t => t != 0))
+                                                                && Equation.REF.Column(c).Any(predicate: static t => t != 0))
                                             .ToList();
     }
 
@@ -64,9 +66,11 @@ public sealed class BalancerRisteski : Balancer
         // TODO: this has a lot of common logic with EquationWithIntegerCoefficients that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
         // "a = c/2" vs "2a = c" thing
 
-        if (_dependentCoefficientExpressions == null) throw new InvalidOperationException();
+        if (_dependentCoefficientExpressions == null)
+            throw new InvalidOperationException();
 
-        if (!_dependentCoefficientExpressions.ContainsKey(index)) return null;
+        if (!_dependentCoefficientExpressions.ContainsKey(index))
+            return null;
 
         var expression = _dependentCoefficientExpressions[index];
 
@@ -75,8 +79,10 @@ public sealed class BalancerRisteski : Balancer
                                        .Select(selector: i =>
                                                          {
                                                              var coefficient = expression[i] + Settings.Default.MULTIPLICATION_SYMBOL;
-                                                             if (expression[i] == 1) coefficient = String.Empty;
-                                                             if (expression[i] == -1) coefficient = "-";
+                                                             if (expression[i] == 1)
+                                                                 coefficient = String.Empty;
+                                                             if (expression[i] == -1)
+                                                                 coefficient = "-";
                                                              return $"{coefficient}{LabelFor(i)}";
                                                          })
                                        .ToList();
@@ -85,11 +91,13 @@ public sealed class BalancerRisteski : Balancer
 
         if (expression[index] != -1)
         {
-            if (numeratorParts.Count > 1) result = $"({result})";
+            if (numeratorParts.Count > 1)
+                result = $"({result})";
             result = $"{result}/{BigInteger.Abs(expression[index])}";
         }
 
-        if (result == String.Empty) result = "0";
+        if (result == String.Empty)
+            result = "0";
 
         return result;
     }
@@ -102,9 +110,7 @@ public sealed class BalancerRisteski : Balancer
         var result = new BigInteger[Equation.Substances.Count];
 
         for (var i = 0; i < _freeCoefficientIndices.Count; i++)
-        {
             result[_freeCoefficientIndices[i]] = parameters[i];
-        }
 
         foreach (var kvp in _dependentCoefficientExpressions!)
         {

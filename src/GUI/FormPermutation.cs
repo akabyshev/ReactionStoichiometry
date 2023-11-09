@@ -11,15 +11,14 @@ internal sealed partial class FormPermutation : Form
 
         ChemicalReactionEquation e = new(s);
         for (var i = 0; i < e.Substances.Count; i++)
-        {
             (i < e.OriginalReactantsCount ? listLHS : listRHS).Items.Add(e.Substances[i]);
-        }
     }
 
     private void OnListMouseDoubleClick(Object sender, MouseEventArgs e)
     {
         var list = (ListBox)sender;
-        if (list.SelectedItems.Count != 1) return;
+        if (list.SelectedItems.Count != 1)
+            return;
         var item = list.SelectedItems[index: 0] ?? throw new InvalidOperationException();
         var indexNew = list.Items.Count - 1;
 
