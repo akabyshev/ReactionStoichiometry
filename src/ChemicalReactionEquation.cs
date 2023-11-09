@@ -28,7 +28,7 @@ public sealed class ChemicalReactionEquation
         CCM = GetCompositionMatrix();
 
         REF = (Rational[,])CCM.Clone();
-        REF.GetIntoREF();
+        REF.TurnIntoREF();
 
         RationalMatrixOperations.TrimAndGetCanonicalForms(ref REF);
 
@@ -46,10 +46,8 @@ public sealed class ChemicalReactionEquation
 
         var result = new Rational[elements.Count, Substances.Count];
         for (var r = 0; r < elements.Count; r++)
-        {
             for (var c = 0; c < Substances.Count; c++)
                 result[r, c] = 0;
-        }
 
         for (var r = 0; r < elements.Count; r++)
         {

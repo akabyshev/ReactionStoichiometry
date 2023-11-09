@@ -1,4 +1,5 @@
-﻿namespace ReactionStoichiometry;
+﻿#define PARALLEL_GAUSSIAN_ELIMINATION
+namespace ReactionStoichiometry;
 
 using System.Diagnostics;
 using Rationals;
@@ -9,25 +10,21 @@ internal static class RationalMatrixOperations
     {
         var indexLastRowToCopy = matrix.RowCount() - 1;
         while (indexLastRowToCopy >= 0 && matrix.Row(indexLastRowToCopy).All(predicate: static r => r == 0))
-        {
             indexLastRowToCopy--;
-        }
 
         if (indexLastRowToCopy == -1)
             throw new InvalidOperationException(message: "All-zeroes matrix");
 
         var newArray = new Rational[indexLastRowToCopy + 1, matrix.ColumnCount()];
         for (var r = 0; r < newArray.RowCount(); r++)
-        {
             for (var c = 0; c < newArray.ColumnCount(); c++)
                 newArray[r, c] = matrix[r, c].CanonicalForm;
-        }
 
         matrix = newArray;
     }
 
     // ReSharper disable once InconsistentNaming
-    internal static void GetIntoREF(this Rational[,] matrix)
+    internal static void TurnIntoREF(this Rational[,] matrix)
     {
         // Gaussian elimination
         var leadColumnIndex = 0;
@@ -60,6 +57,18 @@ internal static class RationalMatrixOperations
                 for (var c = 0; c < matrix.ColumnCount(); c++)
                     matrix[r, c] /= div;
 
+            #if PARALLEL_GAUSSIAN_ELIMINATION
+            Parallel.For(fromInclusive: 0
+                       , matrix.RowCount()
+                       , k =>
+                         {
+                             if (k == r)
+                                 return;
+                             var factor = matrix[k, leadColumnIndex];
+                             for (var c = 0; c < matrix.ColumnCount(); c++)
+                                 matrix[k, c] -= factor * matrix[r, c];
+                         });
+            #else
             for (var k = 0; k < matrix.RowCount(); k++)
             {
                 if (k == r)
@@ -68,7 +77,7 @@ internal static class RationalMatrixOperations
                 for (var c = 0; c < matrix.ColumnCount(); c++)
                     matrix[k, c] -= factor * matrix[r, c];
             }
-
+            #endif
             leadColumnIndex++;
         }
     }
@@ -89,22 +98,23 @@ internal static class RationalMatrixOperations
             }
         }
 
-        augmentedMatrix.GetIntoREF();
+        augmentedMatrix.TurnIntoREF();
 
-        var partLeft = new Rational[size, size];
-        var partRight = new Rational[size, size];
+        var leftHalf = new Rational[size, size];
+        var rightHalf = new Rational[size, size];
         for (var r = 0; r < size; r++)
         {
             for (var c = 0; c < size; c++)
             {
-                partLeft[r, c] = augmentedMatrix[r, c];
-                partRight[r, c] = augmentedMatrix[r, c + size];
+                leftHalf[r, c] = augmentedMatrix[r, c];
+                rightHalf[r, c] = augmentedMatrix[r, c + size];
             }
         }
 
         try
         {
-            BalancerException.ThrowIf(!partLeft.IsIdentityMatrix(), message: "Singular matrix");
+            BalancerException.ThrowIf(!leftHalf.IsIdentityMatrix(), message: "Singular matrix");
+            return rightHalf;
         }
         catch
         {
@@ -112,7 +122,5 @@ internal static class RationalMatrixOperations
             Debug.WriteLine(augmentedMatrix.Readable(nameof(augmentedMatrix)));
             throw;
         }
-
-        return partRight;
     }
 }
