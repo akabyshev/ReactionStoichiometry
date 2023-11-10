@@ -5,6 +5,40 @@ using Rationals;
 
 internal static class RationalArrayExtensions
 {
+    internal static BigInteger[] ScaleToIntegers(this Rational[] rationals)
+    {
+        var multiple = rationals.Select(selector: static r => r.Denominator).Aggregate(LeastCommonMultiple);
+        var wholes = rationals.Select(selector: r => (r * multiple).CanonicalForm.Numerator).ToArray();
+        var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
+        return wholes.Select(selector: r => r / divisor).ToArray();
+
+        static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
+        {
+            if (a == 0 || b == 0)
+                return 0;
+            return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
+        }
+    }
+
+    internal static Boolean IsIdentityMatrix(this Rational[,] me)
+    {
+        if (me.RowCount() != me.ColumnCount())
+            return false;
+
+        for (var r = 0; r < me.RowCount(); r++)
+        {
+            for (var c = 0; c < me.ColumnCount(); c++)
+            {
+                if (r == c && !me[r, c].IsOne)
+                    return false;
+                if (r != c && !me[r, c].IsZero)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
     internal static Int32 RowCount(this Rational[,] me) => me.GetLength(dimension: 0);
 
     internal static Int32 ColumnCount(this Rational[,] me) => me.GetLength(dimension: 1);
@@ -25,25 +59,6 @@ internal static class RationalArrayExtensions
             result[r] = me[r, c];
 
         return result;
-    }
-
-    internal static Boolean IsIdentityMatrix(this Rational[,] me)
-    {
-        if (me.RowCount() != me.ColumnCount())
-            return false;
-
-        for (var r = 0; r < me.RowCount(); r++)
-        {
-            for (var c = 0; c < me.ColumnCount(); c++)
-            {
-                if (r == c && !me[r, c].IsOne)
-                    return false;
-                if (r != c && !me[r, c].IsZero)
-                    return false;
-            }
-        }
-
-        return true;
     }
 
     internal static String Readable(this Rational[,] me, String title, Func<Int32, String>? columnHeaders = null)
@@ -70,20 +85,5 @@ internal static class RationalArrayExtensions
         }
 
         return String.Join(Environment.NewLine, result);
-    }
-
-    internal static BigInteger[] ScaleToIntegers(this Rational[] rationals)
-    {
-        var multiple = rationals.Select(selector: static r => r.Denominator).Aggregate(LeastCommonMultiple);
-        var wholes = rationals.Select(selector: r => (r * multiple).CanonicalForm.Numerator).ToArray();
-        var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
-        return wholes.Select(selector: r => r / divisor).ToArray();
-
-        static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
-        {
-            if (a == 0 || b == 0)
-                return 0;
-            return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
-        }
     }
 }

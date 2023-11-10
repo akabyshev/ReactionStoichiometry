@@ -8,7 +8,6 @@ public sealed class ChemicalReactionEquation
     // ReSharper disable once InconsistentNaming
     internal readonly Rational[,] CCM;
     internal readonly Int32 CompositionMatrixRank;
-    internal readonly Int32 OriginalReactantsCount;
 
     // ReSharper disable once InconsistentNaming
     internal readonly Rational[,] REF;
@@ -22,9 +21,8 @@ public sealed class ChemicalReactionEquation
         if (!StringOperations.SeemsFine(s))
             throw new ArgumentException(message: "Invalid string");
         Skeletal = s;
-        OriginalReactantsCount = 1 + Skeletal.Split(separator: '=')[0].Count(predicate: static c => c == '+');
 
-        Substances = Skeletal.Split('=', '+').ToList();
+        Substances = Skeletal.Split('=', '+').Where(static s => s != "0").ToList();
         CCM = GetCompositionMatrix();
 
         REF = (Rational[,])CCM.Clone();

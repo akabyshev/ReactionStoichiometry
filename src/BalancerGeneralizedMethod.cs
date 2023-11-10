@@ -3,14 +3,14 @@
 using System.Numerics;
 using Properties;
 
-public sealed class BalancerRisteski : Balancer
+public sealed class BalancerGeneralizedMethod : Balancer
 {
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
     internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
 
-    public BalancerRisteski(String equation) : base(equation)
+    public BalancerGeneralizedMethod(String equation) : base(equation)
     {
     }
 
@@ -45,7 +45,7 @@ public sealed class BalancerRisteski : Balancer
 
     protected override void Balance()
     {
-        BalancerException.ThrowIf(Equation.REF.IsIdentityMatrix(), message: "SLE is unsolvable");
+        AppSpecificException.ThrowIf(Equation.REF.IsIdentityMatrix(), message: "SLE is unsolvable");
 
         _dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.REF.RowCount())
                                                      .Select(selector: r => Equation.REF.Row(r)
@@ -59,6 +59,28 @@ public sealed class BalancerRisteski : Balancer
                                             .Where(predicate: c => !_dependentCoefficientExpressions.ContainsKey(c)
                                                                 && Equation.REF.Column(c).Any(predicate: static t => t != 0))
                                             .ToList();
+    }
+
+    public BigInteger[] Instantiate(BigInteger[] parameters)
+    {
+        if (parameters.Length != _freeCoefficientIndices!.Count)
+            throw new ArgumentOutOfRangeException(nameof(parameters), message: "Array size mismatch");
+
+        var result = new BigInteger[Equation.Substances.Count];
+
+        for (var i = 0; i < _freeCoefficientIndices.Count; i++)
+            result[_freeCoefficientIndices[i]] = parameters[i];
+
+        foreach (var kvp in _dependentCoefficientExpressions!)
+        {
+            var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, func: (sum, i) => sum + result[i] * kvp.Value[i]);
+            AppSpecificException.ThrowIf(calculated % kvp.Value[kvp.Key] != 0, message: "Non-integer coefficient, try other SLE params");
+            calculated /= kvp.Value[kvp.Key];
+
+            result[kvp.Key] = -calculated;
+        }
+
+        return result;
     }
 
     public String? AlgebraicExpressionForCoefficient(Int32 index)
@@ -98,28 +120,6 @@ public sealed class BalancerRisteski : Balancer
 
         if (result == String.Empty)
             result = "0";
-
-        return result;
-    }
-
-    public BigInteger[] Instantiate(BigInteger[] parameters)
-    {
-        if (parameters.Length != _freeCoefficientIndices!.Count)
-            throw new ArgumentOutOfRangeException(nameof(parameters), message: "Array size mismatch");
-
-        var result = new BigInteger[Equation.Substances.Count];
-
-        for (var i = 0; i < _freeCoefficientIndices.Count; i++)
-            result[_freeCoefficientIndices[i]] = parameters[i];
-
-        foreach (var kvp in _dependentCoefficientExpressions!)
-        {
-            var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, func: (sum, i) => sum + result[i] * kvp.Value[i]);
-            BalancerException.ThrowIf(calculated % kvp.Value[kvp.Key] != 0, message: "Non-integer coefficient, try other SLE params");
-            calculated /= kvp.Value[kvp.Key];
-
-            result[kvp.Key] = -calculated;
-        }
 
         return result;
     }

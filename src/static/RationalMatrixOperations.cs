@@ -58,15 +58,15 @@ internal static class RationalMatrixOperations
 
             Parallel.For(fromInclusive: 0
                        , matrix.RowCount()
-                       , k =>
-                         {
-                             // ReSharper disable twice AccessToModifiedClosure
-                             if (k == r)
-                                 return;
-                             var factor = matrix[k, leadColumnIndex];
-                             for (var c = 0; c < matrix.ColumnCount(); c++)
-                                 matrix[k, c] = (matrix[k, c] - factor * matrix[r, c]).CanonicalForm;
-                         });
+                       , body: k =>
+                               {
+                                   // ReSharper disable twice AccessToModifiedClosure
+                                   if (k == r)
+                                       return;
+                                   var factor = matrix[k, leadColumnIndex];
+                                   for (var c = 0; c < matrix.ColumnCount(); c++)
+                                       matrix[k, c] = (matrix[k, c] - factor * matrix[r, c]).CanonicalForm;
+                               });
             leadColumnIndex++;
         }
     }
@@ -102,7 +102,7 @@ internal static class RationalMatrixOperations
 
         try
         {
-            BalancerException.ThrowIf(!leftHalf.IsIdentityMatrix(), message: "Singular matrix");
+            AppSpecificException.ThrowIf(!leftHalf.IsIdentityMatrix(), message: "Singular matrix");
             return rightHalf;
         }
         catch

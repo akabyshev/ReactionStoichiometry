@@ -65,7 +65,7 @@ public abstract class Balancer
         {
             Balance();
         }
-        catch (BalancerException e)
+        catch (AppSpecificException e)
         {
             FailureMessage = "This equation can't be balanced: " + e.Message;
             return false;

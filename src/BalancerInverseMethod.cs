@@ -3,13 +3,13 @@
 using System.Numerics;
 using Rationals;
 
-public sealed class BalancerThorne : Balancer
+public sealed class BalancerInverseMethod : Balancer
 {
     private List<BigInteger[]>? _independentReactions;
 
     internal Int32 NumberOfIndependentReactions => _independentReactions!.Count;
 
-    public BalancerThorne(String equation) : base(equation)
+    public BalancerInverseMethod(String equation) : base(equation)
     {
     }
 
@@ -38,11 +38,11 @@ public sealed class BalancerThorne : Balancer
 
     protected override void Balance()
     {
-        BalancerException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
+        AppSpecificException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
 
         Rational[,] inverse;
         {
-            BalancerException.ThrowIf(Equation.REF.RowCount() >= Equation.REF.ColumnCount(), message: "The method fails on this kind of equations");
+            AppSpecificException.ThrowIf(Equation.REF.RowCount() >= Equation.REF.ColumnCount(), message: "The method fails on this kind of equations");
 
             var square = new Rational[Equation.REF.ColumnCount(), Equation.REF.ColumnCount()];
             Array.Copy(Equation.REF, square, Equation.REF.Length);

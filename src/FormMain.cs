@@ -4,7 +4,7 @@ using System.Numerics;
 
 internal sealed partial class FormMain : Form
 {
-    private BalancerRisteski _balancer;
+    private BalancerGeneralizedMethod _balancer;
 
     internal FormMain()
     {
@@ -12,18 +12,52 @@ internal sealed partial class FormMain : Form
         ResetControls();
     }
 
+    private void On_buttonBalance_Click(Object sender, EventArgs e) => Balance();
+
+    private void On_textBoxInput_TextChanged(Object sender, EventArgs e) => ResetControls();
+
+    private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => Instantiate();
+
+    private void OnListMouseDoubleClick(Object sender, MouseEventArgs e)
+    {
+        if (listPermutator.SelectedItems.Count != 1)
+            return;
+        var item = listPermutator.SelectedItems[index: 0] ?? throw new InvalidOperationException();
+        var indexNew = listPermutator.Items.Count - 1;
+
+        listPermutator.Items.Remove(item);
+        listPermutator.Items.Insert(indexNew, item);
+
+        listPermutator.SelectedItems.Clear();
+
+        var s = String.Join(separator: "+", listPermutator.Items.OfType<String>()) + "=0";
+        textBoxInput.Text = s;
+        Balance();
+    }
+
+    private void ResetControls()
+    {
+        txtDetailedPlain.Text = String.Empty;
+        txtDetailedHtml.Text = String.Empty;
+        txtGeneralForm.Text = String.Empty;
+        txtInstance.Text = String.Empty;
+        listPermutator.Items.Clear();
+        gridCoefficients.Rows.Clear();
+        buttonBalance.Enabled = StringOperations.SeemsFine(textBoxInput.Text.Replace(oldValue: " ", String.Empty));
+    }
+
     private void Balance()
     {
         var s = textBoxInput.Text.Replace(oldValue: " ", String.Empty);
 
-        _balancer = new BalancerRisteski(s);
+        _balancer = new BalancerGeneralizedMethod(s);
         if (_balancer.Run())
         {
             txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
             InitInstantiation();
             InitPermutation();
-            ctrlDetailedPlain.Text = _balancer.ToString(Balancer.OutputFormat.DetailedPlain);
-            ctrlDetailedHtml.Text = _balancer.ToString(Balancer.OutputFormat.DetailedHtml);
+            txtDetailedPlain.Text = _balancer.ToString(Balancer.OutputFormat.DetailedPlain);
+            txtDetailedHtml.Text = _balancer.ToString(Balancer.OutputFormat.DetailedHtml);
         }
         else
         {
@@ -34,27 +68,26 @@ internal sealed partial class FormMain : Form
 
     private void InitInstantiation()
     {
-        theGrid.Rows.Clear();
-        theGrid.RowCount = _balancer.Equation.Substances.Count;
+        gridCoefficients.RowCount = _balancer.Equation.Substances.Count;
         for (var i = 0; i < _balancer.Equation.Substances.Count; i++)
         {
-            theGrid.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
-            theGrid.Rows[i].Cells[columnName: "Substance"].Value = _balancer.Equation.Substances[i];
+            gridCoefficients.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
+            gridCoefficients.Rows[i].Cells[columnName: "Substance"].Value = _balancer.Equation.Substances[i];
 
             var expr = _balancer.AlgebraicExpressionForCoefficient(i);
 
             if (String.IsNullOrEmpty(expr))
             {
-                theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
-                theGrid.Rows[i].Cells[columnName: "Expression"].Value = "\u27a2";
-                theGrid.Rows[i].Cells[columnName: "Value"].Value = 0;
-                theGrid.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
+                gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
+                gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = "\u27a2";
+                gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = 0;
+                gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
             }
             else
             {
-                theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value = false;
-                theGrid.Rows[i].Cells[columnName: "Expression"].Value = expr;
-                theGrid.Rows[i].Cells[columnName: "Value"].ReadOnly = true;
+                gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = false;
+                gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = expr;
+                gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = true;
             }
         }
 
@@ -63,39 +96,24 @@ internal sealed partial class FormMain : Form
 
     private void InitPermutation()
     {
-        listLHS.Items.Clear();
-        listRHS.Items.Clear();
-
-        for (var i = 0; i < _balancer.Equation.Substances.Count; i++)
-            (i < _balancer.Equation.OriginalReactantsCount ? listLHS : listRHS).Items.Add(_balancer.Equation.Substances[i]);
+        foreach (var s in _balancer.Equation.Substances)
+            listPermutator.Items.Add(s);
     }
 
-    private void On_buttonBalance_Click(Object sender, EventArgs e) => Balance();
-
-    private void On_textBoxInput_TextChanged(Object sender, EventArgs e) => ResetControls();
-
-    private void ResetControls()
+    private void ApplyGridVisuals()
     {
-        ctrlDetailedPlain.Text = String.Empty;
-        ctrlDetailedHtml.Text = String.Empty;
-
-        buttonBalance.Enabled = StringOperations.SeemsFine(textBoxInput.Text.Replace(oldValue: " ", String.Empty));
-    }
-
-    private void ApplyVisualStyle()
-    {
-        for (var i = 0; i < theGrid.Rows.Count; i++)
+        for (var i = 0; i < gridCoefficients.Rows.Count; i++)
         {
-            theGrid.Rows[i].DefaultCellStyle.BackColor = Color.White;
+            gridCoefficients.Rows[i].DefaultCellStyle.BackColor = Color.White;
 
-            var cv = theGrid.Rows[i].Cells[columnName: "Value"].Value;
+            var cv = gridCoefficients.Rows[i].Cells[columnName: "Value"].Value;
             if (cv == null || !BigInteger.TryParse(cv.ToString()!, out var value))
                 continue;
 
             if (value > 0)
-                theGrid.Rows[i].DefaultCellStyle.BackColor = Color.LightSteelBlue;
+                gridCoefficients.Rows[i].DefaultCellStyle.BackColor = Color.LightSteelBlue;
             else if (value < 0)
-                theGrid.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
+                gridCoefficients.Rows[i].DefaultCellStyle.BackColor = Color.LightGoldenrodYellow;
         }
     }
 
@@ -105,12 +123,12 @@ internal sealed partial class FormMain : Form
         try
         {
             List<BigInteger> parameters = new();
-            for (var i = 0; i < theGrid.Rows.Count; i++)
+            for (var i = 0; i < gridCoefficients.Rows.Count; i++)
             {
-                if (!Boolean.Parse(theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value.ToString()!))
+                if (!Boolean.Parse(gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value.ToString()!))
                     continue;
 
-                var cv = theGrid.Rows[i].Cells[columnName: "Value"].Value ?? throw new FormatException();
+                var cv = gridCoefficients.Rows[i].Cells[columnName: "Value"].Value ?? throw new FormatException();
                 parameters.Add(BigInteger.Parse(cv.ToString()!));
             }
 
@@ -122,44 +140,20 @@ internal sealed partial class FormMain : Form
             txtInstance.Text = "Parsing error occurred";
             coefficients = null;
         }
-        catch (BalancerException)
+        catch (AppSpecificException)
         {
             txtInstance.Text = "Could not get integer coefficients";
             coefficients = null;
         }
 
-        for (var i = 0; i < theGrid.Rows.Count; i++)
+        for (var i = 0; i < gridCoefficients.Rows.Count; i++)
         {
-            var cv = theGrid.Rows[i].Cells[columnName: "IsFreeVariable"].Value ?? throw new InvalidOperationException();
+            var cv = gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value ?? throw new InvalidOperationException();
             var isFreeVarRow = Boolean.Parse(cv.ToString()!);
             if (!isFreeVarRow)
-                theGrid.Rows[i].Cells[columnName: "Value"].Value = coefficients != null ? coefficients[i] : "#VALUE!";
+                gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = coefficients != null ? coefficients[i] : "#VALUE!";
         }
 
-        ApplyVisualStyle();
-    }
-
-    private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => Instantiate();
-
-    private void OnListMouseDoubleClick(Object sender, MouseEventArgs e)
-    {
-        var list = (ListBox)sender;
-        if (list.SelectedItems.Count != 1)
-            return;
-        var item = list.SelectedItems[index: 0] ?? throw new InvalidOperationException();
-        var indexNew = list.Items.Count - 1;
-
-        list.Items.Remove(item);
-        list.Items.Insert(indexNew, item);
-
-        list.SelectedItems.Clear();
-        PassTheStringBack();
-    }
-
-    private void PassTheStringBack()
-    {
-        var s = String.Join(separator: "+", listLHS.Items.OfType<String>()) + "=" + String.Join(separator: "+", listRHS.Items.OfType<String>());
-        textBoxInput.Text = s;
-        Balance();
+        ApplyGridVisuals();
     }
 }

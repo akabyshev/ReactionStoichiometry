@@ -28,36 +28,35 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle9 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle12 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle10 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle11 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
             containerInput = new GroupBox();
             textBoxInput = new TextBox();
             buttonBalance = new Button();
             txtGeneralForm = new TextBox();
             theTabControl = new TabControl();
-            tabPlain = new TabPage();
-            ctrlDetailedPlain = new TextBox();
-            tabHtml = new TabPage();
-            ctrlDetailedHtml = new TextBox();
             tabInstantiate = new TabPage();
             txtInstance = new TextBox();
-            theGrid = new DataGridView();
+            gridCoefficients = new DataGridView();
             Substance = new DataGridViewTextBoxColumn();
             Expression = new DataGridViewTextBoxColumn();
             Value = new DataGridViewTextBoxColumn();
             IsFreeVariable = new DataGridViewCheckBoxColumn();
             tabPermutate = new TabPage();
-            listRHS = new ListBox();
-            listLHS = new ListBox();
+            listPermutator = new ListBox();
+            tabPlain = new TabPage();
+            txtDetailedPlain = new TextBox();
+            tabHtml = new TabPage();
+            txtDetailedHtml = new TextBox();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
+            tabInstantiate.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize) gridCoefficients).BeginInit();
+            tabPermutate.SuspendLayout();
             tabPlain.SuspendLayout();
             tabHtml.SuspendLayout();
-            tabInstantiate.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize) theGrid).BeginInit();
-            tabPermutate.SuspendLayout();
             SuspendLayout();
             // 
             // containerInput
@@ -122,55 +121,10 @@
             theTabControl.Size = new Size(1888, 719);
             theTabControl.TabIndex = 10;
             // 
-            // tabPlain
-            // 
-            tabPlain.Controls.Add(ctrlDetailedPlain);
-            tabPlain.Location = new Point(10, 58);
-            tabPlain.Name = "tabPlain";
-            tabPlain.Padding = new Padding(3);
-            tabPlain.Size = new Size(1868, 651);
-            tabPlain.TabIndex = 0;
-            tabPlain.Text = "Plain text";
-            tabPlain.UseVisualStyleBackColor = true;
-            // 
-            // ctrlDetailedPlain
-            // 
-            ctrlDetailedPlain.Dock = DockStyle.Fill;
-            ctrlDetailedPlain.Location = new Point(3, 3);
-            ctrlDetailedPlain.Multiline = true;
-            ctrlDetailedPlain.Name = "ctrlDetailedPlain";
-            ctrlDetailedPlain.ReadOnly = true;
-            ctrlDetailedPlain.ScrollBars = ScrollBars.Both;
-            ctrlDetailedPlain.Size = new Size(1862, 645);
-            ctrlDetailedPlain.TabIndex = 0;
-            ctrlDetailedPlain.WordWrap = false;
-            // 
-            // tabHtml
-            // 
-            tabHtml.Controls.Add(ctrlDetailedHtml);
-            tabHtml.Location = new Point(10, 58);
-            tabHtml.Name = "tabHtml";
-            tabHtml.Padding = new Padding(3);
-            tabHtml.Size = new Size(1868, 651);
-            tabHtml.TabIndex = 1;
-            tabHtml.Text = "HTML";
-            tabHtml.UseVisualStyleBackColor = true;
-            // 
-            // ctrlDetailedHtml
-            // 
-            ctrlDetailedHtml.Dock = DockStyle.Fill;
-            ctrlDetailedHtml.Location = new Point(3, 3);
-            ctrlDetailedHtml.Multiline = true;
-            ctrlDetailedHtml.Name = "ctrlDetailedHtml";
-            ctrlDetailedHtml.ReadOnly = true;
-            ctrlDetailedHtml.Size = new Size(1862, 645);
-            ctrlDetailedHtml.TabIndex = 1;
-            ctrlDetailedHtml.WordWrap = false;
-            // 
             // tabInstantiate
             // 
             tabInstantiate.Controls.Add(txtInstance);
-            tabInstantiate.Controls.Add(theGrid);
+            tabInstantiate.Controls.Add(gridCoefficients);
             tabInstantiate.Location = new Point(10, 58);
             tabInstantiate.Name = "tabInstantiate";
             tabInstantiate.Padding = new Padding(3);
@@ -190,42 +144,42 @@
             txtInstance.TabIndex = 5;
             txtInstance.TextAlign = HorizontalAlignment.Center;
             // 
-            // theGrid
+            // gridCoefficients
             // 
-            theGrid.AllowUserToAddRows = false;
-            theGrid.AllowUserToDeleteRows = false;
-            theGrid.AllowUserToResizeColumns = false;
-            theGrid.AllowUserToResizeRows = false;
-            theGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            dataGridViewCellStyle9.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle9.BackColor = SystemColors.Control;
-            dataGridViewCellStyle9.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            dataGridViewCellStyle9.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle9.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle9.WrapMode = DataGridViewTriState.True;
-            theGrid.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle9;
-            theGrid.ColumnHeadersHeight = 58;
-            theGrid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            theGrid.Columns.AddRange(new DataGridViewColumn[] { Substance, Expression, Value, IsFreeVariable });
-            theGrid.Dock = DockStyle.Fill;
-            theGrid.Location = new Point(3, 3);
-            theGrid.Name = "theGrid";
-            dataGridViewCellStyle12.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle12.BackColor = SystemColors.Control;
-            dataGridViewCellStyle12.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle12.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle12.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle12.SelectionForeColor = SystemColors.HighlightText;
-            theGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
-            theGrid.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
-            theGrid.RowTemplate.Height = 49;
-            theGrid.SelectionMode = DataGridViewSelectionMode.CellSelect;
-            theGrid.ShowCellToolTips = false;
-            theGrid.ShowEditingIcon = false;
-            theGrid.Size = new Size(1862, 645);
-            theGrid.TabIndex = 4;
-            theGrid.CellEndEdit += OnCellEndEdit;
+            gridCoefficients.AllowUserToAddRows = false;
+            gridCoefficients.AllowUserToDeleteRows = false;
+            gridCoefficients.AllowUserToResizeColumns = false;
+            gridCoefficients.AllowUserToResizeRows = false;
+            gridCoefficients.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.BackColor = SystemColors.Control;
+            dataGridViewCellStyle5.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            dataGridViewCellStyle5.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle5.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
+            gridCoefficients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+            gridCoefficients.ColumnHeadersHeight = 58;
+            gridCoefficients.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            gridCoefficients.Columns.AddRange(new DataGridViewColumn[] { Substance, Expression, Value, IsFreeVariable });
+            gridCoefficients.Dock = DockStyle.Fill;
+            gridCoefficients.Location = new Point(3, 3);
+            gridCoefficients.Name = "gridCoefficients";
+            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = SystemColors.Control;
+            dataGridViewCellStyle8.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle8.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
+            gridCoefficients.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+            gridCoefficients.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+            gridCoefficients.RowTemplate.Height = 49;
+            gridCoefficients.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            gridCoefficients.ShowCellToolTips = false;
+            gridCoefficients.ShowEditingIcon = false;
+            gridCoefficients.Size = new Size(1862, 645);
+            gridCoefficients.TabIndex = 4;
+            gridCoefficients.CellEndEdit += OnCellEndEdit;
             // 
             // Substance
             // 
@@ -241,8 +195,8 @@
             // Expression
             // 
             Expression.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle10.Alignment = DataGridViewContentAlignment.MiddleRight;
-            Expression.DefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleRight;
+            Expression.DefaultCellStyle = dataGridViewCellStyle6;
             Expression.HeaderText = "Expression";
             Expression.MinimumWidth = 12;
             Expression.Name = "Expression";
@@ -253,8 +207,8 @@
             // Value
             // 
             Value.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle11.Alignment = DataGridViewContentAlignment.MiddleRight;
-            Value.DefaultCellStyle = dataGridViewCellStyle11;
+            dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleRight;
+            Value.DefaultCellStyle = dataGridViewCellStyle7;
             Value.HeaderText = "Value";
             Value.MinimumWidth = 12;
             Value.Name = "Value";
@@ -272,8 +226,7 @@
             // 
             // tabPermutate
             // 
-            tabPermutate.Controls.Add(listRHS);
-            tabPermutate.Controls.Add(listLHS);
+            tabPermutate.Controls.Add(listPermutator);
             tabPermutate.Location = new Point(10, 58);
             tabPermutate.Name = "tabPermutate";
             tabPermutate.Size = new Size(1868, 651);
@@ -281,31 +234,63 @@
             tabPermutate.Text = "Permutate";
             tabPermutate.UseVisualStyleBackColor = true;
             // 
-            // listRHS
+            // listPermutator
             // 
-            listRHS.Dock = DockStyle.Fill;
-            listRHS.ItemHeight = 41;
-            listRHS.Items.AddRange(new object[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" });
-            listRHS.Location = new Point(0, 250);
-            listRHS.Name = "listRHS";
-            listRHS.ScrollAlwaysVisible = true;
-            listRHS.Size = new Size(1868, 401);
-            listRHS.TabIndex = 3;
-            listRHS.TabStop = false;
-            listRHS.MouseDoubleClick += OnListMouseDoubleClick;
+            listPermutator.Dock = DockStyle.Fill;
+            listPermutator.ItemHeight = 41;
+            listPermutator.Items.AddRange(new object[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" });
+            listPermutator.Location = new Point(0, 0);
+            listPermutator.Name = "listPermutator";
+            listPermutator.ScrollAlwaysVisible = true;
+            listPermutator.Size = new Size(1868, 651);
+            listPermutator.TabIndex = 2;
+            listPermutator.TabStop = false;
+            listPermutator.MouseDoubleClick += OnListMouseDoubleClick;
             // 
-            // listLHS
+            // tabPlain
             // 
-            listLHS.Dock = DockStyle.Top;
-            listLHS.ItemHeight = 41;
-            listLHS.Items.AddRange(new object[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" });
-            listLHS.Location = new Point(0, 0);
-            listLHS.Name = "listLHS";
-            listLHS.ScrollAlwaysVisible = true;
-            listLHS.Size = new Size(1868, 250);
-            listLHS.TabIndex = 2;
-            listLHS.TabStop = false;
-            listLHS.MouseDoubleClick += OnListMouseDoubleClick;
+            tabPlain.Controls.Add(txtDetailedPlain);
+            tabPlain.Location = new Point(10, 58);
+            tabPlain.Name = "tabPlain";
+            tabPlain.Padding = new Padding(3);
+            tabPlain.Size = new Size(1868, 651);
+            tabPlain.TabIndex = 0;
+            tabPlain.Text = "Plain text";
+            tabPlain.UseVisualStyleBackColor = true;
+            // 
+            // txtDetailedPlain
+            // 
+            txtDetailedPlain.Dock = DockStyle.Fill;
+            txtDetailedPlain.Location = new Point(3, 3);
+            txtDetailedPlain.Multiline = true;
+            txtDetailedPlain.Name = "txtDetailedPlain";
+            txtDetailedPlain.ReadOnly = true;
+            txtDetailedPlain.ScrollBars = ScrollBars.Both;
+            txtDetailedPlain.Size = new Size(1862, 645);
+            txtDetailedPlain.TabIndex = 0;
+            txtDetailedPlain.WordWrap = false;
+            // 
+            // tabHtml
+            // 
+            tabHtml.Controls.Add(txtDetailedHtml);
+            tabHtml.Location = new Point(10, 58);
+            tabHtml.Name = "tabHtml";
+            tabHtml.Padding = new Padding(3);
+            tabHtml.Size = new Size(1868, 651);
+            tabHtml.TabIndex = 1;
+            tabHtml.Text = "HTML";
+            tabHtml.UseVisualStyleBackColor = true;
+            // 
+            // txtDetailedHtml
+            // 
+            txtDetailedHtml.Dock = DockStyle.Fill;
+            txtDetailedHtml.Location = new Point(3, 3);
+            txtDetailedHtml.Multiline = true;
+            txtDetailedHtml.Name = "txtDetailedHtml";
+            txtDetailedHtml.ReadOnly = true;
+            txtDetailedHtml.Size = new Size(1862, 645);
+            txtDetailedHtml.TabIndex = 1;
+            txtDetailedHtml.WordWrap = false;
             // 
             // FormMain
             // 
@@ -320,14 +305,14 @@
             containerInput.ResumeLayout(false);
             containerInput.PerformLayout();
             theTabControl.ResumeLayout(false);
+            tabInstantiate.ResumeLayout(false);
+            tabInstantiate.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize) gridCoefficients).EndInit();
+            tabPermutate.ResumeLayout(false);
             tabPlain.ResumeLayout(false);
             tabPlain.PerformLayout();
             tabHtml.ResumeLayout(false);
             tabHtml.PerformLayout();
-            tabInstantiate.ResumeLayout(false);
-            tabInstantiate.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize) theGrid).EndInit();
-            tabPermutate.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -335,22 +320,21 @@
 
         private GroupBox containerInput;
         private Button buttonBalance;
-        internal TextBox textBoxInput;
+        private TextBox textBoxInput;
         private TabControl theTabControl;
         private TabPage tabPlain;
         private TabPage tabHtml;
-        private TextBox ctrlDetailedPlain;
-        private TextBox ctrlDetailedHtml;
         private TabPage tabInstantiate;
-        private DataGridView theGrid;
+        private TabPage tabPermutate;
+        private TextBox txtDetailedPlain;
+        private TextBox txtDetailedHtml;
+        private DataGridView gridCoefficients;
         private DataGridViewTextBoxColumn Substance;
         private DataGridViewTextBoxColumn Expression;
         private DataGridViewTextBoxColumn Value;
         private DataGridViewCheckBoxColumn IsFreeVariable;
         private TextBox txtGeneralForm;
         private TextBox txtInstance;
-        private TabPage tabPermutate;
-        private ListBox listRHS;
-        private ListBox listLHS;
+        private ListBox listPermutator;
     }
 }
