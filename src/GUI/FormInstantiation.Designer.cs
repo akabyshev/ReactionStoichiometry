@@ -33,12 +33,12 @@
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             theGrid = new DataGridView();
+            txtInstance = new TextBox();
+            txtGeneralForm = new TextBox();
             Substance = new DataGridViewTextBoxColumn();
             Expression = new DataGridViewTextBoxColumn();
             Value = new DataGridViewTextBoxColumn();
             IsFreeVariable = new DataGridViewCheckBoxColumn();
-            txtInstance = new TextBox();
-            txtGeneralForm = new TextBox();
             ((System.ComponentModel.ISupportInitialize) theGrid).BeginInit();
             SuspendLayout();
             // 
@@ -72,16 +72,37 @@
             theGrid.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             theGrid.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             theGrid.RowTemplate.Height = 49;
-            theGrid.ScrollBars = ScrollBars.None;
             theGrid.SelectionMode = DataGridViewSelectionMode.CellSelect;
             theGrid.ShowCellToolTips = false;
-            theGrid.Size = new Size(798, 264);
+            theGrid.ShowEditingIcon = false;
+            theGrid.Size = new Size(808, 314);
             theGrid.TabIndex = 3;
             theGrid.CellEndEdit += OnCellEndEdit;
+            // 
+            // txtInstance
+            // 
+            txtInstance.Dock = DockStyle.Bottom;
+            txtInstance.Location = new Point(0, 361);
+            txtInstance.Name = "txtInstance";
+            txtInstance.ReadOnly = true;
+            txtInstance.Size = new Size(808, 47);
+            txtInstance.TabIndex = 4;
+            // 
+            // txtGeneralForm
+            // 
+            txtGeneralForm.Dock = DockStyle.Top;
+            txtGeneralForm.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            txtGeneralForm.Location = new Point(0, 0);
+            txtGeneralForm.Name = "txtGeneralForm";
+            txtGeneralForm.ReadOnly = true;
+            txtGeneralForm.Size = new Size(808, 47);
+            txtGeneralForm.TabIndex = 5;
+            txtGeneralForm.TextAlign = HorizontalAlignment.Center;
             // 
             // Substance
             // 
             Substance.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            Substance.Frozen = true;
             Substance.HeaderText = "Substance";
             Substance.MinimumWidth = 12;
             Substance.Name = "Substance";
@@ -119,41 +140,22 @@
             IsFreeVariable.Name = "IsFreeVariable";
             IsFreeVariable.ReadOnly = true;
             IsFreeVariable.Visible = false;
-            IsFreeVariable.Width = 207;
+            IsFreeVariable.Width = 222;
             // 
-            // txtInstance
-            // 
-            txtInstance.Dock = DockStyle.Bottom;
-            txtInstance.Location = new Point(0, 311);
-            txtInstance.Name = "txtInstance";
-            txtInstance.ReadOnly = true;
-            txtInstance.Size = new Size(798, 47);
-            txtInstance.TabIndex = 4;
-            // 
-            // txtGeneralForm
-            // 
-            txtGeneralForm.Dock = DockStyle.Top;
-            txtGeneralForm.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            txtGeneralForm.Location = new Point(0, 0);
-            txtGeneralForm.Name = "txtGeneralForm";
-            txtGeneralForm.ReadOnly = true;
-            txtGeneralForm.Size = new Size(798, 47);
-            txtGeneralForm.TabIndex = 5;
-            txtGeneralForm.TextAlign = HorizontalAlignment.Center;
-            // 
-            // InstantiationTool
+            // FormInstantiation
             // 
             AutoScaleDimensions = new SizeF(17F, 41F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(798, 358);
+            AutoScroll = true;
+            ClientSize = new Size(808, 408);
             ControlBox = false;
             Controls.Add(theGrid);
             Controls.Add(txtGeneralForm);
             Controls.Add(txtInstance);
-            FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            FormBorderStyle = FormBorderStyle.SizableToolWindow;
             MaximizeBox = false;
-            MinimumSize = new Size(800, 360);
-            Name = "InstantiationTool";
+            MinimumSize = new Size(840, 440);
+            Name = "FormInstantiation";
             Text = "Instantiation";
             ((System.ComponentModel.ISupportInitialize) theGrid).EndInit();
             ResumeLayout(false);
@@ -163,10 +165,10 @@
         #endregion
         private TextBox txtInstance;
         private DataGridView theGrid;
+        private TextBox txtGeneralForm;
         private DataGridViewTextBoxColumn Substance;
         private DataGridViewTextBoxColumn Expression;
         private DataGridViewTextBoxColumn Value;
         private DataGridViewCheckBoxColumn IsFreeVariable;
-        private TextBox txtGeneralForm;
     }
 }

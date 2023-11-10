@@ -1,5 +1,4 @@
-﻿#define PARALLEL_GAUSSIAN_ELIMINATION
-namespace ReactionStoichiometry;
+﻿namespace ReactionStoichiometry;
 
 using System.Diagnostics;
 using Rationals;
@@ -30,9 +29,6 @@ internal static class RationalMatrixOperations
         var leadColumnIndex = 0;
         for (var r = 0; r < matrix.RowCount(); r++)
         {
-            for (var c = 0; c < matrix.ColumnCount(); c++)
-                matrix[r, c] = matrix[r, c].CanonicalForm;
-
             if (leadColumnIndex >= matrix.ColumnCount())
                 break;
 
@@ -58,32 +54,18 @@ internal static class RationalMatrixOperations
             var div = matrix[r, leadColumnIndex];
             if (div != 0)
                 for (var c = 0; c < matrix.ColumnCount(); c++)
-                    matrix[r, c] /= div;
+                    matrix[r, c] = (matrix[r, c] / div).CanonicalForm;
 
-            #if PARALLEL_GAUSSIAN_ELIMINATION
-            // ReSharper disable twice InconsistentNaming
-            var captured_r = r;
-            var captured_leadColumnIndex = leadColumnIndex;
             Parallel.For(fromInclusive: 0
                        , matrix.RowCount()
                        , k =>
                          {
-                             if (k == captured_r)
+                             if (k == r)
                                  return;
-                             var factor = matrix[k, captured_leadColumnIndex];
+                             var factor = matrix[k, leadColumnIndex];
                              for (var c = 0; c < matrix.ColumnCount(); c++)
-                                 matrix[k, c] -= factor * matrix[captured_r, c];
+                                 matrix[k, c] = (matrix[k, c] - factor * matrix[r, c]).CanonicalForm;
                          });
-            #else
-            for (var k = 0; k < matrix.RowCount(); k++)
-            {
-                if (k == r)
-                    continue;
-                var factor = matrix[k, leadColumnIndex];
-                for (var c = 0; c < matrix.ColumnCount(); c++)
-                    matrix[k, c] -= factor * matrix[r, c];
-            }
-            #endif
             leadColumnIndex++;
         }
     }
