@@ -64,9 +64,3 @@ public static class StringOperations
 
     internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 }
-
-//might use some day
-//foreach (var rule in new[] { new { Pseudoelement = "Qn", Sign = "-" }, new { Pseudoelement = "Qp", Sign = "+" } })
-//{
-//    _entities[i] = Regex.Replace(_entities[i], rule.Pseudoelement + @"(\d*)$", "{" + "$1" + rule.Sign + "}");
-//}

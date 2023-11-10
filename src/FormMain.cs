@@ -1,17 +1,39 @@
-﻿namespace ReactionStoichiometry;
+namespace ReactionStoichiometry;
 
 using System.Numerics;
 
-internal sealed partial class FormInstantiation : Form
+internal sealed partial class FormMain : Form
 {
-    private BalancerRisteski? _balancer;
+    private BalancerRisteski _balancer;
 
-    internal FormInstantiation() => InitializeComponent();
-
-    internal void Init(BalancerRisteski balancer)
+    internal FormMain()
     {
-        _balancer = balancer;
-        txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
+        InitializeComponent();
+        ResetControls();
+    }
+
+    private void Balance()
+    {
+        var s = textBoxInput.Text.Replace(oldValue: " ", String.Empty);
+
+        _balancer = new BalancerRisteski(s);
+        if (_balancer.Run())
+        {
+            txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
+            InitInstantiation();
+            InitPermutation();
+            ctrlDetailedPlain.Text = _balancer.ToString(Balancer.OutputFormat.DetailedPlain);
+            ctrlDetailedHtml.Text = _balancer.ToString(Balancer.OutputFormat.DetailedHtml);
+        }
+        else
+        {
+            ResetControls();
+            MessageBox.Show(text: "Balancing failed. Check your syntax and try again", caption: "Failed", MessageBoxButtons.OK);
+        }
+    }
+
+    private void InitInstantiation()
+    {
         theGrid.Rows.Clear();
         theGrid.RowCount = _balancer.Equation.Substances.Count;
         for (var i = 0; i < _balancer.Equation.Substances.Count; i++)
@@ -36,8 +58,28 @@ internal sealed partial class FormInstantiation : Form
             }
         }
 
-        AdaptFormSize();
         Instantiate();
+    }
+
+    private void InitPermutation()
+    {
+        listLHS.Items.Clear();
+        listRHS.Items.Clear();
+
+        for (var i = 0; i < _balancer.Equation.Substances.Count; i++)
+            (i < _balancer.Equation.OriginalReactantsCount ? listLHS : listRHS).Items.Add(_balancer.Equation.Substances[i]);
+    }
+
+    private void On_buttonBalance_Click(Object sender, EventArgs e) => Balance();
+
+    private void On_textBoxInput_TextChanged(Object sender, EventArgs e) => ResetControls();
+
+    private void ResetControls()
+    {
+        ctrlDetailedPlain.Text = String.Empty;
+        ctrlDetailedHtml.Text = String.Empty;
+
+        buttonBalance.Enabled = StringOperations.SeemsFine(textBoxInput.Text.Replace(oldValue: " ", String.Empty));
     }
 
     private void ApplyVisualStyle()
@@ -72,8 +114,8 @@ internal sealed partial class FormInstantiation : Form
                 parameters.Add(BigInteger.Parse(cv.ToString()!));
             }
 
-            coefficients = _balancer!.Instantiate(parameters.ToArray());
-            txtInstance.Text = _balancer!.EquationWithIntegerCoefficients(coefficients);
+            coefficients = _balancer.Instantiate(parameters.ToArray());
+            txtInstance.Text = _balancer.EquationWithIntegerCoefficients(coefficients);
         }
         catch (FormatException)
         {
@@ -99,9 +141,25 @@ internal sealed partial class FormInstantiation : Form
 
     private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e) => Instantiate();
 
-    private void AdaptFormSize()
+    private void OnListMouseDoubleClick(Object sender, MouseEventArgs e)
     {
-        Width = Owner!.Width / 2;
-        Height = 144 + txtInstance.Height + 50 * theGrid.RowCount + txtGeneralForm.Height;
+        var list = (ListBox)sender;
+        if (list.SelectedItems.Count != 1)
+            return;
+        var item = list.SelectedItems[index: 0] ?? throw new InvalidOperationException();
+        var indexNew = list.Items.Count - 1;
+
+        list.Items.Remove(item);
+        list.Items.Insert(indexNew, item);
+
+        list.SelectedItems.Clear();
+        PassTheStringBack();
+    }
+
+    private void PassTheStringBack()
+    {
+        var s = String.Join(separator: "+", listLHS.Items.OfType<String>()) + "=" + String.Join(separator: "+", listRHS.Items.OfType<String>());
+        textBoxInput.Text = s;
+        Balance();
     }
 }

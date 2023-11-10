@@ -60,6 +60,7 @@ internal static class RationalMatrixOperations
                        , matrix.RowCount()
                        , k =>
                          {
+                             // ReSharper disable twice AccessToModifiedClosure
                              if (k == r)
                                  return;
                              var factor = matrix[k, leadColumnIndex];
