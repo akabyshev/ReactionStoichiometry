@@ -42,7 +42,8 @@ public sealed class BalancerInverseBased : Balancer
 
         Rational[,] inverse;
         {
-            AppSpecificException.ThrowIf(Equation.REF.RowCount() >= Equation.REF.ColumnCount(), message: "The method fails on this kind of equations");
+            AppSpecificException.ThrowIf(Equation.REF.RowCount() >= Equation.REF.ColumnCount()
+                                       , message: "The method fails on this kind of equations");
 
             var square = new Rational[Equation.REF.ColumnCount(), Equation.REF.ColumnCount()];
             Array.Copy(Equation.REF, square, Equation.REF.Length);

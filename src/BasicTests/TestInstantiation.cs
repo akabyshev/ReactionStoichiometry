@@ -25,8 +25,9 @@ internal class TestInstantiation : BasicTest
 
             var instances = parts[1]
                             .Split(separator: ';')
-                            .Select(static s => s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse))
-                            .Select(parametersSet => generalized.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet.ToArray())));
+                            .Select(selector: static s => s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse))
+                            .Select(selector: parametersSet =>
+                                                  generalized.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet.ToArray())));
 
             AssertStringsAreEqual(inverseBased.ToString(Balancer.OutputFormat.OutcomeOnlyCommas), String.Join(separator: ",", instances));
         }

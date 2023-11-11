@@ -13,7 +13,8 @@ internal class TestVectors : BasicTest
 
             while (reader.ReadLine() is { } line)
             {
-                if (line.StartsWith(IGNORED_LINE_MARK) || line.Length == 0) continue;
+                if (line.StartsWith(IGNORED_LINE_MARK) || line.Length == 0)
+                    continue;
                 var balancer = (Balancer)Activator.CreateInstance(type, line.Replace(oldValue: " ", String.Empty))!;
                 balancer.Run();
 

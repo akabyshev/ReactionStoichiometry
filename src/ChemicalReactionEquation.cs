@@ -22,7 +22,7 @@ public sealed class ChemicalReactionEquation
             throw new ArgumentException(message: "Invalid string");
         Skeletal = s;
 
-        Substances = Skeletal.Split('=', '+').Where(static s => s != "0").ToList();
+        Substances = Skeletal.Split('=', '+').Where(predicate: static s => s != "0").ToList();
         CCM = GetCompositionMatrix();
 
         REF = (Rational[,])CCM.Clone();
