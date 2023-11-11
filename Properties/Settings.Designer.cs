@@ -23,27 +23,21 @@ namespace ReactionStoichiometry.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("7")]
         public int LETTER_LABEL_THRESHOLD {
             get {
                 return ((int)(this["LETTER_LABEL_THRESHOLD"]));
             }
-            set {
-                this["LETTER_LABEL_THRESHOLD"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("·")]
         public string MULTIPLICATION_SYMBOL {
             get {
                 return ((string)(this["MULTIPLICATION_SYMBOL"]));
-            }
-            set {
-                this["MULTIPLICATION_SYMBOL"] = value;
             }
         }
     }

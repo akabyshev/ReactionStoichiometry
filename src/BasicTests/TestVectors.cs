@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
-internal class TestVectors : BasicTest
+internal abstract class TestVectors : BasicTest
 {
     internal static void Run()
     {

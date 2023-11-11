@@ -2,7 +2,7 @@ namespace ReactionStoichiometry;
 
 using System.Numerics;
 
-internal class TestInstantiation : BasicTest
+internal abstract class TestInstantiation : BasicTest
 {
     internal static void Run()
     {

@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
-internal class TestDetailedPlain : BasicTest
+internal abstract class TestDetailedPlain : BasicTest
 {
     internal static void Run()
     {

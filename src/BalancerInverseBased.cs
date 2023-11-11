@@ -3,28 +3,14 @@
 using System.Numerics;
 using Rationals;
 
-public sealed class BalancerInverseBased : Balancer
+internal sealed class BalancerInverseBased : Balancer
 {
     private List<BigInteger[]>? _independentReactions;
 
-    internal Int32 NumberOfIndependentReactions => _independentReactions!.Count;
+    private Int32 NumberOfIndependentReactions => _independentReactions!.Count;
 
     public BalancerInverseBased(String equation) : base(equation)
     {
-    }
-
-    public override String ToString(OutputFormat format)
-    {
-        if (format != OutputFormat.Vectors)
-            return base.ToString(format);
-
-        // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (_independentReactions == null)
-            return "<FAIL>";
-
-        return NumberOfIndependentReactions
-             + ":"
-             + String.Join(separator: ", ", _independentReactions.Select(selector: static v => '{' + String.Join(separator: ", ", v) + '}'));
     }
 
     protected override IEnumerable<String> Outcome()
@@ -59,5 +45,19 @@ public sealed class BalancerInverseBased : Balancer
         _independentReactions = Enumerable.Range(inverse.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
                                           .Select(selector: c => inverse.Column(c).ScaleToIntegers())
                                           .ToList();
+    }
+
+    internal override String ToString(OutputFormat format)
+    {
+        if (format != OutputFormat.Vectors)
+            return base.ToString(format);
+
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (_independentReactions == null)
+            return "<FAIL>";
+
+        return NumberOfIndependentReactions
+             + ":"
+             + String.Join(separator: ", ", _independentReactions.Select(selector: static v => '{' + String.Join(separator: ", ", v) + '}'));
     }
 }

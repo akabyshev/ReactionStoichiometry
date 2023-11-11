@@ -3,32 +3,15 @@
 using System.Numerics;
 using Properties;
 
-public sealed class BalancerGeneralized : Balancer
+internal sealed class BalancerGeneralized : Balancer
 {
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
-    internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
+    private Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
 
     public BalancerGeneralized(String equation) : base(equation)
     {
-    }
-
-    public override String ToString(OutputFormat format)
-    {
-        if (format != OutputFormat.Vectors)
-            return base.ToString(format);
-
-        // ReSharper disable once ConvertIfStatementToReturnStatement
-        if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
-            return "<FAIL>";
-
-        return DegreesOfFreedom
-             + ":{"
-             + String.Join(separator: ", "
-                         , Enumerable.Range(start: 0, Equation.Substances.Count)
-                                     .Select(selector: i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : AlgebraicExpressionForCoefficient(i)))
-             + '}';
     }
 
     protected override IEnumerable<String> Outcome()
@@ -61,7 +44,24 @@ public sealed class BalancerGeneralized : Balancer
                                             .ToList();
     }
 
-    public BigInteger[] Instantiate(BigInteger[] parameters)
+    internal override String ToString(OutputFormat format)
+    {
+        if (format != OutputFormat.Vectors)
+            return base.ToString(format);
+
+        // ReSharper disable once ConvertIfStatementToReturnStatement
+        if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
+            return "<FAIL>";
+
+        return DegreesOfFreedom
+             + ":{"
+             + String.Join(separator: ", "
+                         , Enumerable.Range(start: 0, Equation.Substances.Count)
+                                     .Select(selector: i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : AlgebraicExpressionForCoefficient(i)))
+             + '}';
+    }
+
+    internal BigInteger[] Instantiate(BigInteger[] parameters)
     {
         if (parameters.Length != _freeCoefficientIndices!.Count)
             throw new ArgumentOutOfRangeException(nameof(parameters), message: "Array size mismatch");
@@ -83,7 +83,7 @@ public sealed class BalancerGeneralized : Balancer
         return result;
     }
 
-    public String? AlgebraicExpressionForCoefficient(Int32 index)
+    internal String? AlgebraicExpressionForCoefficient(Int32 index)
     {
         // TODO: this has a lot of common logic with EquationWithIntegerCoefficients that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
         // "a = c/2" vs "2a = c" thing

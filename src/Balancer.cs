@@ -3,23 +3,12 @@
 using System.Numerics;
 using Properties;
 
-public abstract class Balancer
+internal abstract class Balancer
 {
-    #region OutputFormat enum
-    public enum OutputFormat
-    {
-        DetailedPlain
-      , DetailedHtml
-      , OutcomeOnlyCommas
-      , OutcomeOnlyNewLine
-      , Vectors
-    }
-    #endregion
-
     private readonly List<String> _details = new();
 
     internal readonly ChemicalReactionEquation Equation;
-    internal String FailureMessage { get; private set; }
+    private String FailureMessage { get; set; }
 
     protected abstract void Balance();
     protected abstract IEnumerable<String> Outcome(); // todo: name?
@@ -30,7 +19,7 @@ public abstract class Balancer
         FailureMessage = String.Empty;
     }
 
-    public virtual String ToString(OutputFormat format)
+    internal virtual String ToString(OutputFormat format)
     {
         return format switch
         {
@@ -51,7 +40,7 @@ public abstract class Balancer
         }
     }
 
-    public Boolean Run()
+    internal Boolean Run()
     {
         _details.Add(Equation.CCM.Readable(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
         _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
@@ -75,18 +64,29 @@ public abstract class Balancer
     }
 
     // ReSharper disable once ArgumentsStyleNamedExpression
-    public String EquationWithPlaceholders() =>
+    internal String EquationWithPlaceholders() =>
         AssembleEquationString(Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
                              , omit: static _ => false
                              , adapter: LabelFor
                              , predicateGoesToRHS: static _ => false
                              , allowEmptyRHS: true);
 
-    public String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
+    internal String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
         AssembleEquationString(coefficients
                              , omit: static value => value.IsZero
                              , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
                              , predicateGoesToRHS: static value => value > 0); // ReSharper disable twice InconsistentNaming
+
+    #region Nested type: OutputFormat
+    internal enum OutputFormat
+    {
+        DetailedPlain
+      , DetailedHtml
+      , OutcomeOnlyCommas
+      , OutcomeOnlyNewLine
+      , Vectors
+    }
+    #endregion
 
     private String AssembleEquationString<T>(IReadOnlyList<T> values
                                            , Func<T, Boolean> omit

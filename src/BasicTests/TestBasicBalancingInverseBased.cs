@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
-internal class TestBasicBalancingInverseBased : BasicTest
+internal abstract class TestBasicBalancingInverseBased : BasicTest
 {
     internal static void Run()
     {

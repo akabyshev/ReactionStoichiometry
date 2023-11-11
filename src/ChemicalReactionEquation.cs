@@ -3,7 +3,7 @@
 using System.Text.RegularExpressions;
 using Rationals;
 
-public sealed class ChemicalReactionEquation
+internal sealed class ChemicalReactionEquation
 {
     // ReSharper disable once InconsistentNaming
     internal readonly Rational[,] CCM;

@@ -2,7 +2,7 @@
 
 using System.Text.RegularExpressions;
 
-public static class StringOperations
+internal static class StringOperations
 {
     private const String OPENING_PARENTHESIS = @"\(";
     private const String CLOSING_PARENTHESIS = @"\)";
@@ -17,7 +17,9 @@ public static class StringOperations
     private const String SKELETAL_STRUCTURE = @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
     internal const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
 
-    public static String UnfoldSubstance(String substance)
+    internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
+
+    internal static String UnfoldSubstance(String substance)
     {
         var result = substance;
 
@@ -61,6 +63,4 @@ public static class StringOperations
 
         return result;
     }
-
-    internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 }

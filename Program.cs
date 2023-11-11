@@ -5,7 +5,7 @@ namespace ReactionStoichiometry;
 
 using System.Diagnostics;
 
-internal static class Program
+file static class Program
 {
     /// <summary>
     ///     The main entry point for the application.
