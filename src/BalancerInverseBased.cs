@@ -3,13 +3,13 @@
 using System.Numerics;
 using Rationals;
 
-public sealed class BalancerInverseMethod : Balancer
+public sealed class BalancerInverseBased : Balancer
 {
     private List<BigInteger[]>? _independentReactions;
 
     internal Int32 NumberOfIndependentReactions => _independentReactions!.Count;
 
-    public BalancerInverseMethod(String equation) : base(equation)
+    public BalancerInverseBased(String equation) : base(equation)
     {
     }
 

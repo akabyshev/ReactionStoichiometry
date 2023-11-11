@@ -4,7 +4,7 @@ using System.Numerics;
 
 internal sealed partial class FormMain : Form
 {
-    private BalancerGeneralizedMethod _balancer;
+    private BalancerGeneralized _balancer;
 
     internal FormMain()
     {
@@ -50,7 +50,7 @@ internal sealed partial class FormMain : Form
     {
         var s = textBoxInput.Text.Replace(oldValue: " ", String.Empty);
 
-        _balancer = new BalancerGeneralizedMethod(s);
+        _balancer = new BalancerGeneralized(s);
         if (_balancer.Run())
         {
             txtGeneralForm.Text = _balancer.EquationWithPlaceholders();

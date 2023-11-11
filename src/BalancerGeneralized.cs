@@ -3,14 +3,14 @@
 using System.Numerics;
 using Properties;
 
-public sealed class BalancerGeneralizedMethod : Balancer
+public sealed class BalancerGeneralized : Balancer
 {
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
     internal Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
 
-    public BalancerGeneralizedMethod(String equation) : base(equation)
+    public BalancerGeneralized(String equation) : base(equation)
     {
     }
 
