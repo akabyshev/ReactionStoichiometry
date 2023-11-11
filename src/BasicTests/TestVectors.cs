@@ -8,7 +8,7 @@ internal abstract class TestVectors : BasicTest
 
         foreach (var type in balancers)
         {
-            using StreamReader reader = new(ConstructPath(nameof(TestVectors)));
+            using StreamReader reader = new(ConstructPath(filename: "MyBatch"));
             using StreamWriter writer = new(ConstructPath(nameof(TestVectors), type.Name));
 
             while (reader.ReadLine() is { } line)

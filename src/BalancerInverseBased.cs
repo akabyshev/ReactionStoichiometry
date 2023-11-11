@@ -7,8 +7,6 @@ internal sealed class BalancerInverseBased : Balancer
 {
     private List<BigInteger[]>? _independentReactions;
 
-    private Int32 NumberOfIndependentReactions => _independentReactions!.Count;
-
     public BalancerInverseBased(String equation) : base(equation)
     {
     }
@@ -56,8 +54,8 @@ internal sealed class BalancerInverseBased : Balancer
         if (_independentReactions == null)
             return "<FAIL>";
 
-        return NumberOfIndependentReactions
-             + ":"
+        return EquationWithPlaceholders()
+             + " with coefficients "
              + String.Join(separator: ", ", _independentReactions.Select(selector: static v => '{' + String.Join(separator: ", ", v) + '}'));
     }
 }

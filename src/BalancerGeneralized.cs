@@ -8,8 +8,6 @@ internal sealed class BalancerGeneralized : Balancer
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
 
-    private Int32 DegreesOfFreedom => _freeCoefficientIndices!.Count;
-
     public BalancerGeneralized(String equation) : base(equation)
     {
     }
@@ -19,7 +17,7 @@ internal sealed class BalancerGeneralized : Balancer
         if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
             return new[] { "<FAIL>" };
 
-        List<String> lines = new() { EquationWithPlaceholders() + ", where" };
+        List<String> lines = new();
         lines.AddRange(_dependentCoefficientExpressions.Keys.Select(selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"));
         lines.Add("for any {" + String.Join(separator: ", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
 
@@ -53,8 +51,9 @@ internal sealed class BalancerGeneralized : Balancer
         if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
             return "<FAIL>";
 
-        return DegreesOfFreedom
-             + ":{"
+        return EquationWithPlaceholders()
+             + " with coefficients "
+             + "{"
              + String.Join(separator: ", "
                          , Enumerable.Range(start: 0, Equation.Substances.Count)
                                      .Select(selector: i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : AlgebraicExpressionForCoefficient(i)))

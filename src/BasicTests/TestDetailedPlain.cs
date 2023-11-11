@@ -8,7 +8,7 @@ internal abstract class TestDetailedPlain : BasicTest
 
         foreach (var type in balancers)
         {
-            using StreamReader reader = new(ConstructPath(nameof(TestDetailedPlain)));
+            using StreamReader reader = new(ConstructPath(filename: "MyBatch"));
             using StreamWriter writer = new(ConstructPath(nameof(TestDetailedPlain), type.Name));
 
             while (reader.ReadLine() is { } line)

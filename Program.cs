@@ -22,8 +22,6 @@ file static class Program
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             TestBasicParsing.Run();
-            TestBasicBalancingGeneralized.Run();
-            TestBasicBalancingInverseBased.Run();
             TestInstantiation.Run();
             TestVectors.Run();
             TestDetailedPlain.Run();

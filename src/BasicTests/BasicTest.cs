@@ -5,8 +5,8 @@ internal class BasicTest
     protected const String IGNORED_LINE_MARK = "#";
     protected const String CHAR_TAB = "\t";
 
-    protected static String ConstructPath(String classname, String? optional = null) =>
-        @$"..\..\..\testdata\{classname + (optional == null ? String.Empty : '-' + optional)}.txt";
+    protected static String ConstructPath(String filename, String? str2 = null) =>
+        @$"..\..\..\testdata\{filename + (str2 == null ? String.Empty : '-' + str2)}.txt";
 
     protected static void AssertStringsAreEqual(String lhs, String rhs)
     {

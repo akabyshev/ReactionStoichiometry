@@ -51,9 +51,10 @@ internal sealed partial class FormMain : Form
         var s = textBoxInput.Text.Replace(oldValue: " ", String.Empty);
 
         _balancer = new BalancerGeneralized(s);
+        txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
+
         if (_balancer.Run())
         {
-            txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
             InitInstantiation();
             InitPermutation();
             txtDetailedPlain.Text = _balancer.ToString(Balancer.OutputFormat.DetailedPlain);
