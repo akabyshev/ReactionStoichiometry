@@ -12,6 +12,7 @@ internal sealed partial class FormMain : Form
         ResetControls();
     }
 
+    #region Event Handlers
     private void On_buttonBalance_Click(Object sender, EventArgs e) => Balance();
 
     private void On_textBoxInput_TextChanged(Object sender, EventArgs e) => ResetControls();
@@ -34,6 +35,7 @@ internal sealed partial class FormMain : Form
         textBoxInput.Text = s;
         Balance();
     }
+    #endregion
 
     private void ResetControls()
     {

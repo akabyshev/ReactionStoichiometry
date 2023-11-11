@@ -17,7 +17,7 @@ internal sealed class BalancerGeneralized : Balancer
         if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
             return new[] { "<FAIL>" };
 
-        List<String> lines = new();
+        List<String> lines = new() { EquationWithPlaceholders() + ", where" };
         lines.AddRange(_dependentCoefficientExpressions.Keys.Select(selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"));
         lines.Add("for any {" + String.Join(separator: ", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
 
@@ -84,9 +84,6 @@ internal sealed class BalancerGeneralized : Balancer
 
     internal String? AlgebraicExpressionForCoefficient(Int32 index)
     {
-        // TODO: this has a lot of common logic with EquationWithIntegerCoefficients that calls AssembleEquationString<T>, but the output is much better in context. Try to generalize?
-        // "a = c/2" vs "2a = c" thing
-
         if (_dependentCoefficientExpressions == null)
             throw new InvalidOperationException();
 

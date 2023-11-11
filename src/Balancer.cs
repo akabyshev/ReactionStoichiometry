@@ -8,16 +8,12 @@ internal abstract class Balancer
     private readonly List<String> _details = new();
 
     internal readonly ChemicalReactionEquation Equation;
-    private String FailureMessage { get; set; }
+    private String _failureMessage = String.Empty;
+
+    protected Balancer(String equation) => Equation = new ChemicalReactionEquation(equation);
 
     protected abstract void Balance();
     protected abstract IEnumerable<String> Outcome(); // todo: name?
-
-    protected Balancer(String equation)
-    {
-        Equation = new ChemicalReactionEquation(equation);
-        FailureMessage = String.Empty;
-    }
 
     internal virtual String ToString(OutputFormat format)
     {
@@ -36,7 +32,7 @@ internal abstract class Balancer
             return template.Replace(oldValue: "%Skeletal%", Equation.Skeletal)
                            .Replace(oldValue: "%Details%", String.Join(Environment.NewLine, _details))
                            .Replace(oldValue: "%Outcome%", ToString(OutputFormat.OutcomeOnlyNewLine))
-                           .Replace(oldValue: "%Diagnostics%", FailureMessage);
+                           .Replace(oldValue: "%Diagnostics%", _failureMessage);
         }
     }
 
@@ -56,7 +52,7 @@ internal abstract class Balancer
         }
         catch (AppSpecificException e)
         {
-            FailureMessage = "This equation can't be balanced: " + e.Message;
+            _failureMessage = "This equation can't be balanced: " + e.Message;
             return false;
         }
 

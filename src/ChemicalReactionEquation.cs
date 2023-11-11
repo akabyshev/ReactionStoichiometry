@@ -5,15 +5,14 @@ using Rationals;
 
 internal sealed class ChemicalReactionEquation
 {
-    internal readonly String Skeletal;
-    internal readonly List<String> Substances;
-
     // ReSharper disable once InconsistentNaming
     internal readonly Rational[,] CCM;
     internal readonly Int32 CompositionMatrixRank;
 
     // ReSharper disable once InconsistentNaming
     internal readonly Rational[,] REF;
+    internal readonly String Skeletal;
+    internal readonly List<String> Substances;
 
     internal Int32 CompositionMatrixNullity => CCM.ColumnCount() - CompositionMatrixRank;
 
