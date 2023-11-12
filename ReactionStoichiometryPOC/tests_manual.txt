@@ -1,0 +1,20 @@
+FeS2 + HNO3 = Fe2(SO4)3 + NO + H2SO4
+------------------------------------------------------------------------------------------------------------
+KI + KClO3 + HCl = I2 + H2O + KCl
+KMnO4 + HCl = KCl + MnCl2 + H2O + Cl2
+H2 + O2 = HO0.5
+He2Zz0.495 + Na0.99 = NaZz2 + He4
+K4Fe(CN)6 + KMnO4 + H2SO4 = KHSO4 + Fe2(SO4)3 + MnSO4 + HNO3 + CO2 + H2O
+C6H5COOH + O2 = CO2 + H2O
+C2H4 + KMnO4 + H2O = CH2OHCH2OH + MnO2 + KOH
+PhCH3 + KMnO4 + H2SO4 = PhCOOH + K2SO4 + MnSO4 + H2O
+K4Fe(CN)6 + H2SO4 + H2O = K2SO4 + FeSO4 + (NH4)2SO4 + CO
+(Cr(N2H4CO)6)4Cr(CN)6 + KMnO4 + HNO3 = K2Cr2O7 + CO2 + KNO3 + Mn(NO3)2 + H2O
+------------------------------------------------------------------------------------------------------------
+Fe2(SO4)3 + PrTlTe3 + H3PO4 = Fe0.996(H2PO4)2H2O + Tl1.987(SO3)3 + Pr1.998(SO4)3 + Te2O3 + P2O5 + H2S
+C2952H4664N812O832S8Fe4 + Na2C4H3O4SAu + Fe(SCN)2 + Fe(NH4)2(SO4)2(H2O)6 + C4H8Cl2S + C8H12MgN2O8 = C55H72MgN4 + Na3.99Fe(CN)6 + Au0.987SC6H11O5 + HClO4 + H2S
+------------------------------------------------------------------------------------------------------------
+CO + CO2 + H2 = CH4 + H2O
+TiO2 + C + Cl2 = TiCl4 + CO + CO2
+C6H12 + KMnO4 + H2SO4 = C2H4O2 + C4H8O + MnSO4 + H2O + K2SO4
+C6H5C2H5 + O2 = C6H5OH + CO2 + H2O

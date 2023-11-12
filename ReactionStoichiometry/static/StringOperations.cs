@@ -1,9 +1,8 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Text.RegularExpressions;
-using Properties;
 
-internal static class StringOperations
+public static class StringOperations
 {
     private const String OPENING_PARENTHESIS = @"\(";
     private const String CLOSING_PARENTHESIS = @"\)";
@@ -18,7 +17,7 @@ internal static class StringOperations
     private const String SKELETAL_STRUCTURE = @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
     internal const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
 
-    internal static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
+    public static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 
     internal static String UnfoldSubstance(String substance)
     {
@@ -83,7 +82,7 @@ internal static class StringOperations
 
             var token = adapter(values[i]);
             if (token != String.Empty)
-                token += Settings.Default.MULTIPLICATION_SYMBOL;
+                token += GlobalConstants.MULTIPLICATION_SYMBOL;
 
             (predicateGoesToRHS(values[i]) ? rhs : lhs).Add(token + strings[i]);
         }

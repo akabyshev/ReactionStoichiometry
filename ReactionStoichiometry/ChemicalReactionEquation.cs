@@ -3,7 +3,7 @@
 using System.Text.RegularExpressions;
 using Rationals;
 
-internal sealed class ChemicalReactionEquation
+public sealed class ChemicalReactionEquation
 {
     // ReSharper disable once InconsistentNaming
     internal readonly Rational[,] CCM;
@@ -12,7 +12,7 @@ internal sealed class ChemicalReactionEquation
     // ReSharper disable once InconsistentNaming
     internal readonly Rational[,] REF;
     internal readonly String Skeletal;
-    internal readonly List<String> Substances;
+    public readonly List<String> Substances;
 
     internal Int32 CompositionMatrixNullity => CCM.ColumnCount() - CompositionMatrixRank;
 

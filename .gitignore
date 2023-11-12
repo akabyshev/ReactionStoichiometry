@@ -3,7 +3,7 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-# Aziz: my stuff to ignore
+# Aziz: stuff to ignore
 testdata/
 
 # User-specific files

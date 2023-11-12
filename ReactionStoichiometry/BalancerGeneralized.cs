@@ -1,9 +1,8 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
-using Properties;
 
-internal sealed class BalancerGeneralized : Balancer
+public sealed class BalancerGeneralized : Balancer
 {
     private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
     private List<Int32>? _freeCoefficientIndices;
@@ -42,7 +41,7 @@ internal sealed class BalancerGeneralized : Balancer
                                             .ToList();
     }
 
-    internal override String ToString(OutputFormat format)
+    public override String ToString(OutputFormat format)
     {
         if (format != OutputFormat.Vectors)
             return base.ToString(format);
@@ -60,7 +59,7 @@ internal sealed class BalancerGeneralized : Balancer
              + '}';
     }
 
-    internal BigInteger[] Instantiate(BigInteger[] parameters)
+    public BigInteger[] Instantiate(BigInteger[] parameters)
     {
         if (parameters.Length != _freeCoefficientIndices!.Count)
             throw new ArgumentOutOfRangeException(nameof(parameters), message: "Array size mismatch");
@@ -82,7 +81,7 @@ internal sealed class BalancerGeneralized : Balancer
         return result;
     }
 
-    internal String? AlgebraicExpressionForCoefficient(Int32 index)
+    public String? AlgebraicExpressionForCoefficient(Int32 index)
     {
         if (_dependentCoefficientExpressions == null)
             throw new InvalidOperationException();
@@ -96,7 +95,7 @@ internal sealed class BalancerGeneralized : Balancer
                                        .Where(predicate: i => expression[i] != 0)
                                        .Select(selector: i =>
                                                          {
-                                                             var coefficient = expression[i] + Settings.Default.MULTIPLICATION_SYMBOL;
+                                                             var coefficient = expression[i] + GlobalConstants.MULTIPLICATION_SYMBOL;
                                                              if (expression[i] == 1)
                                                                  coefficient = String.Empty;
                                                              if (expression[i] == -1)

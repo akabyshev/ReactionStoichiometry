@@ -45,7 +45,7 @@ internal sealed class BalancerInverseBased : Balancer
                                           .ToList();
     }
 
-    internal override String ToString(OutputFormat format)
+    public override String ToString(OutputFormat format)
     {
         if (format != OutputFormat.Vectors)
             return base.ToString(format);

@@ -1,6 +1,6 @@
 ﻿namespace ReactionStoichiometry;
 
-internal sealed class AppSpecificException : InvalidOperationException
+public sealed class AppSpecificException : InvalidOperationException
 {
     private AppSpecificException(String message) : base(message)
     {

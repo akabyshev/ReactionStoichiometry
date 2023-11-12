@@ -1,13 +1,12 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Numerics;
-using Properties;
 
-internal abstract class Balancer
+public abstract class Balancer
 {
     private readonly List<String> _details = new();
 
-    internal readonly ChemicalReactionEquation Equation;
+    public readonly ChemicalReactionEquation Equation;
     private String _failureMessage = String.Empty;
 
     protected Balancer(String equation) => Equation = new ChemicalReactionEquation(equation);
@@ -15,7 +14,7 @@ internal abstract class Balancer
     protected abstract void Balance();
     protected abstract IEnumerable<String> Outcome(); // todo: name?
 
-    internal virtual String ToString(OutputFormat format)
+    public virtual String ToString(OutputFormat format)
     {
         return format switch
         {
@@ -36,7 +35,7 @@ internal abstract class Balancer
         }
     }
 
-    internal Boolean Run()
+    public Boolean Run()
     {
         _details.Add(Equation.CCM.Readable(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
         _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
@@ -60,7 +59,7 @@ internal abstract class Balancer
     }
 
     // ReSharper disable once ArgumentsStyleNamedExpression
-    internal String EquationWithPlaceholders() =>
+    public String EquationWithPlaceholders() =>
         StringOperations.AssembleEquationString(Equation.Substances
                                               , Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
                                               , omit: static _ => false
@@ -68,7 +67,7 @@ internal abstract class Balancer
                                               , predicateGoesToRHS: static _ => false
                                               , allowEmptyRHS: true);
 
-    internal String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
+    public String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
         StringOperations.AssembleEquationString(Equation.Substances
                                               , coefficients
                                               , omit: static value => value.IsZero
@@ -76,7 +75,7 @@ internal abstract class Balancer
                                               , predicateGoesToRHS: static value => value > 0);
 
     #region Nested type: OutputFormat
-    internal enum OutputFormat
+    public enum OutputFormat
     {
         DetailedPlain
       , DetailedHtml
@@ -86,6 +85,6 @@ internal abstract class Balancer
     }
     #endregion
 
-    internal String LabelFor(Int32 i) =>
-        Equation.Substances.Count > Settings.Default.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
+    public String LabelFor(Int32 i) =>
+        Equation.Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
 }

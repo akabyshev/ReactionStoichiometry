@@ -1,9 +1,7 @@
-#define RUN_BASIC_TESTS
+//#define RUN_BASIC_TESTS
 
 
-namespace ReactionStoichiometry;
-
-using System.Diagnostics;
+namespace ReactionStoichiometryLegacyGUI;
 
 file static class Program
 {
