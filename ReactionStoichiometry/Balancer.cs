@@ -16,15 +16,17 @@ namespace ReactionStoichiometry
         }
         #endregion
 
-        private readonly List<String> _details = new();
-
         public readonly ChemicalReactionEquation Equation;
+
+        private readonly List<String> _details = new();
         private String _failureMessage = String.Empty;
 
         protected Balancer(String equation)
         {
             Equation = new ChemicalReactionEquation(equation);
         }
+
+        public abstract Boolean ValidateSolution(BigInteger[] coefficients);
 
         protected abstract void Balance();
         protected abstract IEnumerable<String> Outcome(); // todo: name?

@@ -6,6 +6,8 @@ namespace ReactionStoichiometry
 {
     public sealed class ChemicalReactionEquation
     {
+        public readonly List<String> Substances;
+
         // ReSharper disable once InconsistentNaming
         internal readonly Rational[,] CCM;
         internal readonly Int32 CompositionMatrixRank;
@@ -13,7 +15,6 @@ namespace ReactionStoichiometry
         // ReSharper disable once InconsistentNaming
         internal readonly Rational[,] REF;
         internal readonly String Skeletal;
-        public readonly List<String> Substances;
 
         internal Int32 CompositionMatrixNullity => CCM.ColumnCount() - CompositionMatrixRank;
 
