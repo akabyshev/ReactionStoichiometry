@@ -61,17 +61,19 @@ internal abstract class Balancer
 
     // ReSharper disable once ArgumentsStyleNamedExpression
     internal String EquationWithPlaceholders() =>
-        AssembleEquationString(Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
-                             , omit: static _ => false
-                             , adapter: LabelFor
-                             , predicateGoesToRHS: static _ => false
-                             , allowEmptyRHS: true);
+        StringOperations.AssembleEquationString(Equation.Substances
+                                              , Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
+                                              , omit: static _ => false
+                                              , adapter: LabelFor
+                                              , predicateGoesToRHS: static _ => false
+                                              , allowEmptyRHS: true);
 
     internal String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
-        AssembleEquationString(coefficients
-                             , omit: static value => value.IsZero
-                             , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
-                             , predicateGoesToRHS: static value => value > 0); // ReSharper disable twice InconsistentNaming
+        StringOperations.AssembleEquationString(Equation.Substances
+                                              , coefficients
+                                              , omit: static value => value.IsZero
+                                              , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
+                                              , predicateGoesToRHS: static value => value > 0);
 
     #region Nested type: OutputFormat
     internal enum OutputFormat
@@ -83,36 +85,6 @@ internal abstract class Balancer
       , Vectors
     }
     #endregion
-
-    private String AssembleEquationString<T>(IReadOnlyList<T> values
-                                           , Func<T, Boolean> omit
-                                           , Func<T, String> adapter
-                                           , Func<T, Boolean> predicateGoesToRHS
-                                           , Boolean allowEmptyRHS = false)
-    {
-        List<String> l = new();
-        List<String> r = new();
-
-        for (var i = 0; i < values.Count; i++)
-        {
-            if (omit(values[i]))
-                continue;
-
-            var token = adapter(values[i]);
-            if (token != String.Empty)
-                token += Settings.Default.MULTIPLICATION_SYMBOL;
-
-            (predicateGoesToRHS(values[i]) ? r : l).Add(token + Equation.Substances[i]);
-        }
-
-        if (r.Count == 0 && allowEmptyRHS)
-            r.Add(item: "0");
-
-        if (l.Count == 0 || r.Count == 0)
-            return "Invalid input";
-
-        return String.Join(separator: " + ", l) + " = " + String.Join(separator: " + ", r);
-    }
 
     internal String LabelFor(Int32 i) =>
         Equation.Substances.Count > Settings.Default.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();

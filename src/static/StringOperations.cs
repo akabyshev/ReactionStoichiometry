@@ -1,6 +1,7 @@
 ﻿namespace ReactionStoichiometry;
 
 using System.Text.RegularExpressions;
+using Properties;
 
 internal static class StringOperations
 {
@@ -62,5 +63,37 @@ internal static class StringOperations
         }
 
         return result;
+    }
+
+    // ReSharper disable twice InconsistentNaming
+    internal static String AssembleEquationString<T>(IReadOnlyList<String> strings,
+                                                     IReadOnlyList<T> values
+                                                   , Func<T, Boolean> omit
+                                                   , Func<T, String> adapter
+                                                   , Func<T, Boolean> predicateGoesToRHS
+                                                   , Boolean allowEmptyRHS = false)
+    {
+        List<String> lhs = new();
+        List<String> rhs = new();
+
+        for (var i = 0; i < values.Count; i++)
+        {
+            if (omit(values[i]))
+                continue;
+
+            var token = adapter(values[i]);
+            if (token != String.Empty)
+                token += Settings.Default.MULTIPLICATION_SYMBOL;
+
+            (predicateGoesToRHS(values[i]) ? rhs : lhs).Add(token + strings[i]);
+        }
+
+        if (rhs.Count == 0 && allowEmptyRHS)
+            rhs.Add(item: "0");
+
+        if (lhs.Count == 0 || rhs.Count == 0)
+            return "Invalid input";
+
+        return String.Join(separator: " + ", lhs) + " = " + String.Join(separator: " + ", rhs);
     }
 }
