@@ -5,6 +5,7 @@
 
 # Aziz: stuff to ignore
 testdata/
+batchdata/
 
 # User-specific files
 *.rsuser

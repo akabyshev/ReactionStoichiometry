@@ -3,7 +3,7 @@
 using System.Numerics;
 using Rationals;
 
-internal sealed class BalancerInverseBased : Balancer
+public sealed class BalancerInverseBased : Balancer
 {
     private List<BigInteger[]>? _independentReactions;
 

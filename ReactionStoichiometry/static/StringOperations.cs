@@ -19,7 +19,7 @@ public static class StringOperations
 
     public static Boolean SeemsFine(String s) => Regex.IsMatch(s, SKELETAL_STRUCTURE);
 
-    internal static String UnfoldSubstance(String substance)
+    public static String UnfoldSubstance(String substance)
     {
         var result = substance;
 

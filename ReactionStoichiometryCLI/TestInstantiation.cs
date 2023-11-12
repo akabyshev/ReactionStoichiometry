@@ -1,8 +1,10 @@
-namespace ReactionStoichiometry;
-
 using System.Numerics;
+using ReactionStoichiometry;
 
-internal abstract class TestInstantiation : BasicTest
+
+namespace ReactionStoichiometryCLI;
+
+internal abstract class TestInstantiation : TestPrototype
 {
     internal static void Run()
     {

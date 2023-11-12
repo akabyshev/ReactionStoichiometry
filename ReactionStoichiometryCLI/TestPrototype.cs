@@ -1,6 +1,6 @@
-﻿namespace ReactionStoichiometry;
+﻿namespace ReactionStoichiometryCLI;
 
-internal class BasicTest
+internal class TestPrototype
 {
     protected const String IGNORED_LINE_MARK = "#";
     protected const String CHAR_TAB = "\t";
