@@ -1,17 +1,15 @@
-﻿#define RUN_BASIC_TESTS
+﻿#define RUN_BATCH_PROCESSING
 
 using System.Diagnostics;
 using ReactionStoichiometry;
 using ReactionStoichiometryCLI;
 
-#if RUN_BASIC_TESTS
+#if RUN_BATCH_PROCESSING
 {
     var stopwatch = new Stopwatch();
     stopwatch.Start();
-    TestBasicParsing.Run();
-    TestInstantiation.Run();
-    BatchProcessorVectors.Run();
     BatchProcessorDetailedPlain.Run();
+    BatchProcessorVectors.Run();
     stopwatch.Stop();
     Console.WriteLine($"Batch processing look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
 }

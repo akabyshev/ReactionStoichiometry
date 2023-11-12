@@ -3,7 +3,7 @@
 
 namespace ReactionStoichiometryCLI
 {
-    internal abstract class BatchProcessorVectors : BatchProcessor
+    internal abstract class BatchProcessorVectors
     {
         internal static void Run()
         {
@@ -11,12 +11,12 @@ namespace ReactionStoichiometryCLI
 
             foreach (var type in balancers)
             {
-                using StreamReader reader = new(ConstructPath(filename: "MyBatch"));
-                using StreamWriter writer = new(ConstructPath(nameof(BatchProcessorVectors), type.Name));
+                using StreamReader reader = new(Common.ConstructPath(filename: "MyBatch"));
+                using StreamWriter writer = new(Common.ConstructPath(nameof(BatchProcessorVectors), type.Name));
 
                 while (reader.ReadLine() is { } line)
                 {
-                    if (line.StartsWith(IGNORED_LINE_MARK) || line.Length == 0)
+                    if (line.StartsWith(Common.IGNORED_LINE_MARK) || line.Length == 0)
                     {
                         continue;
                     }
@@ -24,7 +24,7 @@ namespace ReactionStoichiometryCLI
                     balancer.Run();
 
                     writer.WriteLine(line);
-                    writer.WriteLine(CHAR_TAB + balancer.ToString(Balancer.OutputFormat.Vectors));
+                    writer.WriteLine(Common.CHAR_TAB + balancer.ToString(Balancer.OutputFormat.Vectors));
                 }
             }
         }
