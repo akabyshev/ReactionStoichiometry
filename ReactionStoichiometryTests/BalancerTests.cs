@@ -7,6 +7,14 @@ namespace ReactionStoichiometryTests
     public sealed class BalancerTests
     {
         [Fact]
+        public void InvalidEquations()
+        {
+            Assert.Throws<ArgumentException>(() => _ = new BalancerGeneralized(equation: "H2+O2=H2O:"));
+            Assert.Throws<ArgumentException>(() => _ = new BalancerGeneralized(equation: "H2 + O2 = H2O"));
+            Assert.Null(Record.Exception(() => _ = new BalancerGeneralized(equation: "H2+O2=H2O")));
+        }
+
+        [Fact]
         public void Instantiate_CSV()
         {
             using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometryTests\TestInstantiation.csv");
@@ -64,7 +72,7 @@ namespace ReactionStoichiometryTests
             Assert.True(balancer.ValidateSolution(new BigInteger[] { -2, -1, 2 }));
             Assert.True(balancer.ValidateSolution(new BigInteger[] { -4, -2, 4 }));
             Assert.False(balancer.ValidateSolution(new BigInteger[] { -10, 7, -3 }));
-            Assert.Throws<ArgumentException>(() => balancer.ValidateSolution(new BigInteger[] { -2, -1, 2, 2 }));
+            Assert.Throws<ArgumentException>(() => _ = balancer.ValidateSolution(new BigInteger[] { -2, -1, 2, 2 }));
         }
     }
 }

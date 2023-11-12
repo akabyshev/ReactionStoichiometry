@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using Rationals;
+using System.Numerics;
 
 
 namespace ReactionStoichiometry
@@ -26,7 +27,28 @@ namespace ReactionStoichiometry
             Equation = new ChemicalReactionEquation(equation);
         }
 
-        public abstract Boolean ValidateSolution(BigInteger[] coefficients);
+        public Boolean ValidateSolution(BigInteger[] coefficients)
+        {
+            if (coefficients.Length != Equation.Substances.Count)
+            {
+                throw new ArgumentException(message: "Size mismatch");
+            }
+
+            for (var r = 0; r < Equation.CCM.RowCount(); r++)
+            {
+                var sum = Rational.Zero;
+                for (var c = 0; c < Equation.CCM.ColumnCount(); c++)
+                {
+                    sum += Equation.CCM[r, c] * coefficients[c];
+                }
+                if (sum != Rational.Zero)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         protected abstract void Balance();
         protected abstract IEnumerable<String> Outcome(); // todo: name?
@@ -78,8 +100,8 @@ namespace ReactionStoichiometry
         // ReSharper disable once ArgumentsStyleNamedExpression
         public String EquationWithPlaceholders()
         {
-            return StringOperations.AssembleEquationString(Equation.Substances
-                                                         , Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
+            return StringOperations.AssembleEquationString(strings: Equation.Substances
+                                                         , values: Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
                                                          , omit: static _ => false
                                                          , adapter: LabelFor
                                                          , predicateGoesToRHS: static _ => false
@@ -88,7 +110,7 @@ namespace ReactionStoichiometry
 
         public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
         {
-            return StringOperations.AssembleEquationString(Equation.Substances
+            return StringOperations.AssembleEquationString(strings: Equation.Substances
                                                          , coefficients
                                                          , omit: static value => value.IsZero
                                                          , adapter: static value =>

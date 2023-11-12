@@ -8,18 +8,22 @@ namespace ReactionStoichiometry
         internal const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
         internal const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
         private const String CLOSING_PARENTHESIS = @"\)";
+
         private const String INNERMOST_PARENTHESES_WITH_INDEX =
             @$"{OPENING_PARENTHESIS}([^{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+){CLOSING_PARENTHESIS}(\d+)";
+
         private const String NO_INDEX_CLOSING_PARENTHESIS = @$"{CLOSING_PARENTHESIS}(?!\d)";
         private const String NO_INDEX_ELEMENT = $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
         private const String OPENING_PARENTHESIS = @"\(";
+
         private const String SKELETAL_STRUCTURE =
             @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
+
         private const String SUBSTANCE_ALPHABET = @$"[A-Za-z0-9\.{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
 
-        public static Boolean SeemsFine(String s)
+        public static Boolean SeemsFine(String skeletal)
         {
-            return Regex.IsMatch(s, SKELETAL_STRUCTURE);
+            return Regex.IsMatch(skeletal, SKELETAL_STRUCTURE);
         }
 
         public static String UnfoldSubstance(String substance)
@@ -74,12 +78,12 @@ namespace ReactionStoichiometry
         }
 
         // ReSharper disable twice InconsistentNaming
-        internal static String AssembleEquationString<T>(IReadOnlyList<String> strings
-                                                       , IReadOnlyList<T> values
-                                                       , Func<T, Boolean> omit
-                                                       , Func<T, String> adapter
-                                                       , Func<T, Boolean> predicateGoesToRHS
-                                                       , Boolean allowEmptyRHS = false)
+        public static String AssembleEquationString<T>(IReadOnlyList<String> strings
+                                                     , IReadOnlyList<T> values
+                                                     , Func<T, Boolean> omit
+                                                     , Func<T, String> adapter
+                                                     , Func<T, Boolean> predicateGoesToRHS
+                                                     , Boolean allowEmptyRHS = false)
         {
             List<String> lhs = new();
             List<String> rhs = new();
@@ -107,7 +111,7 @@ namespace ReactionStoichiometry
 
             if (lhs.Count == 0 || rhs.Count == 0)
             {
-                return "Invalid input";
+                throw new InvalidOperationException();
             }
 
             return String.Join(separator: " + ", lhs) + " = " + String.Join(separator: " + ", rhs);

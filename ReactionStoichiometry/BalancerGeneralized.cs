@@ -36,11 +36,6 @@ namespace ReactionStoichiometry
                  + '}';
         }
 
-        public override Boolean ValidateSolution(BigInteger[] coefficients)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override IEnumerable<String> Outcome()
         {
             if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)

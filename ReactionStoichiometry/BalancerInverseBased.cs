@@ -33,29 +33,6 @@ namespace ReactionStoichiometry
                  + String.Join(separator: ", ", _independentReactions.Select(selector: static v => '{' + String.Join(separator: ", ", v) + '}'));
         }
 
-        public override Boolean ValidateSolution(BigInteger[] coefficients)
-        {
-            if (coefficients.Length != Equation.Substances.Count)
-            {
-                throw new ArgumentException(message: "Size mismatch");
-            }
-
-            for (var r = 0; r < Equation.CCM.RowCount(); r++)
-            {
-                var sum = Rational.Zero;
-                for (var c = 0; c < Equation.CCM.ColumnCount(); c++)
-                {
-                    sum += Equation.CCM[r, c] * coefficients[c];
-                }
-                if (sum != Rational.Zero)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         protected override IEnumerable<String> Outcome()
         {
             // ReSharper disable once ConvertIfStatementToReturnStatement
