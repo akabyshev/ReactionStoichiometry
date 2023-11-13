@@ -14,7 +14,7 @@ namespace ReactionStoichiometry
 
         public override String ToString(OutputFormat format)
         {
-            if (format != OutputFormat.Vectors)
+            if (format != OutputFormat.SingleLine)
             {
                 return base.ToString(format);
             }
@@ -22,28 +22,24 @@ namespace ReactionStoichiometry
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
             {
-                return "<FAIL>";
+                return GlobalConstants.FAILURE_MARK;
             }
 
             return EquationWithPlaceholders()
                  + " with coefficients "
-                 + "{"
-                 + String.Join(separator: ", "
-                             , Enumerable.Range(start: 0, Equation.Substances.Count)
-                                         .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
-                                                               LabelFor(i) :
-                                                               AlgebraicExpressionForCoefficient(i)))
-                 + '}';
+                 + Enumerable.Range(start: 0, Equation.Substances.Count)
+                             .Select(selector: i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : AlgebraicExpressionForCoefficient(i))
+                             .ToCoefficientNotationString();
         }
 
         protected override IEnumerable<String> Outcome()
         {
             if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
             {
-                return new[] { "<FAIL>" };
+                return new[] { GlobalConstants.FAILURE_MARK };
             }
 
-            List<String> lines = new() { EquationWithPlaceholders() + ", where" };
+            List<String> lines = new();
             lines.AddRange(_dependentCoefficientExpressions.Keys.Select(selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"));
             lines.Add("for any {" + String.Join(separator: ", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
 
@@ -52,19 +48,19 @@ namespace ReactionStoichiometry
 
         protected override void Balance()
         {
-            AppSpecificException.ThrowIf(Equation.REF.IsIdentityMatrix(), message: "SLE is unsolvable");
+            AppSpecificException.ThrowIf(Equation.RREF.IsIdentityMatrix(), message: "SLE is unsolvable");
 
-            _dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.REF.RowCount())
-                                                         .Select(selector: r => Equation.REF.Row(r)
+            _dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.RREF.RowCount())
+                                                         .Select(selector: r => Equation.RREF.Row(r)
                                                                                         .ScaleToIntegers()
                                                                                         .Select(selector: static i => -i)
                                                                                         .ToArray())
                                                          .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
                                                                      , elementSelector: static row => row);
 
-            _freeCoefficientIndices = Enumerable.Range(start: 0, Equation.REF.ColumnCount())
+            _freeCoefficientIndices = Enumerable.Range(start: 0, Equation.RREF.ColumnCount())
                                                 .Where(predicate: c => !_dependentCoefficientExpressions.ContainsKey(c)
-                                                                    && Equation.REF.Column(c).Any(predicate: static t => t != 0))
+                                                                    && Equation.RREF.Column(c).Any(predicate: static t => t != 0))
                                                 .ToList();
         }
 
@@ -72,7 +68,7 @@ namespace ReactionStoichiometry
         {
             if (parameters.Length != _freeCoefficientIndices!.Count)
             {
-                throw new ArgumentOutOfRangeException(nameof(parameters), message: "Array size mismatch");
+                throw new ArgumentException(message: "Array size mismatch", nameof(parameters));
             }
 
             var result = new BigInteger[Equation.Substances.Count];

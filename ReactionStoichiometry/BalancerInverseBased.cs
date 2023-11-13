@@ -17,7 +17,7 @@ namespace ReactionStoichiometry
 
         public override String ToString(OutputFormat format)
         {
-            if (format != OutputFormat.Vectors)
+            if (format != OutputFormat.SingleLine)
             {
                 return base.ToString(format);
             }
@@ -25,12 +25,12 @@ namespace ReactionStoichiometry
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if (_independentReactions == null)
             {
-                return "<FAIL>";
+                return GlobalConstants.FAILURE_MARK;
             }
 
             return EquationWithPlaceholders()
                  + " with coefficients "
-                 + String.Join(separator: ", ", _independentReactions.Select(selector: static v => '{' + String.Join(separator: ", ", v) + '}'));
+                 + String.Join(separator: ", ", _independentReactions.Select(static i => i.ToCoefficientNotationString()));
         }
 
         protected override IEnumerable<String> Outcome()
@@ -38,7 +38,7 @@ namespace ReactionStoichiometry
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if (_independentReactions == null)
             {
-                return new[] { "<FAIL>" };
+                return new[] { GlobalConstants.FAILURE_MARK };
             }
 
             return _independentReactions.Select(EquationWithIntegerCoefficients);
@@ -50,12 +50,12 @@ namespace ReactionStoichiometry
 
             Rational[,] inverse;
             {
-                AppSpecificException.ThrowIf(Equation.REF.RowCount() >= Equation.REF.ColumnCount()
+                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount()
                                            , message: "The method fails on this kind of equations");
 
-                var square = new Rational[Equation.REF.ColumnCount(), Equation.REF.ColumnCount()];
-                Array.Copy(Equation.REF, square, Equation.REF.Length);
-                for (var r = Equation.REF.RowCount(); r < square.RowCount(); r++)
+                var square = new Rational[Equation.RREF.ColumnCount(), Equation.RREF.ColumnCount()];
+                Array.Copy(Equation.RREF, square, Equation.RREF.Length);
+                for (var r = Equation.RREF.RowCount(); r < square.RowCount(); r++)
                 {
                     for (var c = 0; c < square.ColumnCount(); c++)
                     {

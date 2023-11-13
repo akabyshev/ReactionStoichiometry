@@ -13,14 +13,14 @@ namespace ReactionStoichiometry
         internal readonly Int32 CompositionMatrixRank;
 
         // ReSharper disable once InconsistentNaming
-        internal readonly Rational[,] REF;
+        internal readonly Rational[,] RREF;
         internal readonly String Skeletal;
 
         internal Int32 CompositionMatrixNullity => CCM.ColumnCount() - CompositionMatrixRank;
 
         internal ChemicalReactionEquation(String s)
         {
-            if (!StringOperations.SeemsFine(s))
+            if (!s.LooksLikeChemicalReactionEquation())
             {
                 throw new ArgumentException(message: "Invalid string");
             }
@@ -29,11 +29,11 @@ namespace ReactionStoichiometry
             Substances = Skeletal.Split('=', '+').Where(predicate: static s => s != "0").ToList();
             CCM = GetCompositionMatrix();
 
-            REF = (Rational[,])CCM.Clone();
-            REF.TurnIntoREF();
-            RationalMatrixOperations.TrimAndGetCanonicalForms(ref REF);
+            RREF = (Rational[,])CCM.Clone();
+            RREF.TurnIntoRREF();
+            RationalMatrixOperations.TrimAndGetCanonicalForms(ref RREF);
 
-            CompositionMatrixRank = REF.RowCount();
+            CompositionMatrixRank = RREF.RowCount();
         }
 
         private Rational[,] GetCompositionMatrix()

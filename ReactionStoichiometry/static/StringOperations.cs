@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Numerics;
+using System.Text.RegularExpressions;
 
 
 namespace ReactionStoichiometry
@@ -21,9 +22,9 @@ namespace ReactionStoichiometry
 
         private const String SUBSTANCE_ALPHABET = @$"[A-Za-z0-9\.{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
 
-        public static Boolean SeemsFine(String skeletal)
+        public static Boolean LooksLikeChemicalReactionEquation(this String skeletal)
         {
-            return Regex.IsMatch(skeletal, SKELETAL_STRUCTURE);
+            return Regex.IsMatch(skeletal.Replace(oldValue: " ", String.Empty), SKELETAL_STRUCTURE);
         }
 
         public static String UnfoldSubstance(String substance)
@@ -115,6 +116,16 @@ namespace ReactionStoichiometry
             }
 
             return String.Join(separator: " + ", lhs) + " = " + String.Join(separator: " + ", rhs);
+        }
+
+        internal static String ToCoefficientNotationString<T>(this IEnumerable<T> me)
+        {
+            return "{" + String.Join(separator: ", ", me) + "}";
+        }
+
+        public static BigInteger[] GetArraysFromCoefficientNotationString(String s)
+        {
+            return s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse).ToArray();
         }
     }
 }

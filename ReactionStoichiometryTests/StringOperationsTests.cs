@@ -1,6 +1,3 @@
-using ReactionStoichiometry;
-
-
 namespace ReactionStoichiometryTests
 {
     public sealed class StringOperationsTests
@@ -17,16 +14,18 @@ namespace ReactionStoichiometryTests
         }
 
         [Fact]
-        public void SeemsFine_Simple()
+        public void StringLooksLikeChemicalReactionEquation_Simple()
         {
-            Assert.False(StringOperations.SeemsFine(skeletal: "C6H5COOH + O2 -> CO2 + H2O"));
-            Assert.False(StringOperations.SeemsFine(skeletal: "C6H5COOH + O2 = CO2 + H2O"));
-            Assert.True(StringOperations.SeemsFine(skeletal: @"C6H5COOH+O2=CO2+H2O"));
+            Assert.False("C6H5COOH + O2 -> CO2 + H2O".LooksLikeChemicalReactionEquation());
+            Assert.True("C6H5COOH + O2 = CO2 + H2O".LooksLikeChemicalReactionEquation());
+            Assert.True("   C6H5COOH +     O2 = CO2 +  H2O    ".LooksLikeChemicalReactionEquation());
+            Assert.True(@"C6H5COOH+O2=CO2+H2O".LooksLikeChemicalReactionEquation());
         }
 
         [Fact]
         public void AssembleEquationString_Simple()
         {
+            // ReSharper disable once StringLiteralTypo
             var letters = "abcdefg".ToCharArray().Select(static c => c.ToString()).ToList();
             var numbers = "1234567".ToCharArray();
 

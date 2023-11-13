@@ -1,143 +1,91 @@
-﻿using System.Diagnostics;
 using Rationals;
 
 
 namespace ReactionStoichiometry
 {
-    internal static class RationalMatrixOperations
+    public static partial class RationalMatrixOperations
     {
-        internal static void TrimAndGetCanonicalForms(ref Rational[,] matrix)
+        internal static Boolean IsIdentityMatrix(this Rational[,] me)
         {
-            var indexLastRowToCopy = matrix.RowCount() - 1;
-            while (indexLastRowToCopy >= 0 && matrix.Row(indexLastRowToCopy).All(predicate: static r => r == 0))
+            if (me.RowCount() != me.ColumnCount())
             {
-                indexLastRowToCopy--;
+                return false;
             }
 
-            if (indexLastRowToCopy == -1)
+            for (var r = 0; r < me.RowCount(); r++)
             {
-                throw new InvalidOperationException(message: "All-zeroes matrix");
-            }
-
-            var newArray = new Rational[indexLastRowToCopy + 1, matrix.ColumnCount()];
-            for (var r = 0; r < newArray.RowCount(); r++)
-            {
-                for (var c = 0; c < newArray.ColumnCount(); c++)
+                for (var c = 0; c < me.ColumnCount(); c++)
                 {
-                    newArray[r, c] = matrix[r, c].CanonicalForm;
+                    if (r == c && !me[r, c].IsOne)
+                    {
+                        return false;
+                    }
+                    if (r != c && !me[r, c].IsZero)
+                    {
+                        return false;
+                    }
                 }
             }
 
-            matrix = newArray;
+            return true;
         }
 
-        // ReSharper disable once InconsistentNaming
-        internal static void TurnIntoREF(this Rational[,] matrix)
+        public static Int32 RowCount(this Rational[,] me)
         {
-            // Gaussian elimination
-            var leadColumnIndex = 0;
-            for (var r = 0; r < matrix.RowCount(); r++)
-            {
-                if (leadColumnIndex >= matrix.ColumnCount())
-                {
-                    break;
-                }
-
-                var i = r;
-                while (matrix[i, leadColumnIndex].IsZero)
-                {
-                    i++;
-
-                    if (i != matrix.RowCount())
-                    {
-                        continue;
-                    }
-
-                    i = r;
-
-                    if (leadColumnIndex >= matrix.ColumnCount() - 1)
-                    {
-                        break;
-                    }
-
-                    leadColumnIndex++;
-                }
-
-                for (var c = 0; c < matrix.ColumnCount(); c++)
-                {
-                    (matrix[r, c], matrix[i, c]) = (matrix[i, c], matrix[r, c]);
-                }
-
-                var div = matrix[r, leadColumnIndex];
-                if (div != 0)
-                {
-                    for (var c = 0; c < matrix.ColumnCount(); c++)
-                    {
-                        matrix[r, c] = (matrix[r, c] / div).CanonicalForm;
-                    }
-                }
-
-                Parallel.For(fromInclusive: 0
-                           , matrix.RowCount()
-                           , body: k =>
-                                   {
-                                       // ReSharper disable twice AccessToModifiedClosure
-                                       if (k == r)
-                                       {
-                                           return;
-                                       }
-                                       var factor = matrix[k, leadColumnIndex];
-                                       for (var c = 0; c < matrix.ColumnCount(); c++)
-                                       {
-                                           matrix[k, c] = (matrix[k, c] - factor * matrix[r, c]).CanonicalForm;
-                                       }
-                                   });
-                leadColumnIndex++;
-            }
+            return me.GetLength(dimension: 0);
         }
 
-        internal static Rational[,] GetInverse(Rational[,] matrix)
+        internal static Int32 ColumnCount(this Rational[,] me)
         {
-            var size = matrix.RowCount();
-            if (size != matrix.ColumnCount())
+            return me.GetLength(dimension: 1);
+        }
+
+        internal static Rational[] Row(this Rational[,] me, Int32 r)
+        {
+            var result = new Rational[me.ColumnCount()];
+            for (var c = 0; c < me.ColumnCount(); c++)
             {
-                throw new ArgumentException(message: "Non-square matrix");
+                result[c] = me[r, c];
             }
 
-            var augmentedMatrix = new Rational[size, 2 * size];
-            for (var i = 0; i < size; i++)
+            return result;
+        }
+
+        internal static Rational[] Column(this Rational[,] me, Int32 c)
+        {
+            var result = new Rational[me.RowCount()];
+            for (var r = 0; r < me.RowCount(); r++)
             {
-                for (var j = 0; j < size; j++)
-                {
-                    augmentedMatrix[i, j] = matrix[i, j];
-                    augmentedMatrix[i, j + size] = i == j ? 1 : 0;
-                }
+                result[r] = me[r, c];
             }
 
-            augmentedMatrix.TurnIntoREF();
+            return result;
+        }
 
-            var leftHalf = new Rational[size, size];
-            var rightHalf = new Rational[size, size];
-            for (var r = 0; r < size; r++)
+        internal static String Readable(this Rational[,] me
+                                      , String title
+                                      , Func<Int32, String>? rowHeaders = null
+                                      , Func<Int32, String>? columnHeaders = null)
+        {
+            rowHeaders ??= static i => $"R#{i + 1}";
+
+            List<String> result = new() { $"[[{title}]]" };
+
+            if (columnHeaders != null)
             {
-                for (var c = 0; c < size; c++)
-                {
-                    leftHalf[r, c] = augmentedMatrix[r, c];
-                    rightHalf[r, c] = augmentedMatrix[r, c + size];
-                }
+                List<String> line = new() { String.Empty };
+                line.AddRange(Enumerable.Range(start: 0, me.ColumnCount()).Select(columnHeaders));
+                result.Add(String.Join(separator: '\t', line));
             }
 
-            try
+            for (var r = 0; r < me.RowCount(); r++)
             {
-                AppSpecificException.ThrowIf(!leftHalf.IsIdentityMatrix(), message: "Singular matrix");
-                return rightHalf;
+                List<String> line = new() { rowHeaders(r) };
+                line.AddRange(Enumerable.Range(start: 0, me.ColumnCount()).Select(c => me[r, c].ToString()!));
+                result.Add(String.Join(separator: '\t', line));
             }
-            catch
-            {
-                Debug.WriteLine($"Exception at {nameof(GetInverse)}");
-                Debug.WriteLine(augmentedMatrix.Readable(nameof(augmentedMatrix)));
-                throw;
-            }
+
+            return String.Join(Environment.NewLine, result);
         }
     }
 }

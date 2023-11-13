@@ -1,5 +1,4 @@
 using System.Numerics;
-using ReactionStoichiometry;
 
 
 namespace ReactionStoichiometryTests
@@ -7,15 +6,15 @@ namespace ReactionStoichiometryTests
     public sealed class BalancerTests
     {
         [Fact]
-        public void InvalidEquations()
+        public void Balancer_Ctor()
         {
             Assert.Throws<ArgumentException>(() => _ = new BalancerGeneralized(equation: "H2+O2=H2O:"));
-            Assert.Throws<ArgumentException>(() => _ = new BalancerGeneralized(equation: "H2 + O2 = H2O"));
+            Assert.Null(Record.Exception(() => _ = new BalancerGeneralized(equation: "H2 + O2 = H2O")));
             Assert.Null(Record.Exception(() => _ = new BalancerGeneralized(equation: "H2+O2=H2O")));
         }
 
         [Fact]
-        public void Instantiate_CSV()
+        public void Instantiation_CSV()
         {
             using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometryTests\TestInstantiation.csv");
             while (reader.ReadLine() is { } line)
@@ -24,55 +23,127 @@ namespace ReactionStoichiometryTests
                     continue;
 
                 var parts = line.Split(separator: '\t');
-                var eq = parts[0].Replace(oldValue: " ", newValue: "");
+                var eq = parts[0];
 
                 var inverseBased = new BalancerInverseBased(eq);
                 inverseBased.Run();
 
                 var generalized = new BalancerGeneralized(eq);
                 generalized.Run();
+
                 var instances = parts[1]
                                 .Split(separator: ';')
-                                .Select(selector: static s => s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse))
+                                .Select(StringOperations.GetArraysFromCoefficientNotationString)
                                 .Select(selector: parametersSet =>
-                                                      generalized.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet.ToArray())));
+                                                      generalized.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet)));
 
                 Assert.Equal(inverseBased.ToString(Balancer.OutputFormat.OutcomeOnlyCommas), String.Join(separator: ",", instances));
             }
         }
 
         [Fact]
-        public void ValidatingSolutions_Batch()
+        public void InverseBased_ValidateSolution_Batch()
         {
             using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometryTests\70_from_the_book.txt");
 
-            var unique_solution_set_obtained_once = false;
-            var two_set_solution_obtained_once = false;
+            var detectorUniqueSolutionSetObtainedOnce = false;
+            var detectorTwoSetSolutionObtainedOnce = false;
 
             while (reader.ReadLine() is { } line)
             {
                 var balancer = new BalancerInverseBased(line);
-                balancer.Run();
+                Assert.Throws<InvalidOperationException>(() => { _ = balancer.SolutionSets; });
+                Assert.True(balancer.Run());
+                Assert.NotNull(balancer.SolutionSets);
+                Assert.NotEmpty(balancer.SolutionSets);
 
-                unique_solution_set_obtained_once = unique_solution_set_obtained_once || balancer.SolutionSets.Count == 1;
-                two_set_solution_obtained_once = two_set_solution_obtained_once || balancer.SolutionSets.Count == 2;
+                detectorUniqueSolutionSetObtainedOnce = detectorUniqueSolutionSetObtainedOnce || balancer.SolutionSets.Count == 1;
+                detectorTwoSetSolutionObtainedOnce = detectorTwoSetSolutionObtainedOnce || balancer.SolutionSets.Count == 2;
 
                 foreach (var coefficients in balancer.SolutionSets)
                     Assert.True(balancer.ValidateSolution(coefficients));
             }
 
-            Assert.True(unique_solution_set_obtained_once);
-            Assert.True(two_set_solution_obtained_once);
+            Assert.True(detectorUniqueSolutionSetObtainedOnce);
+            Assert.True(detectorTwoSetSolutionObtainedOnce);
         }
 
         [Fact]
-        public void ValidatingSolutions_Simple()
+        public void InverseBased_TruePositive_Simple()
         {
-            var balancer = new BalancerInverseBased(equation: "H2+O2=H2O");
+            const String eq = "H2 + O2 = H2O";
+            var balancer = new BalancerInverseBased(eq);
+            Assert.Throws<InvalidOperationException>(() => { _ = balancer.SolutionSets[index: 0]; });
+            Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.SingleLine));
+
+            Assert.True(balancer.Run());
+            Assert.Null(Record.Exception(() => _ = balancer.SolutionSets[index: 0]));
+            Assert.Equal(expected: "a·H2 + b·O2 + c·H2O = 0 with coefficients {-2, -1, 2}", balancer.ToString(Balancer.OutputFormat.SingleLine));
+        }
+
+        [Fact]
+        public void Generalized_ValidateSolution_Simple()
+        {
+            var balancer = new BalancerGeneralized(equation: "H2+O2=H2O");
             Assert.True(balancer.ValidateSolution(new BigInteger[] { -2, -1, 2 }));
             Assert.True(balancer.ValidateSolution(new BigInteger[] { -4, -2, 4 }));
             Assert.False(balancer.ValidateSolution(new BigInteger[] { -10, 7, -3 }));
             Assert.Throws<ArgumentException>(() => _ = balancer.ValidateSolution(new BigInteger[] { -2, -1, 2, 2 }));
+        }
+
+        [Fact]
+        public void Generalized_Multi_Simple()
+        {
+            const String eq = "TiO2 + C + Cl2 = TiCl4 + CO + CO2";
+            const String sln = "a·TiO2 + b·C + c·Cl2 + d·TiCl4 + e·CO + f·CO2 = 0 with coefficients {(-e - 2·f)/2, -e - f, -e - 2·f, (e + 2·f)/2, e, f}";
+
+            var balancer = new BalancerGeneralized(eq);
+            Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.SingleLine));
+            Assert.Contains(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.DetailedPlain));
+
+            Assert.True(balancer.Run());
+            Assert.Equal(sln, balancer.ToString(Balancer.OutputFormat.SingleLine));
+
+            Assert.Throws<ArgumentException>(() => _ = balancer.Instantiate(new BigInteger[]{2, 5, 3}));
+            Assert.Throws<AppSpecificException>(() => _ = balancer.Instantiate(new BigInteger[] { 3, 2 }));
+
+
+            Assert.Null(Record.Exception(() => _ = balancer.Instantiate(new BigInteger[] { 2, 5 })));
+            Assert.True(balancer.ValidateSolution(balancer.Instantiate(new BigInteger[] { 2, 5 })));
+
+            Assert.True(balancer.ValidateSolution(balancer.Instantiate(new BigInteger[] { 0, 0 })));
+        }
+
+        [Fact]
+        public void Generalized_TrueNegative_Simple()
+        {
+            const String eqUnsolvable = "FeS2+HNO3=Fe2(SO4)3+NO+H2SO4";
+            var balancer = new BalancerGeneralized(eqUnsolvable);
+            Assert.False(balancer.Run());
+            Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.SingleLine));
+            Assert.Contains(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.DetailedPlain));
+        }
+
+        [Fact]
+        public void InverseBased_FalseNegative_Simple()
+        {
+            const String eqInverseBasedCantSolve = "O2+O3+Na+Cl2=NaCl";
+            var inverseBased = new BalancerInverseBased(eqInverseBasedCantSolve);
+            Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.SingleLine));
+            Assert.False(inverseBased.Run());
+            Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.SingleLine));
+
+            var generalized = new BalancerGeneralized(eqInverseBasedCantSolve);
+            Assert.True(generalized.Run());
+
+            Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 0 })));
+            Assert.Throws<InvalidOperationException>(() => inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 0 })));
+
+            Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 2, 0 })));
+            Assert.Equal(expected: "3·O2 = 2·O3", inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 2, 0 })));
+
+            Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 2 })));
+            Assert.Equal(expected: "2·Na + Cl2 = 2·NaCl", inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 2 })));
         }
     }
 }

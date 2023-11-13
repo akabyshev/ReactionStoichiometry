@@ -58,12 +58,12 @@ namespace ReactionStoichiometryLegacyGUI
             txtInstance.Text = String.Empty;
             listPermutator.Items.Clear();
             gridCoefficients.Rows.Clear();
-            buttonBalance.Enabled = StringOperations.SeemsFine(textBoxInput.Text.Replace(oldValue: " ", String.Empty));
+            buttonBalance.Enabled = textBoxInput.Text.LooksLikeChemicalReactionEquation();
         }
 
         private void Balance()
         {
-            var s = textBoxInput.Text.Replace(oldValue: " ", String.Empty);
+            var s = textBoxInput.Text;
 
             _balancer = new BalancerGeneralized(s);
             txtGeneralForm.Text = _balancer.EquationWithPlaceholders();

@@ -13,7 +13,7 @@ namespace ReactionStoichiometry
           , DetailedHtml
           , OutcomeOnlyCommas
           , OutcomeOnlyNewLine
-          , Vectors
+          , SingleLine
         }
         #endregion
 
@@ -24,7 +24,7 @@ namespace ReactionStoichiometry
 
         protected Balancer(String equation)
         {
-            Equation = new ChemicalReactionEquation(equation);
+            Equation = new ChemicalReactionEquation(equation.Replace(oldValue: " ", String.Empty));
         }
 
         public Boolean ValidateSolution(BigInteger[] coefficients)
@@ -61,7 +61,7 @@ namespace ReactionStoichiometry
               , OutputFormat.DetailedHtml => Fill(OutputFormatTemplates.HTML_OUTPUT)
               , OutputFormat.OutcomeOnlyCommas => String.Join(separator: ',', Outcome())
               , OutputFormat.OutcomeOnlyNewLine => String.Join(Environment.NewLine, Outcome())
-              , OutputFormat.Vectors => $"Error: {format} not implemented by {GetType().Name}"
+              , OutputFormat.SingleLine => $"Error: {format} not implemented by {GetType().Name}"
               , _ => throw new ArgumentOutOfRangeException(nameof(format))
             };
 
@@ -82,7 +82,7 @@ namespace ReactionStoichiometry
                                      , Equation.CCM.ColumnCount()
                                      , Equation.CompositionMatrixRank
                                      , Equation.CompositionMatrixNullity));
-            _details.Add(Equation.REF.Readable(title: "REF"));
+            _details.Add(Equation.RREF.Readable(title: "RREF", LabelFor, LabelFor));
 
             try
             {
@@ -97,7 +97,7 @@ namespace ReactionStoichiometry
             return true;
         }
 
-        // ReSharper disable once ArgumentsStyleNamedExpression
+        // ReSharper disable twice ArgumentsStyleNamedExpression
         public String EquationWithPlaceholders()
         {
             return StringOperations.AssembleEquationString(strings: Equation.Substances

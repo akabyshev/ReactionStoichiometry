@@ -9,7 +9,7 @@ using ReactionStoichiometryCLI;
     var stopwatch = new Stopwatch();
     stopwatch.Start();
     BatchProcessorDetailedPlain.Run();
-    BatchProcessorVectors.Run();
+    BatchProcessorSingleLine.Run();
     stopwatch.Stop();
     Console.WriteLine($"Batch processing look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
 }
@@ -18,7 +18,7 @@ using ReactionStoichiometryCLI;
 Console.WriteLine(value: "---------------------------");
 Console.WriteLine(value: "Equation?");
 var equation = Console.ReadLine();
-if (equation != null && StringOperations.SeemsFine(equation))
+if (equation != null && equation.LooksLikeChemicalReactionEquation())
 {
     var b = new BalancerGeneralized(equation);
     b.Run();

@@ -20,7 +20,7 @@ namespace ReactionStoichiometryCLI
                     {
                         continue;
                     }
-                    var balancer = (Balancer)Activator.CreateInstance(type, line.Replace(oldValue: " ", String.Empty))!;
+                    var balancer = (Balancer)Activator.CreateInstance(type, line)!;
                     balancer.Run();
 
                     writer.WriteLine(balancer.ToString(Balancer.OutputFormat.DetailedPlain));
