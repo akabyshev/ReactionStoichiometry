@@ -1,4 +1,5 @@
 ﻿using Rationals;
+using System.Numerics;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ArgumentsStyleLiteral
@@ -11,10 +12,7 @@ namespace ReactionStoichiometry.Tests
         // Use https://www.wolframalpha.com/input/?i=matrix+rank+calculator for Rank
         private readonly Rational[,] _knownMatrix = { { 0, 2, 3, 4 }, { 5, 60, 7, 8 }, { 9, 10, 11, 12 } };
 
-        private readonly Rational[,] _knownMatrixRREF =
-        {
-            { 1, 0, 0, new(-216, 727) }, { 0, 1, 0, new(2, 727) }, { 0, 0, 1, new(968, 727) }
-        };
+        private readonly Rational[,] _knownMatrixRREF = { { 1, 0, 0, new(-216, 727) }, { 0, 1, 0, new(2, 727) }, { 0, 0, 1, new(968, 727) } };
 
         private const Int32 _knownMatrixRank = 3;
 
@@ -49,8 +47,7 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void RREF_Simple()
         {
-            var calculatedRREF = (Rational[,])_knownMatrix.Clone();
-            calculatedRREF.TurnIntoRREF(); // todo: encapsulate to one-liner
+            var calculatedRREF = _knownMatrix.GetRREF();
             RationalMatrixOperations.TrimAndGetCanonicalForms(ref calculatedRREF);
 
             Assert.Equal(_knownMatrixRREF, calculatedRREF);
@@ -70,11 +67,35 @@ namespace ReactionStoichiometry.Tests
             Assert.Null(Record.Exception((Action)(() => RationalMatrixOperations.TrimAndGetCanonicalForms(ref matrix2))));
             Assert.Equal(matrix2_after, matrix2);
 
-            Rational[,] matrix3 = { { 1, 20/10, 300/100 }, { 4/2, 0, 64/32 }, { 0, 0, 0 } };
+            Rational[,] matrix3 = { { 1, new(20, 10), new(300, 100) }, { new(4, 2), 0, new(64, 32) }, { 0, 0, 0 }, { 0, 0, 0 } };
             Rational[,] matrix3_after = { { 1, 2, 3 }, { 2, 0, 2 } };
 
             Assert.Null(Record.Exception((Action)(() => RationalMatrixOperations.TrimAndGetCanonicalForms(ref matrix3))));
             Assert.Equal(matrix3_after, matrix3);
+        }
+
+        [Fact]
+        public void ScaleToIntegers_Simple()
+        {
+            Assert.Equal(0, RationalMatrixOperations.LeastCommonMultiple(0, 0));
+            Assert.Equal(0, RationalMatrixOperations.LeastCommonMultiple(0, 60));
+            Assert.Equal(0, RationalMatrixOperations.LeastCommonMultiple(60, 0));
+            Assert.Equal(407, RationalMatrixOperations.LeastCommonMultiple(37, 11));
+            Assert.Equal(240, RationalMatrixOperations.LeastCommonMultiple(60, 48));
+            Assert.Equal(10, RationalMatrixOperations.LeastCommonMultiple(-5, 10));
+
+            Assert.Equal(new BigInteger[] { 0, 0, 0 }, new Rational[] { 0, 0, 0 }.ScaleToIntegers());
+            Assert.Equal(new BigInteger[] { 1, 2, 3 }, new Rational[] { 1, 2, 3 }.ScaleToIntegers());
+            Assert.Equal(new BigInteger[] { 6, 3, 2 }, new Rational[] { 1, new(1, 2), new(1, 3) }.ScaleToIntegers());
+            Assert.Equal(new BigInteger[] { 132, 11, 12, 0 }, new Rational[] { 1, new(2, 24), new(3, 33), 0 }.ScaleToIntegers());
+        }
+
+        [Fact]
+        public void IsIdentityMatrix_Simple()
+        {
+            Assert.True(new Rational[,] { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }.IsIdentityMatrix());
+            Assert.False(new Rational[,] { { 2, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }.IsIdentityMatrix());
+            Assert.False(new Rational[,] { { 1, 1, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }.IsIdentityMatrix());
         }
     }
 }

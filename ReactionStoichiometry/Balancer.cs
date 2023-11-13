@@ -32,13 +32,13 @@ namespace ReactionStoichiometry
 
         public virtual String ToString(OutputFormat format)
         {
+            // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
             return format switch
             {
                 OutputFormat.DetailedPlain => Fill(OutputFormatTemplates.PLAIN_OUTPUT)
               , OutputFormat.DetailedHtml => Fill(OutputFormatTemplates.HTML_OUTPUT)
               , OutputFormat.OutcomeOnlyCommas => String.Join(separator: ',', Outcome())
               , OutputFormat.OutcomeOnlyNewLine => String.Join(Environment.NewLine, Outcome())
-              , OutputFormat.SingleLine => $"Error: {format} not implemented by {GetType().Name}"
               , _ => throw new ArgumentOutOfRangeException(nameof(format))
             };
 

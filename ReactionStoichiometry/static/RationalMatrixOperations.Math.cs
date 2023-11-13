@@ -32,31 +32,32 @@ namespace ReactionStoichiometry
             matrix = newArray;
         }
 
-        // todo: encapsulate to one-liner
         // ReSharper disable once InconsistentNaming
-        internal static void TurnIntoRREF(this Rational[,] me)
+        internal static Rational[,] GetRREF(this Rational[,] me)
         {
+            var result = (Rational[,]) me.Clone();
+
             var leadColumnIndex = 0;
-            for (var r = 0; r < me.RowCount(); r++)
+            for (var r = 0; r < result.RowCount(); r++)
             {
-                if (leadColumnIndex >= me.ColumnCount())
+                if (leadColumnIndex >= result.ColumnCount())
                 {
                     break;
                 }
 
                 var i = r;
-                while (me[i, leadColumnIndex].IsZero)
+                while (result[i, leadColumnIndex].IsZero)
                 {
                     i++;
 
-                    if (i != me.RowCount())
+                    if (i != result.RowCount())
                     {
                         continue;
                     }
 
                     i = r;
 
-                    if (leadColumnIndex >= me.ColumnCount() - 1)
+                    if (leadColumnIndex >= result.ColumnCount() - 1)
                     {
                         break;
                     }
@@ -64,22 +65,22 @@ namespace ReactionStoichiometry
                     leadColumnIndex++;
                 }
 
-                for (var c = 0; c < me.ColumnCount(); c++)
+                for (var c = 0; c < result.ColumnCount(); c++)
                 {
-                    (me[r, c], me[i, c]) = (me[i, c], me[r, c]);
+                    (result[r, c], result[i, c]) = (result[i, c], result[r, c]);
                 }
 
-                var div = me[r, leadColumnIndex];
+                var div = result[r, leadColumnIndex];
                 if (div != 0)
                 {
-                    for (var c = 0; c < me.ColumnCount(); c++)
+                    for (var c = 0; c < result.ColumnCount(); c++)
                     {
-                        me[r, c] = (me[r, c] / div).CanonicalForm;
+                        result[r, c] = (result[r, c] / div).CanonicalForm;
                     }
                 }
 
                 Parallel.For(fromInclusive: 0
-                           , me.RowCount()
+                           , result.RowCount()
                            , body: k =>
                                    {
                                        // ReSharper disable twice AccessToModifiedClosure
@@ -87,14 +88,16 @@ namespace ReactionStoichiometry
                                        {
                                            return;
                                        }
-                                       var factor = me[k, leadColumnIndex];
-                                       for (var c = 0; c < me.ColumnCount(); c++)
+                                       var factor = result[k, leadColumnIndex];
+                                       for (var c = 0; c < result.ColumnCount(); c++)
                                        {
-                                           me[k, c] = (me[k, c] - factor * me[r, c]).CanonicalForm;
+                                           result[k, c] = (result[k, c] - factor * result[r, c]).CanonicalForm;
                                        }
                                    });
                 leadColumnIndex++;
             }
+
+            return result;
         }
 
         internal static Rational[,] GetInverse(Rational[,] matrix)
@@ -115,7 +118,7 @@ namespace ReactionStoichiometry
                 }
             }
 
-            augmentedMatrix.TurnIntoRREF();
+            var rref = augmentedMatrix.GetRREF();
 
             var leftHalf = new Rational[size, size];
             var rightHalf = new Rational[size, size];
@@ -123,8 +126,8 @@ namespace ReactionStoichiometry
             {
                 for (var c = 0; c < size; c++)
                 {
-                    leftHalf[r, c] = augmentedMatrix[r, c];
-                    rightHalf[r, c] = augmentedMatrix[r, c + size];
+                    leftHalf[r, c] = rref[r, c];
+                    rightHalf[r, c] = rref[r, c + size];
                 }
             }
 
@@ -136,7 +139,7 @@ namespace ReactionStoichiometry
             catch
             {
                 Debug.WriteLine($"Exception at {nameof(GetInverse)}");
-                Debug.WriteLine(augmentedMatrix.Readable(nameof(augmentedMatrix)));
+                Debug.WriteLine(rref.Readable(nameof(rref)));
                 throw;
             }
         }
@@ -146,16 +149,16 @@ namespace ReactionStoichiometry
             var multiple = rationals.Select(selector: static r => r.Denominator).Aggregate(LeastCommonMultiple);
             var wholes = rationals.Select(selector: r => (r * multiple).CanonicalForm.Numerator).ToArray();
             var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
-            return wholes.Select(selector: r => r / divisor).ToArray();
+            return wholes.Select(selector: r => divisor != 0 ? r / divisor : r).ToArray();
+        }
 
-            static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
+        internal static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
+        {
+            if (a == 0 || b == 0)
             {
-                if (a == 0 || b == 0)
-                {
-                    return 0;
-                }
-                return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
+                return 0;
             }
+            return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
         }
     }
 }

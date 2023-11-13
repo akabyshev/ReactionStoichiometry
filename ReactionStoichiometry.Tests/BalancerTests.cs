@@ -16,7 +16,7 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void Instantiation_CSV()
         {
-            using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometryTests\TestInstantiation.csv");
+            using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometry.Tests\TestInstantiation.csv");
             while (reader.ReadLine() is { } line)
             {
                 if (line.StartsWith(value: '#') || line.Length == 0)
@@ -44,7 +44,7 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void InverseBased_ValidateSolution_Batch()
         {
-            using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometryTests\70_from_the_book.txt");
+            using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometry.Tests\70_from_the_book.txt");
 
             var detectorUniqueSolutionSetObtainedOnce = false;
             var detectorTwoSetSolutionObtainedOnce = false;
@@ -131,8 +131,11 @@ namespace ReactionStoichiometry.Tests
             const String eqInverseBasedCantSolve = "O2+O3+Na+Cl2=NaCl";
             var inverseBased = new BalancerInverseBased(eqInverseBasedCantSolve);
             Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.SingleLine));
+            Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.DetailedPlain));
             Assert.False(inverseBased.Run());
             Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.SingleLine));
+            Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.DetailedPlain));
+            Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.DetailedHtml));
 
             var generalized = new BalancerGeneralized(eqInverseBasedCantSolve);
             Assert.True(generalized.Run());
@@ -165,6 +168,21 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(expected: "a = -d,b = -d/2,c = 0,for any {d}", balancer.ToString(Balancer.OutputFormat.OutcomeOnlyCommas));
             Assert.Equal(String.Join(Environment.NewLine, "a = -d", "b = -d/2", "c = 0", "for any {d}")
                        , balancer.ToString(Balancer.OutputFormat.OutcomeOnlyNewLine));
+        }
+
+        [Fact]
+        public void ToString_Simple()
+        {
+            var balancer1 = new BalancerGeneralized(equation: "H2+O2=H2O");
+            Assert.True(balancer1.Run());
+
+            var balancer2 = new BalancerInverseBased(equation: "H2+O2=H2O");
+            Assert.True(balancer2.Run());
+
+            Assert.NotEqual(balancer1.ToString(Balancer.OutputFormat.DetailedPlain), balancer2.ToString(Balancer.OutputFormat.DetailedPlain));
+            Assert.NotEqual(balancer1.ToString(Balancer.OutputFormat.SingleLine), balancer2.ToString(Balancer.OutputFormat.SingleLine));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => { _ = balancer2.ToString((Balancer.OutputFormat) 15); });
         }
     }
 }

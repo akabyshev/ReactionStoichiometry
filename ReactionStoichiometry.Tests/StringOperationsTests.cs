@@ -5,7 +5,7 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void UnfoldSubstance_CSV()
         {
-            using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometryTests\TestBasicParsing.csv");
+            using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometry.Tests\TestBasicParsing.csv");
             while (reader.ReadLine() is { } line)
             {
                 var parts = line.Split(separator: ',');
