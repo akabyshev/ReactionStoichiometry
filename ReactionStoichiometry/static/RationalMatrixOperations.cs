@@ -5,7 +5,7 @@ namespace ReactionStoichiometry
 {
     internal static partial class RationalMatrixOperations
     {
-        public static Int32 RowCount(this Rational[,] me)
+        internal static Int32 RowCount(this Rational[,] me)
         {
             return me.GetLength(dimension: 0);
         }

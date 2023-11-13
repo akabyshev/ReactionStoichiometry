@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactionStoichiometryLegacyGUI", "ReactionStoichiometryLegacyGUI\ReactionStoichiometryLegacyGUI.csproj", "{17E687A8-796B-42C8-BAF2-CAD225C998E3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactionStoichiometry", "ReactionStoichiometry\ReactionStoichiometry.csproj", "{F5709866-6D2A-4068-B562-AFB928FAF62F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactionStoichiometry", "ReactionStoichiometry\ReactionStoichiometry.csproj", "{F5709866-6D2A-4068-B562-AFB928FAF62F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{134B3002-49DF-47F0-A9A4-520A30D426A7}"
 	ProjectSection(SolutionItems) = preProject
@@ -18,9 +16,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactionStoichiometryCLI", "ReactionStoichiometryCLI\ReactionStoichiometryCLI.csproj", "{95DFE00C-3F7E-428C-804E-1083D4835028}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactionStoichiometry.CLI", "ReactionStoichiometry.CLI\ReactionStoichiometry.CLI.csproj", "{0B504DDC-B53A-4F2B-9873-F5F2F843BCB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactionStoichiometryTests", "ReactionStoichiometryTests\ReactionStoichiometryTests.csproj", "{E93EB088-932C-4B35-8FC2-53F4A7C868C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactionStoichiometry.GUI", "ReactionStoichiometry.GUI\ReactionStoichiometry.GUI.csproj", "{BADA5298-DEE5-4853-88D5-DBC3E56D5493}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactionStoichiometry.Tests", "ReactionStoichiometry.Tests\ReactionStoichiometry.Tests.csproj", "{C2B88B70-6C0C-405B-A027-C4052C31CE78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,22 +28,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{17E687A8-796B-42C8-BAF2-CAD225C998E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17E687A8-796B-42C8-BAF2-CAD225C998E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{17E687A8-796B-42C8-BAF2-CAD225C998E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{17E687A8-796B-42C8-BAF2-CAD225C998E3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F5709866-6D2A-4068-B562-AFB928FAF62F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F5709866-6D2A-4068-B562-AFB928FAF62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5709866-6D2A-4068-B562-AFB928FAF62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5709866-6D2A-4068-B562-AFB928FAF62F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{95DFE00C-3F7E-428C-804E-1083D4835028}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{95DFE00C-3F7E-428C-804E-1083D4835028}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{95DFE00C-3F7E-428C-804E-1083D4835028}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{95DFE00C-3F7E-428C-804E-1083D4835028}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E93EB088-932C-4B35-8FC2-53F4A7C868C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E93EB088-932C-4B35-8FC2-53F4A7C868C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E93EB088-932C-4B35-8FC2-53F4A7C868C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E93EB088-932C-4B35-8FC2-53F4A7C868C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B504DDC-B53A-4F2B-9873-F5F2F843BCB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B504DDC-B53A-4F2B-9873-F5F2F843BCB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B504DDC-B53A-4F2B-9873-F5F2F843BCB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B504DDC-B53A-4F2B-9873-F5F2F843BCB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BADA5298-DEE5-4853-88D5-DBC3E56D5493}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BADA5298-DEE5-4853-88D5-DBC3E56D5493}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BADA5298-DEE5-4853-88D5-DBC3E56D5493}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BADA5298-DEE5-4853-88D5-DBC3E56D5493}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2B88B70-6C0C-405B-A027-C4052C31CE78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2B88B70-6C0C-405B-A027-C4052C31CE78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2B88B70-6C0C-405B-A027-C4052C31CE78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2B88B70-6C0C-405B-A027-C4052C31CE78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

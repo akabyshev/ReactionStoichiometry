@@ -1,4 +1,4 @@
-namespace ReactionStoichiometryLegacyGUI
+namespace ReactionStoichiometry.GUI
 {
     file static class Program
     {

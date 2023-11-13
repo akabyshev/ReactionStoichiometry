@@ -1,4 +1,4 @@
-﻿namespace ReactionStoichiometryCLI
+﻿namespace ReactionStoichiometry.CLI
 {
     internal static class Common
     {

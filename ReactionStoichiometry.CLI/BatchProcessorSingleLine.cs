@@ -1,7 +1,4 @@
-﻿using ReactionStoichiometry;
-
-
-namespace ReactionStoichiometryCLI
+﻿namespace ReactionStoichiometry.CLI
 {
     internal abstract class BatchProcessorSingleLine
     {

@@ -1,10 +1,11 @@
 ﻿using Rationals;
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable ArgumentsStyleLiteral
 
-namespace ReactionStoichiometryTests
+namespace ReactionStoichiometry.Tests
 {
-    public sealed class MathTests
+    public sealed class MatrixMathTests
     {
         // Use https://matrixcalc.org or https://www.desmos.com/matrix for Inverse and Determinant
         // Use https://www.wolframalpha.com/input/?i=matrix+rank+calculator for Rank
@@ -12,7 +13,7 @@ namespace ReactionStoichiometryTests
 
         private readonly Rational[,] _knownMatrixRREF =
         {
-            { 1, 0, 0, new Rational(-216, 727) }, { 0, 1, 0, new Rational(2, 727) }, { 0, 0, 1, new Rational(968, 727) }
+            { 1, 0, 0, new(-216, 727) }, { 0, 1, 0, new(2, 727) }, { 0, 0, 1, new(968, 727) }
         };
 
         private const Int32 _knownMatrixRank = 3;
@@ -48,13 +49,32 @@ namespace ReactionStoichiometryTests
         [Fact]
         public void RREF_Simple()
         {
-            var calculatedRREF = (Rational[,]) _knownMatrix.Clone();
+            var calculatedRREF = (Rational[,])_knownMatrix.Clone();
             calculatedRREF.TurnIntoRREF(); // todo: encapsulate to one-liner
             RationalMatrixOperations.TrimAndGetCanonicalForms(ref calculatedRREF);
 
             Assert.Equal(_knownMatrixRREF, calculatedRREF);
             var calculatedRank = calculatedRREF.RowCount();
             Assert.Equal(_knownMatrixRank, calculatedRank);
+        }
+
+        [Fact]
+        public void TrimAndGetCanonicalForms_Simple()
+        {
+            Rational[,] matrix1 = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+            Assert.Throws<InvalidOperationException>(() => RationalMatrixOperations.TrimAndGetCanonicalForms(ref matrix1));
+
+            Rational[,] matrix2 = { { 0, 0, 0 }, { 0, 1, 0 }, { 0, 0, 0 } };
+            Rational[,] matrix2_after = { { 0, 0, 0 }, { 0, 1, 0 } };
+
+            Assert.Null(Record.Exception((Action)(() => RationalMatrixOperations.TrimAndGetCanonicalForms(ref matrix2))));
+            Assert.Equal(matrix2_after, matrix2);
+
+            Rational[,] matrix3 = { { 1, 20/10, 300/100 }, { 4/2, 0, 64/32 }, { 0, 0, 0 } };
+            Rational[,] matrix3_after = { { 1, 2, 3 }, { 2, 0, 2 } };
+
+            Assert.Null(Record.Exception((Action)(() => RationalMatrixOperations.TrimAndGetCanonicalForms(ref matrix3))));
+            Assert.Equal(matrix3_after, matrix3);
         }
     }
 }

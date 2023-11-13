@@ -7,7 +7,7 @@ namespace ReactionStoichiometry
 {
     internal static partial class RationalMatrixOperations
     {
-        public static void TrimAndGetCanonicalForms(ref Rational[,] matrix)
+        internal static void TrimAndGetCanonicalForms(ref Rational[,] matrix)
         {
             var indexLastRowToCopy = matrix.RowCount() - 1;
             while (indexLastRowToCopy >= 0 && matrix.Row(indexLastRowToCopy).All(predicate: static r => r == 0))
@@ -34,7 +34,7 @@ namespace ReactionStoichiometry
 
         // todo: encapsulate to one-liner
         // ReSharper disable once InconsistentNaming
-        public static void TurnIntoRREF(this Rational[,] me)
+        internal static void TurnIntoRREF(this Rational[,] me)
         {
             var leadColumnIndex = 0;
             for (var r = 0; r < me.RowCount(); r++)
@@ -97,7 +97,7 @@ namespace ReactionStoichiometry
             }
         }
 
-        public static Rational[,] GetInverse(Rational[,] matrix)
+        internal static Rational[,] GetInverse(Rational[,] matrix)
         {
             var size = matrix.RowCount();
             if (size != matrix.ColumnCount())
@@ -141,7 +141,7 @@ namespace ReactionStoichiometry
             }
         }
 
-        public static BigInteger[] ScaleToIntegers(this Rational[] rationals)
+        internal static BigInteger[] ScaleToIntegers(this Rational[] rationals)
         {
             var multiple = rationals.Select(selector: static r => r.Denominator).Aggregate(LeastCommonMultiple);
             var wholes = rationals.Select(selector: r => (r * multiple).CanonicalForm.Numerator).ToArray();

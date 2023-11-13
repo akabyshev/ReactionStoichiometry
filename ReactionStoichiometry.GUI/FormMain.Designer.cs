@@ -1,4 +1,4 @@
-﻿namespace ReactionStoichiometryLegacyGUI
+﻿namespace ReactionStoichiometry.GUI
 {
     partial class FormMain
     {

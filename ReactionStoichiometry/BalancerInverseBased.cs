@@ -11,6 +11,7 @@ namespace ReactionStoichiometry
 
         internal ReadOnlyCollection<BigInteger[]> SolutionSets => _independentReactions?.AsReadOnly() ?? throw new InvalidOperationException();
 
+        // ReSharper disable once MemberCanBeInternal
         public BalancerInverseBased(String equation) : base(equation)
         {
         }

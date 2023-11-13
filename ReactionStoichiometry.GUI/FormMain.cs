@@ -1,8 +1,7 @@
 using System.Numerics;
-using ReactionStoichiometry;
 
 
-namespace ReactionStoichiometryLegacyGUI
+namespace ReactionStoichiometry.GUI
 {
     internal sealed partial class FormMain : Form
     {

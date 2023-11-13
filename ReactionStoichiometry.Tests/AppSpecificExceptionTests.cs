@@ -1,4 +1,4 @@
-﻿namespace ReactionStoichiometryTests
+﻿namespace ReactionStoichiometry.Tests
 {
     public sealed class AppSpecificExceptionTests
     {

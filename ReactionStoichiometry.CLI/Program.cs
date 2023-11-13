@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 using ReactionStoichiometry;
-using ReactionStoichiometryCLI;
+using ReactionStoichiometry.CLI;
 
 #if RUN_BATCH_PROCESSING
 {
