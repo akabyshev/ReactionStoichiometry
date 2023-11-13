@@ -49,7 +49,7 @@ namespace ReactionStoichiometryTests
         public void RREF_Simple()
         {
             var calculatedRREF = (Rational[,]) _knownMatrix.Clone();
-            calculatedRREF.TurnIntoRREF();
+            calculatedRREF.TurnIntoRREF(); // todo: encapsulate to one-liner
             RationalMatrixOperations.TrimAndGetCanonicalForms(ref calculatedRREF);
 
             Assert.Equal(_knownMatrixRREF, calculatedRREF);

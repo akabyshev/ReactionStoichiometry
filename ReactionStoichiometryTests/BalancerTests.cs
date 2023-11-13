@@ -95,7 +95,8 @@ namespace ReactionStoichiometryTests
         public void Generalized_Multi_Simple()
         {
             const String eq = "TiO2 + C + Cl2 = TiCl4 + CO + CO2";
-            const String sln = "a·TiO2 + b·C + c·Cl2 + d·TiCl4 + e·CO + f·CO2 = 0 with coefficients {(-e - 2·f)/2, -e - f, -e - 2·f, (e + 2·f)/2, e, f}";
+            const String sln =
+                "a·TiO2 + b·C + c·Cl2 + d·TiCl4 + e·CO + f·CO2 = 0 with coefficients {(-e - 2·f)/2, -e - f, -e - 2·f, (e + 2·f)/2, e, f}";
 
             var balancer = new BalancerGeneralized(eq);
             Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.SingleLine));
@@ -104,7 +105,7 @@ namespace ReactionStoichiometryTests
             Assert.True(balancer.Run());
             Assert.Equal(sln, balancer.ToString(Balancer.OutputFormat.SingleLine));
 
-            Assert.Throws<ArgumentException>(() => _ = balancer.Instantiate(new BigInteger[]{2, 5, 3}));
+            Assert.Throws<ArgumentException>(() => _ = balancer.Instantiate(new BigInteger[] { 2, 5, 3 }));
             Assert.Throws<AppSpecificException>(() => _ = balancer.Instantiate(new BigInteger[] { 3, 2 }));
 
 
@@ -137,13 +138,33 @@ namespace ReactionStoichiometryTests
             Assert.True(generalized.Run());
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 0 })));
-            Assert.Throws<InvalidOperationException>(() => inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 0 })));
+            Assert.Throws<InvalidOperationException>(
+                () => inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 0 })));
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 2, 0 })));
             Assert.Equal(expected: "3·O2 = 2·O3", inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 2, 0 })));
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 2 })));
-            Assert.Equal(expected: "2·Na + Cl2 = 2·NaCl", inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 2 })));
+            Assert.Equal(expected: "2·Na + Cl2 = 2·NaCl"
+                       , inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 2 })));
+        }
+
+        [Fact]
+        public void AlgebraicExpressionForCoefficient_Simple()
+        {
+            var balancer = new BalancerGeneralized(equation: "H2+O2+Na=H2O");
+            Assert.Throws<InvalidOperationException>(() => { _ = balancer.AlgebraicExpressionForCoefficient(index: 0); });
+            Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.OutcomeOnlyCommas));
+
+            Assert.True(balancer.Run());
+            Assert.Equal(expected: "-d", balancer.AlgebraicExpressionForCoefficient(index: 0));
+            Assert.Equal(expected: "-d/2", balancer.AlgebraicExpressionForCoefficient(index: 1));
+            Assert.Equal(expected: "0", balancer.AlgebraicExpressionForCoefficient(index: 2));
+            Assert.Null(balancer.AlgebraicExpressionForCoefficient(index: 3));
+
+            Assert.Equal(expected: "a = -d,b = -d/2,c = 0,for any {d}", balancer.ToString(Balancer.OutputFormat.OutcomeOnlyCommas));
+            Assert.Equal(String.Join(Environment.NewLine, "a = -d", "b = -d/2", "c = 0", "for any {d}")
+                       , balancer.ToString(Balancer.OutputFormat.OutcomeOnlyNewLine));
         }
     }
 }

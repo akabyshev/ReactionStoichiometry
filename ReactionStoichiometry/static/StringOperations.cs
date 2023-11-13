@@ -27,7 +27,7 @@ namespace ReactionStoichiometry
             return Regex.IsMatch(skeletal.Replace(oldValue: " ", String.Empty), SKELETAL_STRUCTURE);
         }
 
-        public static String UnfoldSubstance(String substance)
+        internal static String UnfoldSubstance(String substance)
         {
             var result = substance;
 
@@ -76,15 +76,13 @@ namespace ReactionStoichiometry
             }
 
             return result;
-        }
-
-        // ReSharper disable twice InconsistentNaming
-        public static String AssembleEquationString<T>(IReadOnlyList<String> strings
-                                                     , IReadOnlyList<T> values
-                                                     , Func<T, Boolean> omit
-                                                     , Func<T, String> adapter
-                                                     , Func<T, Boolean> predicateGoesToRHS
-                                                     , Boolean allowEmptyRHS = false)
+        } // ReSharper disable twice InconsistentNaming
+        internal static String AssembleEquationString<T>(IReadOnlyList<String> strings
+                                                       , IReadOnlyList<T> values
+                                                       , Func<T, Boolean> omit
+                                                       , Func<T, String> adapter
+                                                       , Func<T, Boolean> predicateGoesToRHS
+                                                       , Boolean allowEmptyRHS = false)
         {
             List<String> lhs = new();
             List<String> rhs = new();
@@ -123,7 +121,7 @@ namespace ReactionStoichiometry
             return "{" + String.Join(separator: ", ", me) + "}";
         }
 
-        public static BigInteger[] GetArraysFromCoefficientNotationString(String s)
+        internal static BigInteger[] GetArraysFromCoefficientNotationString(String s)
         {
             return s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse).ToArray();
         }

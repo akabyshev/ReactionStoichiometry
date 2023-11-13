@@ -9,7 +9,7 @@ namespace ReactionStoichiometry
     {
         private List<BigInteger[]>? _independentReactions;
 
-        public ReadOnlyCollection<BigInteger[]> SolutionSets => _independentReactions?.AsReadOnly() ?? throw new InvalidOperationException();
+        internal ReadOnlyCollection<BigInteger[]> SolutionSets => _independentReactions?.AsReadOnly() ?? throw new InvalidOperationException();
 
         public BalancerInverseBased(String equation) : base(equation)
         {
@@ -30,7 +30,7 @@ namespace ReactionStoichiometry
 
             return EquationWithPlaceholders()
                  + " with coefficients "
-                 + String.Join(separator: ", ", _independentReactions.Select(static i => i.ToCoefficientNotationString()));
+                 + String.Join(separator: ", ", _independentReactions.Select(selector: static i => i.ToCoefficientNotationString()));
         }
 
         protected override IEnumerable<String> Outcome()

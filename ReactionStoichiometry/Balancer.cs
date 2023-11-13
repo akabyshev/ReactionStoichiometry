@@ -1,5 +1,5 @@
-﻿using Rationals;
-using System.Numerics;
+﻿using System.Numerics;
+using Rationals;
 
 
 namespace ReactionStoichiometry
@@ -25,29 +25,6 @@ namespace ReactionStoichiometry
         protected Balancer(String equation)
         {
             Equation = new ChemicalReactionEquation(equation.Replace(oldValue: " ", String.Empty));
-        }
-
-        public Boolean ValidateSolution(BigInteger[] coefficients)
-        {
-            if (coefficients.Length != Equation.Substances.Count)
-            {
-                throw new ArgumentException(message: "Size mismatch");
-            }
-
-            for (var r = 0; r < Equation.CCM.RowCount(); r++)
-            {
-                var sum = Rational.Zero;
-                for (var c = 0; c < Equation.CCM.ColumnCount(); c++)
-                {
-                    sum += Equation.CCM[r, c] * coefficients[c];
-                }
-                if (sum != Rational.Zero)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         protected abstract void Balance();
@@ -97,11 +74,32 @@ namespace ReactionStoichiometry
             return true;
         }
 
-        // ReSharper disable twice ArgumentsStyleNamedExpression
+        internal Boolean ValidateSolution(BigInteger[] coefficients)
+        {
+            if (coefficients.Length != Equation.Substances.Count)
+            {
+                throw new ArgumentException(message: "Size mismatch");
+            }
+
+            for (var r = 0; r < Equation.CCM.RowCount(); r++)
+            {
+                var sum = Rational.Zero;
+                for (var c = 0; c < Equation.CCM.ColumnCount(); c++)
+                {
+                    sum += Equation.CCM[r, c] * coefficients[c];
+                }
+                if (sum != Rational.Zero)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        } // ReSharper disable twice ArgumentsStyleNamedExpression
         public String EquationWithPlaceholders()
         {
             return StringOperations.AssembleEquationString(strings: Equation.Substances
-                                                         , values: Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
+                                                         , Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
                                                          , omit: static _ => false
                                                          , adapter: LabelFor
                                                          , predicateGoesToRHS: static _ => false

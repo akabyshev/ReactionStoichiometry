@@ -5,7 +5,7 @@ using Rationals;
 
 namespace ReactionStoichiometry
 {
-    public static partial class RationalMatrixOperations
+    internal static partial class RationalMatrixOperations
     {
         public static void TrimAndGetCanonicalForms(ref Rational[,] matrix)
         {
@@ -32,6 +32,7 @@ namespace ReactionStoichiometry
             matrix = newArray;
         }
 
+        // todo: encapsulate to one-liner
         // ReSharper disable once InconsistentNaming
         public static void TurnIntoRREF(this Rational[,] me)
         {

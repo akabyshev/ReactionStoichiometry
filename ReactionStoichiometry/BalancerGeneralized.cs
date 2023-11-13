@@ -90,7 +90,7 @@ namespace ReactionStoichiometry
             return result;
         }
 
-        public String? AlgebraicExpressionForCoefficient(Int32 index)
+        public String AlgebraicExpressionForCoefficient(Int32 index)
         {
             if (_dependentCoefficientExpressions == null)
             {
@@ -99,7 +99,7 @@ namespace ReactionStoichiometry
 
             if (!_dependentCoefficientExpressions.ContainsKey(index))
             {
-                return null;
+                return null!;
             }
 
             var expression = _dependentCoefficientExpressions[index];

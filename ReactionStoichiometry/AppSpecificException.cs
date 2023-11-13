@@ -6,7 +6,7 @@
         {
         }
 
-        public static void ThrowIf(Boolean condition, String message)
+        internal static void ThrowIf(Boolean condition, String message)
         {
             if (condition)
             {

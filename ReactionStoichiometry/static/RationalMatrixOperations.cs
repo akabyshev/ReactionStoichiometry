@@ -3,8 +3,13 @@ using Rationals;
 
 namespace ReactionStoichiometry
 {
-    public static partial class RationalMatrixOperations
+    internal static partial class RationalMatrixOperations
     {
+        public static Int32 RowCount(this Rational[,] me)
+        {
+            return me.GetLength(dimension: 0);
+        }
+
         internal static Boolean IsIdentityMatrix(this Rational[,] me)
         {
             if (me.RowCount() != me.ColumnCount())
@@ -28,11 +33,6 @@ namespace ReactionStoichiometry
             }
 
             return true;
-        }
-
-        public static Int32 RowCount(this Rational[,] me)
-        {
-            return me.GetLength(dimension: 0);
         }
 
         internal static Int32 ColumnCount(this Rational[,] me)
@@ -81,7 +81,7 @@ namespace ReactionStoichiometry
             for (var r = 0; r < me.RowCount(); r++)
             {
                 List<String> line = new() { rowHeaders(r) };
-                line.AddRange(Enumerable.Range(start: 0, me.ColumnCount()).Select(c => me[r, c].ToString()!));
+                line.AddRange(Enumerable.Range(start: 0, me.ColumnCount()).Select(selector: c => me[r, c].ToString()!));
                 result.Add(String.Join(separator: '\t', line));
             }
 
