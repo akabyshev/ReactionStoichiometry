@@ -10,9 +10,8 @@ namespace ReactionStoichiometry
         public enum OutputFormat
         {
             Simple
-          , SeparateLines
-          , DetailedPlain
-          , DetailedHtml
+          , Multiline
+          , DetailedMultiline
         }
         #endregion
 
@@ -25,7 +24,7 @@ namespace ReactionStoichiometry
         protected Balancer(String equation)
         {
             Equation = new ChemicalReactionEquation(equation.Replace(oldValue: " ", String.Empty));
-            _details.Add(Equation.CCM.Readable(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
+            _details.Add(Equation.CCM.Readable(title: "CCM", columnHeaders: i => Equation.Substances[i]));
             _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
                                      , Equation.CCM.RowCount()
                                      , Equation.CCM.ColumnCount()
@@ -41,16 +40,15 @@ namespace ReactionStoichiometry
             // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
             return format switch
             {
-                OutputFormat.DetailedPlain => Fill(OutputFormatTemplates.PLAIN_OUTPUT)
-              , OutputFormat.DetailedHtml => Fill(OutputFormatTemplates.HTML_OUTPUT)
+                OutputFormat.DetailedMultiline => FillTemplate(OutputFormatTemplates.MULTILINE_TEMPLATE)
               , _ => throw new ArgumentOutOfRangeException(nameof(format))
             };
 
-            String Fill(String template)
+            String FillTemplate(String template)
             {
                 return template.Replace(oldValue: "%Skeletal%", Equation.Skeletal)
                                .Replace(oldValue: "%Details%", String.Join(Environment.NewLine, _details))
-                               .Replace(oldValue: "%Outcome%", ToString(OutputFormat.SeparateLines))
+                               .Replace(oldValue: "%Outcome%", ToString(OutputFormat.Multiline))
                                .Replace(oldValue: "%Diagnostics%", _failureMessage);
             }
         }

@@ -66,9 +66,9 @@ namespace ReactionStoichiometry
 
         internal static String Readable(this Rational[,] me, String title, Func<Int32, String>? rowHeaders = null, Func<Int32, String>? columnHeaders = null)
         {
-            rowHeaders ??= static i => $"R#{i + 1}";
+            rowHeaders ??= static i => $"R{i + 1:D2}";
 
-            List<String> result = new() { $"[[{title}]]" };
+            List<String> result = new() { title + ":" };
 
             if (columnHeaders != null)
             {
@@ -88,7 +88,7 @@ namespace ReactionStoichiometry
         }
 
         // ReSharper disable once InconsistentNaming
-        internal static Rational[,] GetRREF(this Rational[,] me)
+        internal static Rational[,] GetRREF(this Rational[,] me, Boolean trim)
         {
             var result = (Rational[,])me.Clone();
 
@@ -152,6 +152,9 @@ namespace ReactionStoichiometry
                 leadColumnIndex++;
             }
 
+            if (trim)
+                Helpers.TrimAndGetCanonicalForms(ref result);
+
             return result;
         }
 
@@ -173,7 +176,7 @@ namespace ReactionStoichiometry
                 }
             }
 
-            var rref = augmentedMatrix.GetRREF();
+            var rref = augmentedMatrix.GetRREF(trim: false);
 
             var leftHalf = new Rational[size, size];
             var rightHalf = new Rational[size, size];

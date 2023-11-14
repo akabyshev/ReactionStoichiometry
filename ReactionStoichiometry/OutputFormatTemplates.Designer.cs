@@ -61,40 +61,18 @@ namespace ReactionStoichiometry {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
-        ///&lt;html&gt;
-        ///&lt;head&gt;
-        ///    &lt;title&gt;ReactionStoichiometry&lt;/title&gt;
-        ///&lt;/head&gt;
-        ///&lt;body&gt;
-        ///&lt;h2&gt;Input&lt;/h2&gt;
-        ///&lt;pre&gt;%Skeletal%&lt;/pre&gt;
-        ///&lt;h3&gt;Details&lt;/h3&gt;
-        ///&lt;pre&gt;%Details%&lt;/pre&gt;
-        ///&lt;h2&gt;Output&lt;/h2&gt;
-        ///&lt;pre&gt;%Outcome%&lt;/pre&gt;
-        ///&lt;h3&gt;Diagnostics&lt;/h3&gt;
-        ///&lt;p&gt;%Diagnostics%&lt;/p&gt;
-        ///&lt;/body&gt;
-        ///&lt;/html&gt;.
-        /// </summary>
-        internal static string HTML_OUTPUT {
-            get {
-                return ResourceManager.GetString("HTML_OUTPUT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Details:
+        ///   Looks up a localized string similar to [Input]
+        ///%Skeletal%
+        ///[Details]
         ///%Details%
-        ///Output:
+        ///[Output]
         ///%Outcome%
-        ///Diagnostics:
+        ///[Diagnostics]
         ///%Diagnostics%.
         /// </summary>
-        internal static string PLAIN_OUTPUT {
+        internal static string MULTILINE_TEMPLATE {
             get {
-                return ResourceManager.GetString("PLAIN_OUTPUT", resourceCulture);
+                return ResourceManager.GetString("MULTILINE_TEMPLATE", resourceCulture);
             }
         }
     }

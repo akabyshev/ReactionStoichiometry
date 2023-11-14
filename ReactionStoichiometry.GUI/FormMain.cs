@@ -50,8 +50,7 @@ namespace ReactionStoichiometry.GUI
 
         private void ResetControls()
         {
-            txtDetailedPlain.Text = String.Empty;
-            txtDetailedHtml.Text = String.Empty;
+            txtDetailedMultiline.Text = String.Empty;
             txtGeneralForm.Text = String.Empty;
             txtInstance.Text = String.Empty;
             listPermutator.Items.Clear();
@@ -70,8 +69,7 @@ namespace ReactionStoichiometry.GUI
             {
                 InitInstantiation();
                 InitPermutation();
-                txtDetailedPlain.Text = _balancer.ToString(Balancer.OutputFormat.DetailedPlain);
-                txtDetailedHtml.Text = _balancer.ToString(Balancer.OutputFormat.DetailedHtml);
+                txtDetailedMultiline.Text = _balancer.ToString(Balancer.OutputFormat.DetailedMultiline);
             }
             else
             {

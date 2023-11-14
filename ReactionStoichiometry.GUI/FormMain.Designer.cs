@@ -28,10 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             containerInput = new GroupBox();
             textBoxInput = new TextBox();
             buttonBalance = new Button();
@@ -46,17 +46,14 @@
             IsFreeVariable = new DataGridViewCheckBoxColumn();
             tabPermutate = new TabPage();
             listPermutator = new ListBox();
-            tabPlain = new TabPage();
-            txtDetailedPlain = new TextBox();
-            tabHtml = new TabPage();
-            txtDetailedHtml = new TextBox();
+            tabDetailedMultiline = new TabPage();
+            txtDetailedMultiline = new TextBox();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
             tabInstantiate.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).BeginInit();
             tabPermutate.SuspendLayout();
-            tabPlain.SuspendLayout();
-            tabHtml.SuspendLayout();
+            tabDetailedMultiline.SuspendLayout();
             SuspendLayout();
             // 
             // containerInput
@@ -112,8 +109,7 @@
             // 
             theTabControl.Controls.Add(tabInstantiate);
             theTabControl.Controls.Add(tabPermutate);
-            theTabControl.Controls.Add(tabPlain);
-            theTabControl.Controls.Add(tabHtml);
+            theTabControl.Controls.Add(tabDetailedMultiline);
             theTabControl.Dock = DockStyle.Fill;
             theTabControl.Location = new Point(0, 273);
             theTabControl.Name = "theTabControl";
@@ -151,27 +147,27 @@
             gridCoefficients.AllowUserToResizeColumns = false;
             gridCoefficients.AllowUserToResizeRows = false;
             gridCoefficients.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle5.BackColor = SystemColors.Control;
-            dataGridViewCellStyle5.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            dataGridViewCellStyle5.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle5.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = DataGridViewTriState.True;
-            gridCoefficients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = SystemColors.Control;
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            gridCoefficients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             gridCoefficients.ColumnHeadersHeight = 58;
             gridCoefficients.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             gridCoefficients.Columns.AddRange(new DataGridViewColumn[] { Substance, Expression, Value, IsFreeVariable });
             gridCoefficients.Dock = DockStyle.Fill;
             gridCoefficients.Location = new Point(3, 3);
             gridCoefficients.Name = "gridCoefficients";
-            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = SystemColors.Control;
-            dataGridViewCellStyle8.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle8.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
-            gridCoefficients.RowHeadersDefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = SystemColors.Control;
+            dataGridViewCellStyle4.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle4.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+            gridCoefficients.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             gridCoefficients.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             gridCoefficients.RowTemplate.Height = 49;
             gridCoefficients.SelectionMode = DataGridViewSelectionMode.CellSelect;
@@ -195,8 +191,8 @@
             // Expression
             // 
             Expression.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleRight;
-            Expression.DefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleRight;
+            Expression.DefaultCellStyle = dataGridViewCellStyle2;
             Expression.HeaderText = "Expression";
             Expression.MinimumWidth = 12;
             Expression.Name = "Expression";
@@ -207,8 +203,8 @@
             // Value
             // 
             Value.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleRight;
-            Value.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleRight;
+            Value.DefaultCellStyle = dataGridViewCellStyle3;
             Value.HeaderText = "Value";
             Value.MinimumWidth = 12;
             Value.Name = "Value";
@@ -247,50 +243,28 @@
             listPermutator.TabStop = false;
             listPermutator.MouseDoubleClick += OnListMouseDoubleClick;
             // 
-            // tabPlain
+            // tabDetailedMultiline
             // 
-            tabPlain.Controls.Add(txtDetailedPlain);
-            tabPlain.Location = new Point(10, 58);
-            tabPlain.Name = "tabPlain";
-            tabPlain.Padding = new Padding(3);
-            tabPlain.Size = new Size(1868, 651);
-            tabPlain.TabIndex = 0;
-            tabPlain.Text = "Plain text";
-            tabPlain.UseVisualStyleBackColor = true;
+            tabDetailedMultiline.Controls.Add(txtDetailedMultiline);
+            tabDetailedMultiline.Location = new Point(10, 58);
+            tabDetailedMultiline.Name = "tabDetailedMultiline";
+            tabDetailedMultiline.Padding = new Padding(3);
+            tabDetailedMultiline.Size = new Size(1868, 651);
+            tabDetailedMultiline.TabIndex = 0;
+            tabDetailedMultiline.Text = "Text";
+            tabDetailedMultiline.UseVisualStyleBackColor = true;
             // 
-            // txtDetailedPlain
+            // txtDetailedMultiline
             // 
-            txtDetailedPlain.Dock = DockStyle.Fill;
-            txtDetailedPlain.Location = new Point(3, 3);
-            txtDetailedPlain.Multiline = true;
-            txtDetailedPlain.Name = "txtDetailedPlain";
-            txtDetailedPlain.ReadOnly = true;
-            txtDetailedPlain.ScrollBars = ScrollBars.Both;
-            txtDetailedPlain.Size = new Size(1862, 645);
-            txtDetailedPlain.TabIndex = 0;
-            txtDetailedPlain.WordWrap = false;
-            // 
-            // tabHtml
-            // 
-            tabHtml.Controls.Add(txtDetailedHtml);
-            tabHtml.Location = new Point(10, 58);
-            tabHtml.Name = "tabHtml";
-            tabHtml.Padding = new Padding(3);
-            tabHtml.Size = new Size(1868, 651);
-            tabHtml.TabIndex = 1;
-            tabHtml.Text = "HTML";
-            tabHtml.UseVisualStyleBackColor = true;
-            // 
-            // txtDetailedHtml
-            // 
-            txtDetailedHtml.Dock = DockStyle.Fill;
-            txtDetailedHtml.Location = new Point(3, 3);
-            txtDetailedHtml.Multiline = true;
-            txtDetailedHtml.Name = "txtDetailedHtml";
-            txtDetailedHtml.ReadOnly = true;
-            txtDetailedHtml.Size = new Size(1862, 645);
-            txtDetailedHtml.TabIndex = 1;
-            txtDetailedHtml.WordWrap = false;
+            txtDetailedMultiline.Dock = DockStyle.Fill;
+            txtDetailedMultiline.Location = new Point(3, 3);
+            txtDetailedMultiline.Multiline = true;
+            txtDetailedMultiline.Name = "txtDetailedMultiline";
+            txtDetailedMultiline.ReadOnly = true;
+            txtDetailedMultiline.ScrollBars = ScrollBars.Both;
+            txtDetailedMultiline.Size = new Size(1862, 645);
+            txtDetailedMultiline.TabIndex = 0;
+            txtDetailedMultiline.WordWrap = false;
             // 
             // FormMain
             // 
@@ -309,10 +283,8 @@
             tabInstantiate.PerformLayout();
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).EndInit();
             tabPermutate.ResumeLayout(false);
-            tabPlain.ResumeLayout(false);
-            tabPlain.PerformLayout();
-            tabHtml.ResumeLayout(false);
-            tabHtml.PerformLayout();
+            tabDetailedMultiline.ResumeLayout(false);
+            tabDetailedMultiline.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -322,12 +294,10 @@
         private Button buttonBalance;
         private TextBox textBoxInput;
         private TabControl theTabControl;
-        private TabPage tabPlain;
-        private TabPage tabHtml;
+        private TabPage tabDetailedMultiline;
         private TabPage tabInstantiate;
         private TabPage tabPermutate;
-        private TextBox txtDetailedPlain;
-        private TextBox txtDetailedHtml;
+        private TextBox txtDetailedMultiline;
         private DataGridView gridCoefficients;
         private DataGridViewTextBoxColumn Substance;
         private DataGridViewTextBoxColumn Expression;

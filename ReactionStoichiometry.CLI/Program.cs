@@ -11,10 +11,6 @@ stopwatch.Start();
 // ReSharper disable once LoopCanBePartlyConvertedToQuery
 foreach (Balancer.OutputFormat format in Enum.GetValues(typeof(Balancer.OutputFormat)))
 {
-    if (format == Balancer.OutputFormat.DetailedHtml)
-    {
-        continue;
-    }
     BatchProcessor.Run(format);
 }
 stopwatch.Stop();
@@ -28,5 +24,5 @@ if (equation != null && equation.LooksLikeChemicalReactionEquation())
 {
     var b = new BalancerGeneralized(equation);
     b.Run();
-    Console.WriteLine(b.ToString(Balancer.OutputFormat.DetailedPlain));
+    Console.WriteLine(b.ToString(Balancer.OutputFormat.DetailedMultiline));
 }

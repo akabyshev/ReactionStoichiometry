@@ -22,9 +22,10 @@
                     var balancer = (Balancer)Activator.CreateInstance(type, line)!;
                     balancer.Run();
 
-                    writer.WriteLine(line);
+                    if (format != Balancer.OutputFormat.DetailedMultiline)
+                        writer.WriteLine(line);
                     writer.WriteLine(balancer.ToString(format));
-                    writer.WriteLine(value: "----------------------------------------");
+                    writer.WriteLine();
                 }
             }
         }

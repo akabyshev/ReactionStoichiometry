@@ -117,30 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="HTML_OUTPUT" xml:space="preserve">
-    <value><![CDATA[<!DOCTYPE html>
-<html>
-<head>
-    <title>ReactionStoichiometry</title>
-</head>
-<body>
-<h2>Input</h2>
-<pre>%Skeletal%</pre>
-<h3>Details</h3>
-<pre>%Details%</pre>
-<h2>Output</h2>
-<pre>%Outcome%</pre>
-<h3>Diagnostics</h3>
-<p>%Diagnostics%</p>
-</body>
-</html>]]></value>
-  </data>
-  <data name="PLAIN_OUTPUT" xml:space="preserve">
-    <value>Details:
+  <data name="MULTILINE_TEMPLATE" xml:space="preserve">
+    <value>[Input]
+%Skeletal%
+[Details]
 %Details%
-Output:
+[Output]
 %Outcome%
-Diagnostics:
+[Diagnostics]
 %Diagnostics%</value>
   </data>
 </root>

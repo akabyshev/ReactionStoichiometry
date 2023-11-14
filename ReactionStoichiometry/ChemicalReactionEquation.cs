@@ -28,10 +28,7 @@ namespace ReactionStoichiometry
 
             Substances = Skeletal.Split('=', '+').Where(predicate: static s => s != "0").ToList();
             CCM = GetCompositionMatrix();
-
-            RREF = CCM.GetRREF();
-            Helpers.TrimAndGetCanonicalForms(ref RREF);
-
+            RREF = CCM.GetRREF(trim: true);
             CompositionMatrixRank = RREF.RowCount();
         }
 

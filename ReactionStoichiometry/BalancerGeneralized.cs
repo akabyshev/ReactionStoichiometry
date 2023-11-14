@@ -15,7 +15,7 @@ namespace ReactionStoichiometry
         {
             return format switch
             {
-                OutputFormat.Simple or OutputFormat.SeparateLines when _dependentCoefficientExpressions == null || _freeCoefficientIndices == null =>
+                OutputFormat.Simple or OutputFormat.Multiline when _dependentCoefficientExpressions == null || _freeCoefficientIndices == null =>
                     GlobalConstants.FAILURE_MARK
               , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
                                                    , EquationWithPlaceholders()
@@ -24,12 +24,16 @@ namespace ReactionStoichiometry
                                                                                      LabelFor(i) :
                                                                                      AlgebraicExpressionForCoefficient(i))
                                                                .CoefficientsAsString())
-              , OutputFormat.SeparateLines => String.Format(format: "{0}{1}for any {2}"
-                                                          , String.Join(Environment.NewLine
-                                                                      , _dependentCoefficientExpressions.Keys.Select(
-                                                                            selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"))
-                                                          , Environment.NewLine
-                                                          , _freeCoefficientIndices.Select(LabelFor).CoefficientsAsString())
+              , OutputFormat.Multiline => String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
+                                                      , EquationWithPlaceholders()
+                                                      , String.Join(Environment.NewLine
+                                                                  , _dependentCoefficientExpressions.Keys.Select(
+                                                                        selector: i => String.Format(format: "{0} = {1}"
+                                                                                                   , LabelFor(i)
+                                                                                                   , AlgebraicExpressionForCoefficient(i))))
+                                                      , _freeCoefficientIndices.Select(LabelFor).CoefficientsAsString()
+                                                      , Environment.NewLine)
+
               , _ => base.ToString(format)
             };
         }
