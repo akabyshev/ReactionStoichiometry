@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 
-
 namespace ReactionStoichiometry
 {
     public sealed class BalancerGeneralized : Balancer

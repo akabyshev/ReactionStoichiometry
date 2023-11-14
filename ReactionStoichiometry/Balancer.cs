@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
-using Rationals;
 
+using Rationals;
 
 namespace ReactionStoichiometry
 {
@@ -70,6 +70,30 @@ namespace ReactionStoichiometry
             return true;
         }
 
+        public String EquationWithPlaceholders()
+        {
+            return StringOperations.AssembleEquationString(Equation.Substances
+                                                         , Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
+                                                         , omit: static _ => false
+                                                         , LabelFor
+                                                         , predicateGoesToRHS: static _ => false
+                                                         , allowEmptyRHS: true);
+        }
+
+        public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
+        {
+            return StringOperations.AssembleEquationString(Equation.Substances
+                                                         , coefficients
+                                                         , omit: static value => value.IsZero
+                                                         , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
+                                                         , predicateGoesToRHS: static value => value > 0);
+        }
+
+        public String LabelFor(Int32 i)
+        {
+            return Equation.Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
+        }
+
         internal Boolean ValidateSolution(BigInteger[] coefficients)
         {
             if (coefficients.Length != Equation.Substances.Count)
@@ -91,32 +115,6 @@ namespace ReactionStoichiometry
             }
 
             return true;
-        } // ReSharper disable twice ArgumentsStyleNamedExpression
-        public String EquationWithPlaceholders()
-        {
-            return StringOperations.AssembleEquationString(strings: Equation.Substances
-                                                         , Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
-                                                         , omit: static _ => false
-                                                         , adapter: LabelFor
-                                                         , predicateGoesToRHS: static _ => false
-                                                         , allowEmptyRHS: true);
-        }
-
-        public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
-        {
-            return StringOperations.AssembleEquationString(strings: Equation.Substances
-                                                         , coefficients
-                                                         , omit: static value => value.IsZero
-                                                         , adapter: static value =>
-                                                                        BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
-                                                         , predicateGoesToRHS: static value => value > 0);
-        }
-
-        public String LabelFor(Int32 i)
-        {
-            return Equation.Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ?
-                'x' + (i + 1).ToString(format: "D2") :
-                ((Char)('a' + i)).ToString();
         }
     }
 }

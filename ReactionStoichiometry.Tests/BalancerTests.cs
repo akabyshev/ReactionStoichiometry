@@ -1,6 +1,5 @@
 using System.Numerics;
 
-
 namespace ReactionStoichiometry.Tests
 {
     public sealed class BalancerTests
@@ -36,8 +35,7 @@ namespace ReactionStoichiometry.Tests
                 var instances = parts[1]
                                 .Split(separator: ';')
                                 .Select(StringOperations.GetArraysFromCoefficientNotationString)
-                                .Select(selector: parametersSet =>
-                                                      generalized.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet)));
+                                .Select(selector: parametersSet => generalized.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet)));
 
                 Assert.Equal(inverseBased.ToString(Balancer.OutputFormat.SeparateLines), String.Join(Environment.NewLine, instances));
             }
@@ -99,8 +97,7 @@ namespace ReactionStoichiometry.Tests
         public void Generalized_Multi_Simple()
         {
             const String eq = "TiO2 + C + Cl2 = TiCl4 + CO + CO2";
-            const String sln =
-                "a·TiO2 + b·C + c·Cl2 + d·TiCl4 + e·CO + f·CO2 = 0 with coefficients {(-e - 2·f)/2, -e - f, -e - 2·f, (e + 2·f)/2, e, f}";
+            const String sln = "a·TiO2 + b·C + c·Cl2 + d·TiCl4 + e·CO + f·CO2 = 0 with coefficients {(-e - 2·f)/2, -e - f, -e - 2·f, (e + 2·f)/2, e, f}";
 
             var balancer = new BalancerGeneralized(eq);
             Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.Simple));
@@ -152,8 +149,7 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(expected: "3·O2 = 2·O3", inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 2, 0 })));
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 2 })));
-            Assert.Equal(expected: "2·Na + Cl2 = 2·NaCl"
-                       , inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 2 })));
+            Assert.Equal(expected: "2·Na + Cl2 = 2·NaCl", inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 2 })));
         }
 
         [Fact]

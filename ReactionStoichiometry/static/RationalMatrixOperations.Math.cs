@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
-using Rationals;
 
+using Rationals;
 
 namespace ReactionStoichiometry
 {

@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Text.RegularExpressions;
 
-
 namespace ReactionStoichiometry
 {
     public static class StringOperations
@@ -17,8 +16,7 @@ namespace ReactionStoichiometry
         private const String NO_INDEX_ELEMENT = $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
         private const String OPENING_PARENTHESIS = @"\(";
 
-        private const String SKELETAL_STRUCTURE =
-            @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
+        private const String SKELETAL_STRUCTURE = @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
 
         private const String SUBSTANCE_ALPHABET = @$"[A-Za-z0-9\.{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
 

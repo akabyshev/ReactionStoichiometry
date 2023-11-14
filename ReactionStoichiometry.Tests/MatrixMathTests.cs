@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+
 using Rationals;
 
 // ReSharper disable InconsistentNaming

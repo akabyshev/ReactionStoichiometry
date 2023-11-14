@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using Rationals;
 
+using Rationals;
 
 namespace ReactionStoichiometry
 {

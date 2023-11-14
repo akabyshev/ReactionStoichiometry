@@ -1,6 +1,5 @@
 using Rationals;
 
-
 namespace ReactionStoichiometry
 {
     internal static partial class RationalMatrixOperations
@@ -62,10 +61,7 @@ namespace ReactionStoichiometry
             return result;
         }
 
-        internal static String Readable(this Rational[,] me
-                                      , String title
-                                      , Func<Int32, String>? rowHeaders = null
-                                      , Func<Int32, String>? columnHeaders = null)
+        internal static String Readable(this Rational[,] me, String title, Func<Int32, String>? rowHeaders = null, Func<Int32, String>? columnHeaders = null)
         {
             rowHeaders ??= static i => $"R#{i + 1}";
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Numerics;
-using Rationals;
 
+using Rationals;
 
 namespace ReactionStoichiometry
 {
@@ -23,8 +23,7 @@ namespace ReactionStoichiometry
                 OutputFormat.Simple or OutputFormat.SeparateLines when _independentReactions == null => GlobalConstants.FAILURE_MARK
               , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
                                                    , EquationWithPlaceholders()
-                                                   , String.Join(separator: ", "
-                                                               , _independentReactions.Select(StringOperations.ToCoefficientNotationString)))
+                                                   , String.Join(separator: ", ", _independentReactions.Select(StringOperations.ToCoefficientNotationString)))
               , OutputFormat.SeparateLines => String.Join(Environment.NewLine, _independentReactions.Select(EquationWithIntegerCoefficients))
               , _ => base.ToString(format)
             };
@@ -36,8 +35,7 @@ namespace ReactionStoichiometry
 
             Rational[,] inverse;
             {
-                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount()
-                                           , message: "The method fails on this kind of equations");
+                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount(), message: "The method fails on this kind of equations");
 
                 var square = new Rational[Equation.RREF.ColumnCount(), Equation.RREF.ColumnCount()];
                 Array.Copy(Equation.RREF, square, Equation.RREF.Length);
