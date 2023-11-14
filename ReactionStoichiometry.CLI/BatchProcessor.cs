@@ -44,7 +44,7 @@
                     if (format != Balancer.OutputFormat.Json)
                         writer.WriteLine(Environment.NewLine);
                     else
-                        writer.WriteLine(',');
+                        writer.WriteLine(value: ',');
                 }
                 if (format == Balancer.OutputFormat.Json)
                 {
