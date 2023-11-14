@@ -1,17 +1,17 @@
 ﻿using System.Collections.ObjectModel;
 using System.Numerics;
-
+using Newtonsoft.Json;
 using Rationals;
 
 namespace ReactionStoichiometry
 {
     public sealed class BalancerInverseBased : Balancer
     {
+        [JsonProperty(PropertyName = "Independent reactions")]
         private List<BigInteger[]>? _independentReactions;
 
         internal ReadOnlyCollection<BigInteger[]> SolutionSets => _independentReactions?.AsReadOnly() ?? throw new InvalidOperationException();
 
-        // ReSharper disable once MemberCanBeInternal
         public BalancerInverseBased(String equation) : base(equation)
         {
         }
@@ -22,9 +22,9 @@ namespace ReactionStoichiometry
             {
                 OutputFormat.Simple or OutputFormat.Multiline when _independentReactions == null => GlobalConstants.FAILURE_MARK
               , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
-                                                   , EquationWithPlaceholders()
+                                                   , Equation.EquationWithPlaceholders
                                                    , String.Join(separator: ", ", _independentReactions.Select(StringOperations.CoefficientsAsString)))
-              , OutputFormat.Multiline => String.Join(Environment.NewLine, _independentReactions.Select(EquationWithIntegerCoefficients))
+              , OutputFormat.Multiline => String.Join(Environment.NewLine, _independentReactions.Select(Equation.EquationWithIntegerCoefficients))
               , _ => base.ToString(format)
             };
         }

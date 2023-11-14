@@ -1,10 +1,14 @@
 ﻿using System.Numerics;
+using Newtonsoft.Json;
 
 namespace ReactionStoichiometry
 {
     public sealed class BalancerGeneralized : Balancer
     {
+        [JsonProperty(PropertyName = "Dependent coefficient expressions")]
         private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
+
+        [JsonProperty(PropertyName = "Free variables")]
         private List<Int32>? _freeCoefficientIndices;
 
         public BalancerGeneralized(String equation) : base(equation)
@@ -18,20 +22,20 @@ namespace ReactionStoichiometry
                 OutputFormat.Simple or OutputFormat.Multiline when _dependentCoefficientExpressions == null || _freeCoefficientIndices == null =>
                     GlobalConstants.FAILURE_MARK
               , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
-                                                   , EquationWithPlaceholders()
+                                                   , Equation.EquationWithPlaceholders
                                                    , Enumerable.Range(start: 0, Equation.Substances.Count)
                                                                .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
-                                                                                     LabelFor(i) :
+                                                                                     Equation.LabelFor(i) :
                                                                                      AlgebraicExpressionForCoefficient(i))
                                                                .CoefficientsAsString())
               , OutputFormat.Multiline => String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
-                                                      , EquationWithPlaceholders()
+                                                      , Equation.EquationWithPlaceholders
                                                       , String.Join(Environment.NewLine
                                                                   , _dependentCoefficientExpressions.Keys.Select(
                                                                         selector: i => String.Format(format: "{0} = {1}"
-                                                                                                   , LabelFor(i)
+                                                                                                   , Equation.LabelFor(i)
                                                                                                    , AlgebraicExpressionForCoefficient(i))))
-                                                      , _freeCoefficientIndices.Select(LabelFor).CoefficientsAsString()
+                                                      , _freeCoefficientIndices.Select(Equation.LabelFor).CoefficientsAsString()
                                                       , Environment.NewLine)
 
               , _ => base.ToString(format)
@@ -109,7 +113,7 @@ namespace ReactionStoichiometry
                                                                  {
                                                                      coefficient = "-";
                                                                  }
-                                                                 return $"{coefficient}{LabelFor(i)}";
+                                                                 return $"{coefficient}{Equation.LabelFor(i)}";
                                                              })
                                            .ToList();
 

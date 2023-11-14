@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-
 using Rationals;
 
 // ReSharper disable InconsistentNaming
@@ -48,11 +47,10 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void RREF_Simple()
         {
-            var calculatedRREF = _knownMatrix.GetRREF();
-            Helpers.TrimAndGetCanonicalForms(ref calculatedRREF);
+            var calculatedRREF = _knownMatrix.GetRREF(trim: true);
+            var calculatedRank = calculatedRREF.RowCount();
 
             Assert.Equal(_knownMatrixRREF, calculatedRREF);
-            var calculatedRank = calculatedRREF.RowCount();
             Assert.Equal(_knownMatrixRank, calculatedRank);
         }
 

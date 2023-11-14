@@ -22,8 +22,10 @@
                     var balancer = (Balancer)Activator.CreateInstance(type, line)!;
                     balancer.Run();
 
-                    if (format != Balancer.OutputFormat.DetailedMultiline)
+                    if (format != Balancer.OutputFormat.DetailedMultiline && format != Balancer.OutputFormat.Json)
+                    {
                         writer.WriteLine(line);
+                    }
                     writer.WriteLine(balancer.ToString(format));
                     writer.WriteLine();
                 }

@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-
 using Rationals;
 
 namespace ReactionStoichiometry

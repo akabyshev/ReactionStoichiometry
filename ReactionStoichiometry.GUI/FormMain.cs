@@ -63,7 +63,7 @@ namespace ReactionStoichiometry.GUI
             var s = textBoxInput.Text;
 
             _balancer = new BalancerGeneralized(s);
-            txtGeneralForm.Text = _balancer.EquationWithPlaceholders();
+            txtGeneralForm.Text = _balancer.Equation.EquationWithPlaceholders;
 
             if (_balancer.Run())
             {
@@ -83,7 +83,7 @@ namespace ReactionStoichiometry.GUI
             gridCoefficients.RowCount = _balancer.Equation.Substances.Count;
             for (var i = 0; i < _balancer.Equation.Substances.Count; i++)
             {
-                gridCoefficients.Rows[i].HeaderCell.Value = _balancer.LabelFor(i);
+                gridCoefficients.Rows[i].HeaderCell.Value = _balancer.Equation.LabelFor(i);
                 gridCoefficients.Rows[i].Cells[columnName: "Substance"].Value = _balancer.Equation.Substances[i];
 
                 var expr = _balancer.AlgebraicExpressionForCoefficient(i);
@@ -155,7 +155,7 @@ namespace ReactionStoichiometry.GUI
                 }
 
                 coefficients = _balancer.Instantiate(parameters.ToArray());
-                txtInstance.Text = _balancer.EquationWithIntegerCoefficients(coefficients);
+                txtInstance.Text = _balancer.Equation.EquationWithIntegerCoefficients(coefficients);
             }
             catch (FormatException)
             {

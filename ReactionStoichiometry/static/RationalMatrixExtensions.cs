@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Numerics;
-
 using Rationals;
 
 namespace ReactionStoichiometry
@@ -153,7 +152,9 @@ namespace ReactionStoichiometry
             }
 
             if (trim)
+            {
                 Helpers.TrimAndGetCanonicalForms(ref result);
+            }
 
             return result;
         }

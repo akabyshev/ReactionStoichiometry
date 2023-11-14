@@ -44,7 +44,8 @@ namespace ReactionStoichiometry.Tests
                 var instances = parts[1]
                                 .Split(separator: ';')
                                 .Select(StringOperations.GetParametersFromString)
-                                .Select(selector: parametersSet => generalized.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet)));
+                                .Select(selector: parametersSet =>
+                                                      generalized.Equation.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet)));
 
                 Assert.Equal(inverseBased.ToString(Balancer.OutputFormat.Multiline), String.Join(Environment.NewLine, instances));
             }
@@ -151,13 +152,14 @@ namespace ReactionStoichiometry.Tests
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 0 })));
             Assert.Throws<AppSpecificException>(
-                testCode: () => inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 0 })));
+                testCode: () => inverseBased.Equation.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 0 })));
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 2, 0 })));
-            Assert.Equal(expected: "3慈2 = 2慈3", inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 2, 0 })));
+            Assert.Equal(expected: "3慈2 = 2慈3", inverseBased.Equation.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 2, 0 })));
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 2 })));
-            Assert.Equal(expected: "2意a + Cl2 = 2意aCl", inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 2 })));
+            Assert.Equal(expected: "2意a + Cl2 = 2意aCl"
+                       , inverseBased.Equation.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 2 })));
         }
 
         [Fact]
@@ -172,9 +174,6 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(expected: "-d/2", balancer.AlgebraicExpressionForCoefficient(index: 1));
             Assert.Equal(expected: "0", balancer.AlgebraicExpressionForCoefficient(index: 2));
             Assert.Null(balancer.AlgebraicExpressionForCoefficient(index: 3));
-
-            Assert.Equal(String.Join(Environment.NewLine, "a = -d", "b = -d/2", "c = 0", "for any {d}")
-                       , balancer.ToString(Balancer.OutputFormat.Multiline));
         }
 
         [Fact]

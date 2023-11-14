@@ -1,7 +1,6 @@
 ﻿#define RUN_BATCH_PROCESSING
 
 using System.Diagnostics;
-
 using ReactionStoichiometry;
 using ReactionStoichiometry.CLI;
 

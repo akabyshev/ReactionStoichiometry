@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-
+using Newtonsoft.Json;
 using Rationals;
 
 namespace ReactionStoichiometry
@@ -12,14 +12,20 @@ namespace ReactionStoichiometry
             Simple
           , Multiline
           , DetailedMultiline
+          , Json
         }
         #endregion
 
         public readonly ChemicalReactionEquation Equation;
         private readonly List<String> _details = new();
+
+        [JsonProperty(PropertyName = "Failure message")]
         private String _failureMessage = String.Empty;
 
         private Boolean _hadBeenRunAlready;
+
+        [JsonProperty(PropertyName = "Success")]
+        private Boolean _success;
 
         protected Balancer(String equation)
         {
@@ -30,7 +36,7 @@ namespace ReactionStoichiometry
                                      , Equation.CCM.ColumnCount()
                                      , Equation.CompositionMatrixRank
                                      , Equation.CompositionMatrixNullity));
-            _details.Add(Equation.RREF.Readable(title: "RREF", LabelFor, LabelFor));
+            _details.Add(Equation.RREF.Readable(title: "RREF", Equation.LabelFor, Equation.LabelFor));
         }
 
         protected abstract void Balance();
@@ -41,6 +47,7 @@ namespace ReactionStoichiometry
             return format switch
             {
                 OutputFormat.DetailedMultiline => FillTemplate(OutputFormatTemplates.MULTILINE_TEMPLATE)
+              , OutputFormat.Json => SerializeToJson()
               , _ => throw new ArgumentOutOfRangeException(nameof(format))
             };
 
@@ -61,39 +68,15 @@ namespace ReactionStoichiometry
             try
             {
                 Balance();
+                _success = true;
             }
             catch (AppSpecificException e)
             {
                 _failureMessage = "This equation can't be balanced: " + e.Message;
-                return false;
+                _success = false;
             }
 
-            return true;
-        }
-
-        public String EquationWithPlaceholders()
-        {
-            return StringOperations.AssembleEquationString(Equation.Substances
-                                                         , Enumerable.Range(start: 0, Equation.Substances.Count).Select(LabelFor).ToArray()
-                                                         , omitIf: static _ => false
-                                                         , adapter: static s => s
-                                                         , goesToRhsIf: static _ => false
-                                                         , allowEmptyRhs: true);
-        }
-
-        public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
-        {
-            return StringOperations.AssembleEquationString(Equation.Substances
-                                                         , coefficients
-                                                         , omitIf: static value => value.IsZero
-                                                         , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
-                                                         , goesToRhsIf: static value => value > 0
-                                                         , allowEmptyRhs: false);
-        }
-
-        public String LabelFor(Int32 i)
-        {
-            return Equation.Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
+            return _success;
         }
 
         internal Boolean ValidateSolution(BigInteger[] coefficients)
@@ -117,6 +100,18 @@ namespace ReactionStoichiometry
             }
 
             return true;
+        }
+
+        private String SerializeToJson()
+        {
+            var settings = new JsonSerializerSettings
+                           {
+                               NullValueHandling = NullValueHandling.Ignore
+                             , Formatting = Formatting.Indented
+                             , ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                           };
+
+            return JsonConvert.SerializeObject(this, settings);
         }
     }
 }
