@@ -17,10 +17,10 @@ namespace ReactionStoichiometry
         #endregion
 
         public readonly ChemicalReactionEquation Equation;
-
-        private Boolean _hadBeenRunAlready;
         private readonly List<String> _details = new();
         private String _failureMessage = String.Empty;
+
+        private Boolean _hadBeenRunAlready;
 
         protected Balancer(String equation)
         {
@@ -73,24 +73,30 @@ namespace ReactionStoichiometry
             return true;
         }
 
-        public String EquationWithPlaceholders() =>
-            StringOperations.AssembleEquationString(Equation.Substances
-                                                  , Enumerable.Range(start: 0, Equation.Substances.Count).Select(LabelFor).ToArray()
-                                                  , omitIf: static _ => false
-                                                  , adapter: static s => s
-                                                  , goesToRhsIf: static _ => false
-                                                  , allowEmptyRhs: true);
+        public String EquationWithPlaceholders()
+        {
+            return StringOperations.AssembleEquationString(Equation.Substances
+                                                         , Enumerable.Range(start: 0, Equation.Substances.Count).Select(LabelFor).ToArray()
+                                                         , omitIf: static _ => false
+                                                         , adapter: static s => s
+                                                         , goesToRhsIf: static _ => false
+                                                         , allowEmptyRhs: true);
+        }
 
-        public String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
-            StringOperations.AssembleEquationString(Equation.Substances
-                                                  , coefficients
-                                                  , omitIf: static value => value.IsZero
-                                                  , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
-                                                  , goesToRhsIf: static value => value > 0
-                                                  , allowEmptyRhs: false);
+        public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
+        {
+            return StringOperations.AssembleEquationString(Equation.Substances
+                                                         , coefficients
+                                                         , omitIf: static value => value.IsZero
+                                                         , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
+                                                         , goesToRhsIf: static value => value > 0
+                                                         , allowEmptyRhs: false);
+        }
 
-        public String LabelFor(Int32 i) =>
-            Equation.Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
+        public String LabelFor(Int32 i)
+        {
+            return Equation.Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
+        }
 
         internal Boolean ValidateSolution(BigInteger[] coefficients)
         {

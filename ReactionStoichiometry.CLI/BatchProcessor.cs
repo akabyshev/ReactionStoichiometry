@@ -4,9 +4,6 @@
     {
         private const String IGNORED_LINE_MARK = "#";
 
-        private static String ConstructPath(String filename, String? str2 = null) =>
-            @$"D:\Solutions\ReactionStoichiometry\batchdata\{filename + (str2 == null ? String.Empty : '-' + str2)}.txt";
-
         internal static void Run(Balancer.OutputFormat format)
         {
             var balancers = new[] { typeof(BalancerInverseBased), typeof(BalancerGeneralized) };
@@ -30,6 +27,11 @@
                     writer.WriteLine(value: "----------------------------------------");
                 }
             }
+        }
+
+        private static String ConstructPath(String filename, String? str2 = null)
+        {
+            return @$"D:\Solutions\ReactionStoichiometry\batchdata\{filename + (str2 == null ? String.Empty : '-' + str2)}.txt";
         }
     }
 }

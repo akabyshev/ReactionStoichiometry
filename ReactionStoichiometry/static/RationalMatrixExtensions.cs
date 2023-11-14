@@ -1,6 +1,7 @@
-using Rationals;
 using System.Diagnostics;
 using System.Numerics;
+
+using Rationals;
 
 namespace ReactionStoichiometry
 {
@@ -89,7 +90,7 @@ namespace ReactionStoichiometry
         // ReSharper disable once InconsistentNaming
         internal static Rational[,] GetRREF(this Rational[,] me)
         {
-            var result = (Rational[,]) me.Clone();
+            var result = (Rational[,])me.Clone();
 
             var leadColumnIndex = 0;
             for (var r = 0; r < result.RowCount(); r++)
@@ -136,18 +137,18 @@ namespace ReactionStoichiometry
                 Parallel.For(fromInclusive: 0
                            , result.RowCount()
                            , body: k =>
-                           {
-                               // ReSharper disable twice AccessToModifiedClosure
-                               if (k == r)
-                               {
-                                   return;
-                               }
-                               var factor = result[k, leadColumnIndex];
-                               for (var c = 0; c < result.ColumnCount(); c++)
-                               {
-                                   result[k, c] = (result[k, c] - factor * result[r, c]).CanonicalForm;
-                               }
-                           });
+                                   {
+                                       // ReSharper disable twice AccessToModifiedClosure
+                                       if (k == r)
+                                       {
+                                           return;
+                                       }
+                                       var factor = result[k, leadColumnIndex];
+                                       for (var c = 0; c < result.ColumnCount(); c++)
+                                       {
+                                           result[k, c] = (result[k, c] - factor * result[r, c]).CanonicalForm;
+                                       }
+                                   });
                 leadColumnIndex++;
             }
 
