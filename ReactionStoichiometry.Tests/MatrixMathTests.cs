@@ -1,5 +1,5 @@
-﻿using Rationals;
-using System.Numerics;
+﻿using System.Numerics;
+using Rationals;
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable ArgumentsStyleLiteral
@@ -8,22 +8,22 @@ namespace ReactionStoichiometry.Tests
 {
     public sealed class MatrixMathTests
     {
+        private const Int32 _knownMatrixRank = 3;
+
         // Use https://matrixcalc.org or https://www.desmos.com/matrix for Inverse and Determinant
         // Use https://www.wolframalpha.com/input/?i=matrix+rank+calculator for Rank
         private readonly Rational[,] _knownMatrix = { { 0, 2, 3, 4 }, { 5, 60, 7, 8 }, { 9, 10, 11, 12 } };
 
         private readonly Rational[,] _knownMatrixRREF = { { 1, 0, 0, new(-216, 727) }, { 0, 1, 0, new(2, 727) }, { 0, 0, 1, new(968, 727) } };
 
-        private const Int32 _knownMatrixRank = 3;
-
         [Fact]
         public void InverseMatrix_Simple()
         {
             Rational[,] singularMatrix = { { 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12 }, { 13, 14, 15, 16 } };
-            Assert.Throws<AppSpecificException>(() => _ = RationalMatrixOperations.GetInverse(singularMatrix));
+            Assert.Throws<AppSpecificException>(testCode: () => _ = RationalMatrixOperations.GetInverse(singularMatrix));
 
             Rational[,] nonSquareMatrix = { { 1, 2, 3, 4 }, { 9, 10, 11, 12 }, { 13, 14, 15, 16 } };
-            Assert.Throws<ArgumentException>(() => _ = RationalMatrixOperations.GetInverse(nonSquareMatrix));
+            Assert.Throws<ArgumentException>(testCode: () => _ = RationalMatrixOperations.GetInverse(nonSquareMatrix));
 
             var augmentedMatrix = new Rational[4, 4];
             Array.Copy(_knownMatrix, augmentedMatrix, _knownMatrix.Length);
@@ -59,7 +59,7 @@ namespace ReactionStoichiometry.Tests
         public void TrimAndGetCanonicalForms_Simple()
         {
             Rational[,] matrix1 = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
-            Assert.Throws<InvalidOperationException>(() => RationalMatrixOperations.TrimAndGetCanonicalForms(ref matrix1));
+            Assert.Throws<InvalidOperationException>(testCode: () => RationalMatrixOperations.TrimAndGetCanonicalForms(ref matrix1));
 
             Rational[,] matrix2 = { { 0, 0, 0 }, { 0, 1, 0 }, { 0, 0, 0 } };
             Rational[,] matrix2_after = { { 0, 0, 0 }, { 0, 1, 0 } };

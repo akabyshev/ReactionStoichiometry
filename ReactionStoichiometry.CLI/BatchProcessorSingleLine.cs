@@ -21,7 +21,7 @@
                     balancer.Run();
 
                     writer.WriteLine(line);
-                    writer.WriteLine(Common.CHAR_TAB + balancer.ToString(Balancer.OutputFormat.SingleLine));
+                    writer.WriteLine(Common.CHAR_TAB + balancer.ToString(Balancer.OutputFormat.Simple));
                 }
             }
         }

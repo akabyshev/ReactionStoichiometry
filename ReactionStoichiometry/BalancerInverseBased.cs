@@ -18,31 +18,16 @@ namespace ReactionStoichiometry
 
         public override String ToString(OutputFormat format)
         {
-            if (format != OutputFormat.SingleLine)
+            return format switch
             {
-                return base.ToString(format);
-            }
-
-            // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (_independentReactions == null)
-            {
-                return GlobalConstants.FAILURE_MARK;
-            }
-
-            return EquationWithPlaceholders()
-                 + " with coefficients "
-                 + String.Join(separator: ", ", _independentReactions.Select(selector: static i => i.ToCoefficientNotationString()));
-        }
-
-        protected override IEnumerable<String> Outcome()
-        {
-            // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (_independentReactions == null)
-            {
-                return new[] { GlobalConstants.FAILURE_MARK };
-            }
-
-            return _independentReactions.Select(EquationWithIntegerCoefficients);
+                OutputFormat.Simple or OutputFormat.SeparateLines when _independentReactions == null => GlobalConstants.FAILURE_MARK
+              , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
+                                                   , EquationWithPlaceholders()
+                                                   , String.Join(separator: ", "
+                                                               , _independentReactions.Select(StringOperations.ToCoefficientNotationString)))
+              , OutputFormat.SeparateLines => String.Join(Environment.NewLine, _independentReactions.Select(EquationWithIntegerCoefficients))
+              , _ => base.ToString(format)
+            };
         }
 
         protected override void Balance()

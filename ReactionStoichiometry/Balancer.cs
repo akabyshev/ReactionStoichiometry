@@ -9,11 +9,10 @@ namespace ReactionStoichiometry
         #region OutputFormat enum
         public enum OutputFormat
         {
-            DetailedPlain
+            Simple
+          , SeparateLines
+          , DetailedPlain
           , DetailedHtml
-          , OutcomeOnlyCommas
-          , OutcomeOnlyNewLine
-          , SingleLine
         }
         #endregion
 
@@ -28,7 +27,6 @@ namespace ReactionStoichiometry
         }
 
         protected abstract void Balance();
-        protected abstract IEnumerable<String> Outcome(); // todo: name?
 
         public virtual String ToString(OutputFormat format)
         {
@@ -37,8 +35,6 @@ namespace ReactionStoichiometry
             {
                 OutputFormat.DetailedPlain => Fill(OutputFormatTemplates.PLAIN_OUTPUT)
               , OutputFormat.DetailedHtml => Fill(OutputFormatTemplates.HTML_OUTPUT)
-              , OutputFormat.OutcomeOnlyCommas => String.Join(separator: ',', Outcome())
-              , OutputFormat.OutcomeOnlyNewLine => String.Join(Environment.NewLine, Outcome())
               , _ => throw new ArgumentOutOfRangeException(nameof(format))
             };
 
@@ -46,7 +42,7 @@ namespace ReactionStoichiometry
             {
                 return template.Replace(oldValue: "%Skeletal%", Equation.Skeletal)
                                .Replace(oldValue: "%Details%", String.Join(Environment.NewLine, _details))
-                               .Replace(oldValue: "%Outcome%", ToString(OutputFormat.OutcomeOnlyNewLine))
+                               .Replace(oldValue: "%Outcome%", ToString(OutputFormat.SeparateLines))
                                .Replace(oldValue: "%Diagnostics%", _failureMessage);
             }
         }

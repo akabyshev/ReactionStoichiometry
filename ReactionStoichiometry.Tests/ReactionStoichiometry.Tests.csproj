@@ -26,4 +26,16 @@
     <ProjectReference Include="..\ReactionStoichiometry\ReactionStoichiometry.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="70_from_the_book.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestBasicParsing.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestInstantiation.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

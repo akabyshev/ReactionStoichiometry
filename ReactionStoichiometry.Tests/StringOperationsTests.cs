@@ -5,7 +5,7 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void UnfoldSubstance_CSV()
         {
-            using StreamReader reader = new(path: @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometry.Tests\TestBasicParsing.csv");
+            using StreamReader reader = new(path: @".\TestBasicParsing.csv");
             while (reader.ReadLine() is { } line)
             {
                 var parts = line.Split(separator: ',');
@@ -26,7 +26,7 @@ namespace ReactionStoichiometry.Tests
         public void AssembleEquationString_Simple()
         {
             // ReSharper disable once StringLiteralTypo
-            var letters = "abcdefg".ToCharArray().Select(static c => c.ToString()).ToList();
+            var letters = "abcdefg".ToCharArray().Select(selector: static c => c.ToString()).ToList();
             var numbers = "1234567".ToCharArray();
 
             Assert.Equal(expected: "1·a + 3·c + 5·e + 7·g = 2·b + 4·d + 6·f"
@@ -43,18 +43,18 @@ namespace ReactionStoichiometry.Tests
                                                                , adapter: static c => c.ToString()
                                                                , predicateGoesToRHS: static _ => false
                                                                , allowEmptyRHS: true));
-            Assert.Throws<InvalidOperationException>(() => StringOperations.AssembleEquationString(letters
-                                                                                                 , numbers
-                                                                                                 , omit: static c => Convert.ToInt16(c) % 2 == 0
-                                                                                                 , adapter: static c => c.ToString()
-                                                                                                 , predicateGoesToRHS: static _ => false
-                                                                                                 , allowEmptyRHS: false));
-            Assert.Throws<InvalidOperationException>(static () => StringOperations.AssembleEquationString(new List<String>()
-                                                                                                        , new List<String>()
-                                                                                                        , omit: static _ => false
-                                                                                                        , adapter: static s => s
-                                                                                                        , predicateGoesToRHS: static _ => false
-                                                                                                        , allowEmptyRHS: true));
+            Assert.Throws<InvalidOperationException>(testCode: () => StringOperations.AssembleEquationString(letters
+                                                                 , numbers
+                                                                 , omit: static c => Convert.ToInt16(c) % 2 == 0
+                                                                 , adapter: static c => c.ToString()
+                                                                 , predicateGoesToRHS: static _ => false
+                                                                 , allowEmptyRHS: false));
+            Assert.Throws<InvalidOperationException>(testCode: static () => StringOperations.AssembleEquationString(new List<String>()
+                                                                 , new List<String>()
+                                                                 , omit: static _ => false
+                                                                 , adapter: static s => s
+                                                                 , predicateGoesToRHS: static _ => false
+                                                                 , allowEmptyRHS: true));
         }
     }
 }

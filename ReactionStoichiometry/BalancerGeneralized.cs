@@ -14,36 +14,25 @@ namespace ReactionStoichiometry
 
         public override String ToString(OutputFormat format)
         {
-            if (format != OutputFormat.SingleLine)
+            return format switch
             {
-                return base.ToString(format);
-            }
-
-            // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
-            {
-                return GlobalConstants.FAILURE_MARK;
-            }
-
-            return EquationWithPlaceholders()
-                 + " with coefficients "
-                 + Enumerable.Range(start: 0, Equation.Substances.Count)
-                             .Select(selector: i => _freeCoefficientIndices.Contains(i) ? LabelFor(i) : AlgebraicExpressionForCoefficient(i))
-                             .ToCoefficientNotationString();
-        }
-
-        protected override IEnumerable<String> Outcome()
-        {
-            if (_dependentCoefficientExpressions == null || _freeCoefficientIndices == null)
-            {
-                return new[] { GlobalConstants.FAILURE_MARK };
-            }
-
-            List<String> lines = new();
-            lines.AddRange(_dependentCoefficientExpressions.Keys.Select(selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"));
-            lines.Add("for any {" + String.Join(separator: ", ", _freeCoefficientIndices.Select(LabelFor)) + "}");
-
-            return lines;
+                OutputFormat.Simple or OutputFormat.SeparateLines when _dependentCoefficientExpressions == null || _freeCoefficientIndices == null =>
+                    GlobalConstants.FAILURE_MARK
+              , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
+                                                   , EquationWithPlaceholders()
+                                                   , Enumerable.Range(start: 0, Equation.Substances.Count)
+                                                               .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
+                                                                                     LabelFor(i) :
+                                                                                     AlgebraicExpressionForCoefficient(i))
+                                                               .ToCoefficientNotationString())
+              , OutputFormat.SeparateLines => String.Format(format: "{0}{1}for any {2}"
+                                                          , String.Join(Environment.NewLine
+                                                                      , _dependentCoefficientExpressions.Keys.Select(
+                                                                            selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"))
+                                                          , Environment.NewLine
+                                                          , _freeCoefficientIndices.Select(LabelFor).ToCoefficientNotationString())
+              , _ => base.ToString(format)
+            };
         }
 
         protected override void Balance()

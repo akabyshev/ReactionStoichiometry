@@ -35,7 +35,7 @@ namespace ReactionStoichiometry
         // ReSharper disable once InconsistentNaming
         internal static Rational[,] GetRREF(this Rational[,] me)
         {
-            var result = (Rational[,]) me.Clone();
+            var result = (Rational[,])me.Clone();
 
             var leadColumnIndex = 0;
             for (var r = 0; r < result.RowCount(); r++)
