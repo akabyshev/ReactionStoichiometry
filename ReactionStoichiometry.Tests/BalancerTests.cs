@@ -13,6 +13,15 @@ namespace ReactionStoichiometry.Tests
         }
 
         [Fact]
+        public void NoRepeatedCalls()
+        {
+            const String eq = "H2 + O2 = H2O";
+            var balancer = new BalancerInverseBased(eq);
+            Assert.True(balancer.Run());
+            Assert.Throws<AppSpecificException>(testCode: () => _ = balancer.Run());
+        }
+
+        [Fact]
         public void Instantiation_CSV()
         {
             using StreamReader reader = new(path: @".\TestInstantiation.csv");
@@ -34,7 +43,7 @@ namespace ReactionStoichiometry.Tests
 
                 var instances = parts[1]
                                 .Split(separator: ';')
-                                .Select(StringOperations.GetArraysFromCoefficientNotationString)
+                                .Select(StringOperations.GetParametersFromString)
                                 .Select(selector: parametersSet => generalized.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet)));
 
                 Assert.Equal(inverseBased.ToString(Balancer.OutputFormat.SeparateLines), String.Join(Environment.NewLine, instances));
@@ -142,7 +151,7 @@ namespace ReactionStoichiometry.Tests
             Assert.True(generalized.Run());
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 0 })));
-            Assert.Throws<InvalidOperationException>(
+            Assert.Throws<AppSpecificException>(
                 testCode: () => inverseBased.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 0 })));
 
             Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 2, 0 })));

@@ -30,7 +30,7 @@ namespace ReactionStoichiometry
             CCM = GetCompositionMatrix();
 
             RREF = CCM.GetRREF();
-            RationalMatrixOperations.TrimAndGetCanonicalForms(ref RREF);
+            Helpers.TrimAndGetCanonicalForms(ref RREF);
 
             CompositionMatrixRank = RREF.RowCount();
         }
@@ -79,7 +79,7 @@ namespace ReactionStoichiometry
                 result[indexQp, c] = 0;
             }
 
-            RationalMatrixOperations.TrimAndGetCanonicalForms(ref result);
+            Helpers.TrimAndGetCanonicalForms(ref result);
             return result;
         }
     }

@@ -32,29 +32,29 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(expected: "1·a + 3·c + 5·e + 7·g = 2·b + 4·d + 6·f"
                        , StringOperations.AssembleEquationString(letters
                                                                , numbers
-                                                               , omit: static _ => false
+                                                               , omitIf: static _ => false
                                                                , adapter: static c => c.ToString()
-                                                               , predicateGoesToRHS: static c => Convert.ToInt16(c) % 2 == 0
-                                                               , allowEmptyRHS: false));
+                                                               , goesToRhsIf: static c => Convert.ToInt16(c) % 2 == 0
+                                                               , allowEmptyRhs: false));
             Assert.Equal(expected: "1·a + 3·c + 5·e + 7·g = 0"
                        , StringOperations.AssembleEquationString(letters
                                                                , numbers
-                                                               , omit: static c => Convert.ToInt16(c) % 2 == 0
+                                                               , omitIf: static c => Convert.ToInt16(c) % 2 == 0
                                                                , adapter: static c => c.ToString()
-                                                               , predicateGoesToRHS: static _ => false
-                                                               , allowEmptyRHS: true));
-            Assert.Throws<InvalidOperationException>(testCode: () => StringOperations.AssembleEquationString(letters
-                                                                 , numbers
-                                                                 , omit: static c => Convert.ToInt16(c) % 2 == 0
-                                                                 , adapter: static c => c.ToString()
-                                                                 , predicateGoesToRHS: static _ => false
-                                                                 , allowEmptyRHS: false));
-            Assert.Throws<InvalidOperationException>(testCode: static () => StringOperations.AssembleEquationString(new List<String>()
-                                                                 , new List<String>()
-                                                                 , omit: static _ => false
-                                                                 , adapter: static s => s
-                                                                 , predicateGoesToRHS: static _ => false
-                                                                 , allowEmptyRHS: true));
+                                                               , goesToRhsIf: static _ => false
+                                                               , allowEmptyRhs: true));
+            Assert.Throws<AppSpecificException>(testCode: () => StringOperations.AssembleEquationString(letters
+                                                                                                      , numbers
+                                                                                                      , omitIf: static c => Convert.ToInt16(c) % 2 == 0
+                                                                                                      , adapter: static c => c.ToString()
+                                                                                                      , goesToRhsIf: static _ => false
+                                                                                                      , allowEmptyRhs: false));
+            Assert.Throws<AppSpecificException>(testCode: static () => StringOperations.AssembleEquationString(new List<String>()
+                                                            , new List<String>()
+                                                            , omitIf: static _ => false
+                                                            , adapter: static s => s
+                                                            , goesToRhsIf: static _ => false
+                                                            , allowEmptyRhs: true));
         }
     }
 }

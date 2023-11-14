@@ -23,7 +23,7 @@ namespace ReactionStoichiometry
                 OutputFormat.Simple or OutputFormat.SeparateLines when _independentReactions == null => GlobalConstants.FAILURE_MARK
               , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
                                                    , EquationWithPlaceholders()
-                                                   , String.Join(separator: ", ", _independentReactions.Select(StringOperations.ToCoefficientNotationString)))
+                                                   , String.Join(separator: ", ", _independentReactions.Select(StringOperations.CoefficientsAsString)))
               , OutputFormat.SeparateLines => String.Join(Environment.NewLine, _independentReactions.Select(EquationWithIntegerCoefficients))
               , _ => base.ToString(format)
             };
@@ -47,7 +47,7 @@ namespace ReactionStoichiometry
                     }
                 }
 
-                inverse = RationalMatrixOperations.GetInverse(square);
+                inverse = square.GetInverse();
             }
 
             _independentReactions = Enumerable.Range(inverse.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)

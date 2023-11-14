@@ -6,17 +6,22 @@ using ReactionStoichiometry;
 using ReactionStoichiometry.CLI;
 
 #if RUN_BATCH_PROCESSING
+var stopwatch = new Stopwatch();
+stopwatch.Start();
+// ReSharper disable once LoopCanBePartlyConvertedToQuery
+foreach (Balancer.OutputFormat format in Enum.GetValues(typeof(Balancer.OutputFormat)))
 {
-    var stopwatch = new Stopwatch();
-    stopwatch.Start();
-    BatchProcessorDetailedPlain.Run();
-    BatchProcessorSingleLine.Run();
-    stopwatch.Stop();
-    Console.WriteLine($"Batch processing look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
+    if (format == Balancer.OutputFormat.DetailedHtml)
+    {
+        continue;
+    }
+    BatchProcessor.Run(format);
 }
+stopwatch.Stop();
+Console.WriteLine($"Batch processing look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
+Console.WriteLine(value: "---------------------------");
 #endif
 
-Console.WriteLine(value: "---------------------------");
 Console.WriteLine(value: "Equation?");
 var equation = Console.ReadLine();
 if (equation != null && equation.LooksLikeChemicalReactionEquation())

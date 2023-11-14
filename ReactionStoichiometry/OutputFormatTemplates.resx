@@ -136,15 +136,10 @@
 </html>]]></value>
   </data>
   <data name="PLAIN_OUTPUT" xml:space="preserve">
-    <value>Input:
-%Skeletal%
-
-Details:
+    <value>Details:
 %Details%
-
 Output:
 %Outcome%
-
 Diagnostics:
 %Diagnostics%</value>
   </data>

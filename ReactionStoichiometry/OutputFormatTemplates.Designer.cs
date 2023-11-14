@@ -85,15 +85,10 @@ namespace ReactionStoichiometry {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input:
-        ///%Skeletal%
-        ///
-        ///Details:
+        ///   Looks up a localized string similar to Details:
         ///%Details%
-        ///
         ///Output:
         ///%Outcome%
-        ///
         ///Diagnostics:
         ///%Diagnostics%.
         /// </summary>

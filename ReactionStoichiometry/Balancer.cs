@@ -18,12 +18,20 @@ namespace ReactionStoichiometry
 
         public readonly ChemicalReactionEquation Equation;
 
+        private Boolean _hadBeenRunAlready;
         private readonly List<String> _details = new();
         private String _failureMessage = String.Empty;
 
         protected Balancer(String equation)
         {
             Equation = new ChemicalReactionEquation(equation.Replace(oldValue: " ", String.Empty));
+            _details.Add(Equation.CCM.Readable(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
+            _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
+                                     , Equation.CCM.RowCount()
+                                     , Equation.CCM.ColumnCount()
+                                     , Equation.CompositionMatrixRank
+                                     , Equation.CompositionMatrixNullity));
+            _details.Add(Equation.RREF.Readable(title: "RREF", LabelFor, LabelFor));
         }
 
         protected abstract void Balance();
@@ -49,14 +57,9 @@ namespace ReactionStoichiometry
 
         public Boolean Run()
         {
-            _details.Add(Equation.CCM.Readable(title: "Chemical composition matrix", columnHeaders: i => Equation.Substances[i]));
-            _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
-                                     , Equation.CCM.RowCount()
-                                     , Equation.CCM.ColumnCount()
-                                     , Equation.CompositionMatrixRank
-                                     , Equation.CompositionMatrixNullity));
-            _details.Add(Equation.RREF.Readable(title: "RREF", LabelFor, LabelFor));
+            AppSpecificException.ThrowIf(_hadBeenRunAlready, message: "Invalid call");
 
+            _hadBeenRunAlready = true;
             try
             {
                 Balance();
@@ -70,29 +73,24 @@ namespace ReactionStoichiometry
             return true;
         }
 
-        public String EquationWithPlaceholders()
-        {
-            return StringOperations.AssembleEquationString(Equation.Substances
-                                                         , Enumerable.Range(start: 0, Equation.Substances.Count).ToArray()
-                                                         , omit: static _ => false
-                                                         , LabelFor
-                                                         , predicateGoesToRHS: static _ => false
-                                                         , allowEmptyRHS: true);
-        }
+        public String EquationWithPlaceholders() =>
+            StringOperations.AssembleEquationString(Equation.Substances
+                                                  , Enumerable.Range(start: 0, Equation.Substances.Count).Select(LabelFor).ToArray()
+                                                  , omitIf: static _ => false
+                                                  , adapter: static s => s
+                                                  , goesToRhsIf: static _ => false
+                                                  , allowEmptyRhs: true);
 
-        public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
-        {
-            return StringOperations.AssembleEquationString(Equation.Substances
-                                                         , coefficients
-                                                         , omit: static value => value.IsZero
-                                                         , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
-                                                         , predicateGoesToRHS: static value => value > 0);
-        }
+        public String EquationWithIntegerCoefficients(BigInteger[] coefficients) =>
+            StringOperations.AssembleEquationString(Equation.Substances
+                                                  , coefficients
+                                                  , omitIf: static value => value.IsZero
+                                                  , adapter: static value => BigInteger.Abs(value) == 1 ? String.Empty : BigInteger.Abs(value).ToString()
+                                                  , goesToRhsIf: static value => value > 0
+                                                  , allowEmptyRhs: false);
 
-        public String LabelFor(Int32 i)
-        {
-            return Equation.Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
-        }
+        public String LabelFor(Int32 i) =>
+            Equation.Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
 
         internal Boolean ValidateSolution(BigInteger[] coefficients)
         {

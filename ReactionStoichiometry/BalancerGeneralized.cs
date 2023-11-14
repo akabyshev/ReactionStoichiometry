@@ -23,13 +23,13 @@ namespace ReactionStoichiometry
                                                                .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
                                                                                      LabelFor(i) :
                                                                                      AlgebraicExpressionForCoefficient(i))
-                                                               .ToCoefficientNotationString())
+                                                               .CoefficientsAsString())
               , OutputFormat.SeparateLines => String.Format(format: "{0}{1}for any {2}"
                                                           , String.Join(Environment.NewLine
                                                                       , _dependentCoefficientExpressions.Keys.Select(
                                                                             selector: i => $"{LabelFor(i)} = {AlgebraicExpressionForCoefficient(i)}"))
                                                           , Environment.NewLine
-                                                          , _freeCoefficientIndices.Select(LabelFor).ToCoefficientNotationString())
+                                                          , _freeCoefficientIndices.Select(LabelFor).CoefficientsAsString())
               , _ => base.ToString(format)
             };
         }

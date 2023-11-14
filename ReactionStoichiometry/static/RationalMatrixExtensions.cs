@@ -1,41 +1,95 @@
-﻿using System.Diagnostics;
-using System.Numerics;
-
 using Rationals;
+using System.Diagnostics;
+using System.Numerics;
 
 namespace ReactionStoichiometry
 {
-    internal static partial class RationalMatrixOperations
+    internal static class RationalMatrixExtensions
     {
-        internal static void TrimAndGetCanonicalForms(ref Rational[,] matrix)
+        internal static Int32 RowCount(this Rational[,] me)
         {
-            var indexLastRowToCopy = matrix.RowCount() - 1;
-            while (indexLastRowToCopy >= 0 && matrix.Row(indexLastRowToCopy).All(predicate: static r => r == 0))
+            return me.GetLength(dimension: 0);
+        }
+
+        internal static Boolean IsIdentityMatrix(this Rational[,] me)
+        {
+            if (me.RowCount() != me.ColumnCount())
             {
-                indexLastRowToCopy--;
+                return false;
             }
 
-            if (indexLastRowToCopy == -1)
+            for (var r = 0; r < me.RowCount(); r++)
             {
-                throw new InvalidOperationException(message: "All-zeroes matrix");
-            }
-
-            var newArray = new Rational[indexLastRowToCopy + 1, matrix.ColumnCount()];
-            for (var r = 0; r < newArray.RowCount(); r++)
-            {
-                for (var c = 0; c < newArray.ColumnCount(); c++)
+                for (var c = 0; c < me.ColumnCount(); c++)
                 {
-                    newArray[r, c] = matrix[r, c].CanonicalForm;
+                    if (r == c && !me[r, c].IsOne)
+                    {
+                        return false;
+                    }
+                    if (r != c && !me[r, c].IsZero)
+                    {
+                        return false;
+                    }
                 }
             }
 
-            matrix = newArray;
+            return true;
+        }
+
+        internal static Int32 ColumnCount(this Rational[,] me)
+        {
+            return me.GetLength(dimension: 1);
+        }
+
+        internal static Rational[] Row(this Rational[,] me, Int32 r)
+        {
+            var result = new Rational[me.ColumnCount()];
+            for (var c = 0; c < me.ColumnCount(); c++)
+            {
+                result[c] = me[r, c];
+            }
+
+            return result;
+        }
+
+        internal static Rational[] Column(this Rational[,] me, Int32 c)
+        {
+            var result = new Rational[me.RowCount()];
+            for (var r = 0; r < me.RowCount(); r++)
+            {
+                result[r] = me[r, c];
+            }
+
+            return result;
+        }
+
+        internal static String Readable(this Rational[,] me, String title, Func<Int32, String>? rowHeaders = null, Func<Int32, String>? columnHeaders = null)
+        {
+            rowHeaders ??= static i => $"R#{i + 1}";
+
+            List<String> result = new() { $"[[{title}]]" };
+
+            if (columnHeaders != null)
+            {
+                List<String> line = new() { String.Empty };
+                line.AddRange(Enumerable.Range(start: 0, me.ColumnCount()).Select(columnHeaders));
+                result.Add(String.Join(separator: '\t', line));
+            }
+
+            for (var r = 0; r < me.RowCount(); r++)
+            {
+                List<String> line = new() { rowHeaders(r) };
+                line.AddRange(Enumerable.Range(start: 0, me.ColumnCount()).Select(selector: c => me[r, c].ToString()!));
+                result.Add(String.Join(separator: '\t', line));
+            }
+
+            return String.Join(Environment.NewLine, result);
         }
 
         // ReSharper disable once InconsistentNaming
         internal static Rational[,] GetRREF(this Rational[,] me)
         {
-            var result = (Rational[,])me.Clone();
+            var result = (Rational[,]) me.Clone();
 
             var leadColumnIndex = 0;
             for (var r = 0; r < result.RowCount(); r++)
@@ -82,25 +136,25 @@ namespace ReactionStoichiometry
                 Parallel.For(fromInclusive: 0
                            , result.RowCount()
                            , body: k =>
-                                   {
-                                       // ReSharper disable twice AccessToModifiedClosure
-                                       if (k == r)
-                                       {
-                                           return;
-                                       }
-                                       var factor = result[k, leadColumnIndex];
-                                       for (var c = 0; c < result.ColumnCount(); c++)
-                                       {
-                                           result[k, c] = (result[k, c] - factor * result[r, c]).CanonicalForm;
-                                       }
-                                   });
+                           {
+                               // ReSharper disable twice AccessToModifiedClosure
+                               if (k == r)
+                               {
+                                   return;
+                               }
+                               var factor = result[k, leadColumnIndex];
+                               for (var c = 0; c < result.ColumnCount(); c++)
+                               {
+                                   result[k, c] = (result[k, c] - factor * result[r, c]).CanonicalForm;
+                               }
+                           });
                 leadColumnIndex++;
             }
 
             return result;
         }
 
-        internal static Rational[,] GetInverse(Rational[,] matrix)
+        internal static Rational[,] GetInverse(this Rational[,] matrix)
         {
             var size = matrix.RowCount();
             if (size != matrix.ColumnCount())
@@ -146,19 +200,10 @@ namespace ReactionStoichiometry
 
         internal static BigInteger[] ScaleToIntegers(this Rational[] rationals)
         {
-            var multiple = rationals.Select(selector: static r => r.Denominator).Aggregate(LeastCommonMultiple);
+            var multiple = rationals.Select(selector: static r => r.Denominator).Aggregate(Helpers.LeastCommonMultiple);
             var wholes = rationals.Select(selector: r => (r * multiple).CanonicalForm.Numerator).ToArray();
             var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
             return wholes.Select(selector: r => divisor != 0 ? r / divisor : r).ToArray();
-        }
-
-        internal static BigInteger LeastCommonMultiple(BigInteger a, BigInteger b)
-        {
-            if (a == 0 || b == 0)
-            {
-                return 0;
-            }
-            return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
         }
     }
 }

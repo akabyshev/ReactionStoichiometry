@@ -74,20 +74,21 @@ namespace ReactionStoichiometry
             }
 
             return result;
-        } // ReSharper disable twice InconsistentNaming
+        }
+
         internal static String AssembleEquationString<T>(IReadOnlyList<String> strings
                                                        , IReadOnlyList<T> values
-                                                       , Func<T, Boolean> omit
+                                                       , Func<T, Boolean> omitIf
                                                        , Func<T, String> adapter
-                                                       , Func<T, Boolean> predicateGoesToRHS
-                                                       , Boolean allowEmptyRHS = false)
+                                                       , Func<T, Boolean> goesToRhsIf
+                                                       , Boolean allowEmptyRhs)
         {
             List<String> lhs = new();
             List<String> rhs = new();
 
             for (var i = 0; i < values.Count; i++)
             {
-                if (omit(values[i]))
+                if (omitIf(values[i]))
                 {
                     continue;
                 }
@@ -98,28 +99,25 @@ namespace ReactionStoichiometry
                     token += GlobalConstants.MULTIPLICATION_SYMBOL;
                 }
 
-                (predicateGoesToRHS(values[i]) ? rhs : lhs).Add(token + strings[i]);
+                (goesToRhsIf(values[i]) ? rhs : lhs).Add(token + strings[i]);
             }
 
-            if (rhs.Count == 0 && allowEmptyRHS)
+            if (rhs.Count == 0 && allowEmptyRhs)
             {
                 rhs.Add(item: "0");
             }
 
-            if (lhs.Count == 0 || rhs.Count == 0)
-            {
-                throw new InvalidOperationException();
-            }
+            AppSpecificException.ThrowIf(lhs.Count == 0 || rhs.Count == 0, message: "Both LHS and RHS lists must have elements");
 
             return String.Join(separator: " + ", lhs) + " = " + String.Join(separator: " + ", rhs);
         }
 
-        internal static String ToCoefficientNotationString<T>(this IEnumerable<T> me)
+        internal static String CoefficientsAsString<T>(this IEnumerable<T> me)
         {
             return "{" + String.Join(separator: ", ", me) + "}";
         }
 
-        internal static BigInteger[] GetArraysFromCoefficientNotationString(String s)
+        internal static BigInteger[] GetParametersFromString(String s)
         {
             return s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse).ToArray();
         }

@@ -166,7 +166,7 @@ namespace ReactionStoichiometry.GUI
             }
             catch (AppSpecificException)
             {
-                txtInstance.Text = "Could not get integer coefficients";
+                txtInstance.Text = "Failed to get valid coefficients";
                 coefficients = null;
             }
 
