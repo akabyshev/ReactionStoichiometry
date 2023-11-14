@@ -22,14 +22,14 @@ namespace ReactionStoichiometry
                 OutputFormat.Simple or OutputFormat.Multiline when _dependentCoefficientExpressions == null || _freeCoefficientIndices == null =>
                     GlobalConstants.FAILURE_MARK
               , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
-                                                   , Equation.EquationWithPlaceholders
+                                                   , Equation.GeneralizedEquation
                                                    , Enumerable.Range(start: 0, Equation.Substances.Count)
                                                                .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
                                                                                      Equation.LabelFor(i) :
                                                                                      AlgebraicExpressionForCoefficient(i))
                                                                .CoefficientsAsString())
               , OutputFormat.Multiline => String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
-                                                      , Equation.EquationWithPlaceholders
+                                                      , Equation.GeneralizedEquation
                                                       , String.Join(Environment.NewLine
                                                                   , _dependentCoefficientExpressions.Keys.Select(
                                                                         selector: i => String.Format(format: "{0} = {1}"
@@ -42,7 +42,7 @@ namespace ReactionStoichiometry
             };
         }
 
-        protected override void Balance()
+        protected override void BalanceImplementation()
         {
             AppSpecificException.ThrowIf(Equation.RREF.IsIdentityMatrix(), message: "SLE is unsolvable");
 

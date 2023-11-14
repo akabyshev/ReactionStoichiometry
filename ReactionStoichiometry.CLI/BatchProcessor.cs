@@ -13,6 +13,8 @@
                 using StreamReader reader = new(ConstructPath(filename: @"input\MyBatch"));
                 using StreamWriter writer = new(ConstructPath(format.ToString(), type.Name));
 
+                if (format == Balancer.OutputFormat.Json)
+                    writer.WriteLine(value: "{");
                 while (reader.ReadLine() is { } line)
                 {
                     if (line.StartsWith(IGNORED_LINE_MARK) || line.Length == 0)
@@ -20,15 +22,28 @@
                         continue;
                     }
                     var balancer = (Balancer)Activator.CreateInstance(type, line)!;
-                    balancer.Run();
+                    balancer.Balance();
 
-                    if (format != Balancer.OutputFormat.DetailedMultiline && format != Balancer.OutputFormat.Json)
+                    switch (format)
                     {
-                        writer.WriteLine(line);
+                        case Balancer.OutputFormat.Simple:
+                            writer.WriteLine(line);
+                            break;
+                        case Balancer.OutputFormat.Multiline:
+                            writer.WriteLine(line);
+                            break;
+                        case Balancer.OutputFormat.DetailedMultiline: break;
+                        case Balancer.OutputFormat.Json:
+                            writer.Write(value: $"\"{type.Name}\": ");
+                            break;
+                        default: throw new ArgumentOutOfRangeException(nameof(format));
                     }
+
                     writer.WriteLine(balancer.ToString(format));
                     writer.WriteLine();
                 }
+                if (format == Balancer.OutputFormat.Json)
+                    writer.WriteLine(value: '}');
             }
         }
 

@@ -63,9 +63,9 @@ namespace ReactionStoichiometry.GUI
             var s = textBoxInput.Text;
 
             _balancer = new BalancerGeneralized(s);
-            txtGeneralForm.Text = _balancer.Equation.EquationWithPlaceholders;
+            txtGeneralForm.Text = _balancer.Equation.GeneralizedEquation;
 
-            if (_balancer.Run())
+            if (_balancer.Balance())
             {
                 InitInstantiation();
                 InitPermutation();

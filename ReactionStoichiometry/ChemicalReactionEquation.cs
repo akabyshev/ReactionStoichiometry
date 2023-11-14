@@ -8,26 +8,26 @@ namespace ReactionStoichiometry
     public sealed class ChemicalReactionEquation
     {
         [JsonProperty(PropertyName = "Generalized equation")]
-        public readonly String EquationWithPlaceholders;
+        public readonly String GeneralizedEquation;
 
         public readonly List<String> Substances;
+
+        [JsonProperty(PropertyName = "CCM rank")]
+        internal readonly Int32 CompositionMatrixRank;
+
+        [JsonProperty(PropertyName = "CCM nullity")]
+        internal readonly Int32 CompositionMatrixNullity;
 
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "CCM")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] CCM;
 
-        [JsonProperty(PropertyName = "CCM rank")]
-        internal readonly Int32 CompositionMatrixRank;
-
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "CCM in RREF")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] RREF;
 
-        [JsonProperty(PropertyName = "Original equations")]
-        internal readonly String Skeletal;
-
-        [JsonProperty(PropertyName = "CCM nullity")]
-        internal Int32 CompositionMatrixNullity => CCM.ColumnCount() - CompositionMatrixRank;
+        [JsonProperty(PropertyName = "Original equation")]
+        internal readonly String OriginalEquation;
 
         internal ChemicalReactionEquation(String s)
         {
@@ -35,13 +35,14 @@ namespace ReactionStoichiometry
             {
                 throw new ArgumentException(message: "Invalid string");
             }
-            Skeletal = s;
-            Substances = Skeletal.Split('=', '+').Where(predicate: static s => s != "0").ToList();
+            OriginalEquation = s;
+            Substances = OriginalEquation.Split('=', '+').Where(predicate: static s => s != "0").ToList();
             CCM = GetCompositionMatrix();
             RREF = CCM.GetRREF(trim: true);
             CompositionMatrixRank = RREF.RowCount();
+            CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
 
-            EquationWithPlaceholders = StringOperations.AssembleEquationString(Substances
+            GeneralizedEquation = StringOperations.AssembleEquationString(Substances
                                                                              , Enumerable.Range(start: 0, Substances.Count).Select(LabelFor).ToArray()
                                                                              , omitIf: static _ => false
                                                                              , adapter: static s => s
@@ -64,10 +65,33 @@ namespace ReactionStoichiometry
                                                          , allowEmptyRhs: false);
         }
 
+        internal Boolean ValidateSolution(BigInteger[] coefficients)
+        {
+            if (coefficients.Length != Substances.Count)
+            {
+                throw new ArgumentException(message: "Size mismatch");
+            }
+
+            for (var r = 0; r < CCM.RowCount(); r++)
+            {
+                var sum = Rational.Zero;
+                for (var c = 0; c < CCM.ColumnCount(); c++)
+                {
+                    sum += CCM[r, c] * coefficients[c];
+                }
+                if (sum != Rational.Zero)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private Rational[,] GetCompositionMatrix()
         {
             var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
-            var elements = Regex.Matches(Skeletal, StringOperations.ELEMENT_SYMBOL)
+            var elements = Regex.Matches(OriginalEquation, StringOperations.ELEMENT_SYMBOL)
                                 .Select(selector: static m => m.Value)
                                 .Except(pseudoElementsOfCharge)
                                 .ToList();

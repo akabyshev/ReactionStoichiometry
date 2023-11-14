@@ -17,8 +17,8 @@ namespace ReactionStoichiometry.Tests
         {
             const String eq = "H2 + O2 = H2O";
             var balancer = new BalancerInverseBased(eq);
-            Assert.True(balancer.Run());
-            Assert.Throws<AppSpecificException>(testCode: () => _ = balancer.Run());
+            Assert.True(balancer.Balance());
+            Assert.Throws<AppSpecificException>(testCode: () => _ = balancer.Balance());
         }
 
         [Fact]
@@ -36,10 +36,10 @@ namespace ReactionStoichiometry.Tests
                 var eq = parts[0];
 
                 var inverseBased = new BalancerInverseBased(eq);
-                Assert.True(inverseBased.Run());
+                Assert.True(inverseBased.Balance());
 
                 var generalized = new BalancerGeneralized(eq);
-                Assert.True(generalized.Run());
+                Assert.True(generalized.Balance());
 
                 var instances = parts[1]
                                 .Split(separator: ';')
@@ -63,7 +63,7 @@ namespace ReactionStoichiometry.Tests
             {
                 var balancer = new BalancerInverseBased(line);
                 Assert.Throws<InvalidOperationException>(testCode: () => { _ = balancer.SolutionSets; });
-                Assert.True(balancer.Run());
+                Assert.True(balancer.Balance());
                 Assert.NotNull(balancer.SolutionSets);
                 Assert.NotEmpty(balancer.SolutionSets);
 
@@ -72,7 +72,7 @@ namespace ReactionStoichiometry.Tests
 
                 foreach (var coefficients in balancer.SolutionSets)
                 {
-                    Assert.True(balancer.ValidateSolution(coefficients));
+                    Assert.True(balancer.Equation.ValidateSolution(coefficients));
                 }
             }
 
@@ -88,7 +88,7 @@ namespace ReactionStoichiometry.Tests
             Assert.Throws<InvalidOperationException>(testCode: () => { _ = balancer.SolutionSets[index: 0]; });
             Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.Simple));
 
-            Assert.True(balancer.Run());
+            Assert.True(balancer.Balance());
             Assert.Null(Record.Exception(testCode: () => _ = balancer.SolutionSets[index: 0]));
             Assert.Equal(expected: "a·H2 + b·O2 + c·H2O = 0 with coefficients {-2, -1, 2}", balancer.ToString(Balancer.OutputFormat.Simple));
         }
@@ -97,10 +97,10 @@ namespace ReactionStoichiometry.Tests
         public void Generalized_ValidateSolution_Simple()
         {
             var balancer = new BalancerGeneralized(equation: "H2+O2=H2O");
-            Assert.True(balancer.ValidateSolution(new BigInteger[] { -2, -1, 2 }));
-            Assert.True(balancer.ValidateSolution(new BigInteger[] { -4, -2, 4 }));
-            Assert.False(balancer.ValidateSolution(new BigInteger[] { -10, 7, -3 }));
-            Assert.Throws<ArgumentException>(testCode: () => _ = balancer.ValidateSolution(new BigInteger[] { -2, -1, 2, 2 }));
+            Assert.True(balancer.Equation.ValidateSolution(new BigInteger[] { -2, -1, 2 }));
+            Assert.True(balancer.Equation.ValidateSolution(new BigInteger[] { -4, -2, 4 }));
+            Assert.False(balancer.Equation.ValidateSolution(new BigInteger[] { -10, 7, -3 }));
+            Assert.Throws<ArgumentException>(testCode: () => _ = balancer.Equation.ValidateSolution(new BigInteger[] { -2, -1, 2, 2 }));
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.DetailedMultiline));
 
-            Assert.True(balancer.Run());
+            Assert.True(balancer.Balance());
             Assert.Equal(sln, balancer.ToString(Balancer.OutputFormat.Simple));
 
             Assert.Throws<ArgumentException>(testCode: () => _ = balancer.Instantiate(new BigInteger[] { 2, 5, 3 }));
@@ -121,9 +121,9 @@ namespace ReactionStoichiometry.Tests
 
 
             Assert.Null(Record.Exception(testCode: () => _ = balancer.Instantiate(new BigInteger[] { 2, 5 })));
-            Assert.True(balancer.ValidateSolution(balancer.Instantiate(new BigInteger[] { 2, 5 })));
+            Assert.True(balancer.Equation.ValidateSolution(balancer.Instantiate(new BigInteger[] { 2, 5 })));
 
-            Assert.True(balancer.ValidateSolution(balancer.Instantiate(new BigInteger[] { 0, 0 })));
+            Assert.True(balancer.Equation.ValidateSolution(balancer.Instantiate(new BigInteger[] { 0, 0 })));
         }
 
         [Fact]
@@ -131,7 +131,7 @@ namespace ReactionStoichiometry.Tests
         {
             const String eqUnsolvable = "FeS2+HNO3=Fe2(SO4)3+NO+H2SO4";
             var balancer = new BalancerGeneralized(eqUnsolvable);
-            Assert.False(balancer.Run());
+            Assert.False(balancer.Balance());
             Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.DetailedMultiline));
         }
@@ -143,21 +143,21 @@ namespace ReactionStoichiometry.Tests
             var inverseBased = new BalancerInverseBased(eqInverseBasedCantSolve);
             Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.DetailedMultiline));
-            Assert.False(inverseBased.Run());
+            Assert.False(inverseBased.Balance());
             Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(Balancer.OutputFormat.DetailedMultiline));
 
             var generalized = new BalancerGeneralized(eqInverseBasedCantSolve);
-            Assert.True(generalized.Run());
+            Assert.True(generalized.Balance());
 
-            Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 0 })));
+            Assert.True(inverseBased.Equation.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 0 })));
             Assert.Throws<AppSpecificException>(
                 testCode: () => inverseBased.Equation.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 0 })));
 
-            Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 2, 0 })));
+            Assert.True(inverseBased.Equation.ValidateSolution(generalized.Instantiate(new BigInteger[] { 2, 0 })));
             Assert.Equal(expected: "3·O2 = 2·O3", inverseBased.Equation.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 2, 0 })));
 
-            Assert.True(inverseBased.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 2 })));
+            Assert.True(inverseBased.Equation.ValidateSolution(generalized.Instantiate(new BigInteger[] { 0, 2 })));
             Assert.Equal(expected: "2·Na + Cl2 = 2·NaCl"
                        , inverseBased.Equation.EquationWithIntegerCoefficients(generalized.Instantiate(new BigInteger[] { 0, 2 })));
         }
@@ -169,7 +169,7 @@ namespace ReactionStoichiometry.Tests
             Assert.Throws<InvalidOperationException>(testCode: () => { _ = balancer.AlgebraicExpressionForCoefficient(index: 0); });
             Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.Multiline));
 
-            Assert.True(balancer.Run());
+            Assert.True(balancer.Balance());
             Assert.Equal(expected: "-d", balancer.AlgebraicExpressionForCoefficient(index: 0));
             Assert.Equal(expected: "-d/2", balancer.AlgebraicExpressionForCoefficient(index: 1));
             Assert.Equal(expected: "0", balancer.AlgebraicExpressionForCoefficient(index: 2));
@@ -180,10 +180,10 @@ namespace ReactionStoichiometry.Tests
         public void ToString_Simple()
         {
             var balancer1 = new BalancerGeneralized(equation: "H2+O2=H2O");
-            Assert.True(balancer1.Run());
+            Assert.True(balancer1.Balance());
 
             var balancer2 = new BalancerInverseBased(equation: "H2+O2=H2O");
-            Assert.True(balancer2.Run());
+            Assert.True(balancer2.Balance());
 
             Assert.NotEqual(balancer1.ToString(Balancer.OutputFormat.DetailedMultiline), balancer2.ToString(Balancer.OutputFormat.DetailedMultiline));
             Assert.NotEqual(balancer1.ToString(Balancer.OutputFormat.Simple), balancer2.ToString(Balancer.OutputFormat.Simple));

@@ -22,14 +22,14 @@ namespace ReactionStoichiometry
             {
                 OutputFormat.Simple or OutputFormat.Multiline when _independentReactions == null => GlobalConstants.FAILURE_MARK
               , OutputFormat.Simple => String.Format(format: "{0} with coefficients {1}"
-                                                   , Equation.EquationWithPlaceholders
+                                                   , Equation.GeneralizedEquation
                                                    , String.Join(separator: ", ", _independentReactions.Select(StringOperations.CoefficientsAsString)))
               , OutputFormat.Multiline => String.Join(Environment.NewLine, _independentReactions.Select(Equation.EquationWithIntegerCoefficients))
               , _ => base.ToString(format)
             };
         }
 
-        protected override void Balance()
+        protected override void BalanceImplementation()
         {
             AppSpecificException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
 

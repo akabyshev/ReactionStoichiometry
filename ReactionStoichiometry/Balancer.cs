@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using Newtonsoft.Json;
-using Rationals;
+﻿using Newtonsoft.Json;
 
 namespace ReactionStoichiometry
 {
@@ -39,7 +37,7 @@ namespace ReactionStoichiometry
             _details.Add(Equation.RREF.Readable(title: "RREF", Equation.LabelFor, Equation.LabelFor));
         }
 
-        protected abstract void Balance();
+        protected abstract void BalanceImplementation();
 
         public virtual String ToString(OutputFormat format)
         {
@@ -53,21 +51,21 @@ namespace ReactionStoichiometry
 
             String FillTemplate(String template)
             {
-                return template.Replace(oldValue: "%Skeletal%", Equation.Skeletal)
+                return template.Replace(oldValue: "%Skeletal%", Equation.OriginalEquation)
                                .Replace(oldValue: "%Details%", String.Join(Environment.NewLine, _details))
                                .Replace(oldValue: "%Outcome%", ToString(OutputFormat.Multiline))
                                .Replace(oldValue: "%Diagnostics%", _failureMessage);
             }
         }
 
-        public Boolean Run()
+        public Boolean Balance()
         {
             AppSpecificException.ThrowIf(_hadBeenRunAlready, message: "Invalid call");
 
             _hadBeenRunAlready = true;
             try
             {
-                Balance();
+                BalanceImplementation();
                 _success = true;
             }
             catch (AppSpecificException e)
@@ -79,36 +77,12 @@ namespace ReactionStoichiometry
             return _success;
         }
 
-        internal Boolean ValidateSolution(BigInteger[] coefficients)
-        {
-            if (coefficients.Length != Equation.Substances.Count)
-            {
-                throw new ArgumentException(message: "Size mismatch");
-            }
-
-            for (var r = 0; r < Equation.CCM.RowCount(); r++)
-            {
-                var sum = Rational.Zero;
-                for (var c = 0; c < Equation.CCM.ColumnCount(); c++)
-                {
-                    sum += Equation.CCM[r, c] * coefficients[c];
-                }
-                if (sum != Rational.Zero)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         private String SerializeToJson()
         {
             var settings = new JsonSerializerSettings
                            {
                                NullValueHandling = NullValueHandling.Ignore
                              , Formatting = Formatting.Indented
-                             , ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                            };
 
             return JsonConvert.SerializeObject(this, settings);

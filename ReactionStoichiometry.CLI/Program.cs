@@ -22,6 +22,6 @@ var equation = Console.ReadLine();
 if (equation != null && equation.LooksLikeChemicalReactionEquation())
 {
     var b = new BalancerGeneralized(equation);
-    b.Run();
+    b.Balance();
     Console.WriteLine(b.ToString(Balancer.OutputFormat.DetailedMultiline));
 }
