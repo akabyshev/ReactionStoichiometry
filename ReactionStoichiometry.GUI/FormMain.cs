@@ -1,4 +1,5 @@
 using System.Numerics;
+using Microsoft.Web.WebView2.Core;
 
 namespace ReactionStoichiometry.GUI
 {
@@ -16,6 +17,7 @@ namespace ReactionStoichiometry.GUI
         private async void InitializeWebView()
         {
             await webviewPrintable.EnsureCoreWebView2Async(environment: null);
+            webviewPrintable.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
         }
 
         #region Event Handlers
@@ -54,13 +56,16 @@ namespace ReactionStoichiometry.GUI
         }
         #endregion
 
-        private void ResetControls()
+        private async void ResetControls()
         {
-            webviewPrintable.Source = new Uri(uriString: "about:blank");
+            await webviewPrintable.EnsureCoreWebView2Async(environment: null);
+            webviewPrintable.NavigateToString(String.Empty);
             txtGeneralForm.Text = String.Empty;
             txtInstance.Text = String.Empty;
             listPermutator.Items.Clear();
             gridCoefficients.Rows.Clear();
+            theTabControl.Enabled = false;
+
             buttonBalance.Enabled = textBoxInput.Text.LooksLikeChemicalReactionEquation();
         }
 
@@ -76,6 +81,7 @@ namespace ReactionStoichiometry.GUI
                 InitInstantiation();
                 InitPermutation();
                 webviewPrintable.NavigateToString(GetHtmlContentFromJson(_balancer.ToString(Balancer.OutputFormat.Json)));
+                theTabControl.Enabled = true;
             }
             else
             {
@@ -89,9 +95,6 @@ namespace ReactionStoichiometry.GUI
             var htmlContent = WebViewResources.htmlContent.Replace(oldValue: "%jsContent%", WebViewResources.jsContent)
                                               .Replace(oldValue: "%cssContent%", WebViewResources.cssContent)
                                               .Replace(oldValue: "%jsonContent%", jsonContent);
-            #if DEBUG
-            File.WriteAllText(path: "webview.html", htmlContent);
-            #endif
             return htmlContent;
         }
 

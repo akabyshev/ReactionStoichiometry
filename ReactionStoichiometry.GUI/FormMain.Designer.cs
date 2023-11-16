@@ -47,8 +47,8 @@
             tabPermutate = new TabPage();
             listPermutator = new ListBox();
             tabHtml = new TabPage();
-            folderBrowserDialog1 = new FolderBrowserDialog();
             webviewPrintable = new Microsoft.Web.WebView2.WinForms.WebView2();
+            folderBrowserDialog1 = new FolderBrowserDialog();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
             tabInstantiate.SuspendLayout();
@@ -256,9 +256,9 @@
             tabHtml.Text = "Result";
             tabHtml.UseVisualStyleBackColor = true;
             // 
-            // webviewResults
+            // webviewPrintable
             // 
-            webviewPrintable.AllowExternalDrop = true;
+            webviewPrintable.AllowExternalDrop = false;
             webviewPrintable.CreationProperties = null;
             webviewPrintable.DefaultBackgroundColor = Color.White;
             webviewPrintable.Dock = DockStyle.Fill;
