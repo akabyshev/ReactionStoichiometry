@@ -12,6 +12,7 @@ namespace ReactionStoichiometry.Tests
 
         // Use https://matrixcalc.org or https://www.desmos.com/matrix for Inverse and Determinant
         // Use https://www.wolframalpha.com/input/?i=matrix+rank+calculator for Rank
+        // Use https://www.xarg.org/tools/reduced-row-echelon-form-rref-caclulator/ for RREF (don't forget to set field to Q)
         private readonly Rational[,] _knownMatrix = { { 0, 2, 3, 4 }, { 5, 60, 7, 8 }, { 9, 10, 11, 12 } };
 
         private readonly Rational[,] _knownMatrixRREF = { { 1, 0, 0, new(-216, 727) }, { 0, 1, 0, new(2, 727) }, { 0, 0, 1, new(968, 727) } };

@@ -4,7 +4,7 @@ namespace ReactionStoichiometry.GUI
 {
     internal sealed partial class FormMain : Form
     {
-        private BalancerGeneralized _balancer;
+        private BalancerGeneralized _balancer = null!;
 
         internal FormMain()
         {
@@ -87,12 +87,13 @@ namespace ReactionStoichiometry.GUI
                 gridCoefficients.Rows[i].Cells[columnName: "Substance"].Value = _balancer.Equation.Substances[i];
 
                 var expr = _balancer.AlgebraicExpressionForCoefficient(i);
+                var propose = _balancer.GuessedSimplestSolution.singleFreeVarValue;
 
                 if (String.IsNullOrEmpty(expr))
                 {
                     gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
                     gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = "\u27a2";
-                    gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = 0;
+                    gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = propose ?? 0;
                     gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
                 }
                 else
@@ -108,6 +109,7 @@ namespace ReactionStoichiometry.GUI
 
         private void InitPermutation()
         {
+            listPermutator.Items.Clear();
             foreach (var s in _balancer.Equation.Substances)
             {
                 listPermutator.Items.Add(s);

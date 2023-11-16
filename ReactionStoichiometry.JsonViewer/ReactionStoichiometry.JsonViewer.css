@@ -1,0 +1,40 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+p {
+  margin: 5px 0;
+}
+
+.cre {
+    display: flex;
+    justify-content: center;
+    align-items: inherit;
+    width: 100%;
+}
+
+table {
+  table-layout: fixed;
+  width: auto;
+  font-family: monospace;
+}
+
+th {
+  width: auto; 
+  white-space: nowrap;
+  text-align: center;
+  font-weight: normal;
+}
+
+.vertical-headers th {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+  text-align: left;
+
+  }
+
+thead,
+tbody {
+  text-align: right;
+  vertical-align: middle;
+}

@@ -22,6 +22,27 @@ namespace ReactionStoichiometry.Tests
         }
 
         [Fact]
+        public void Generalized_GuessForSingleFreeVar()
+        {
+            const String eq = "Fe2(SO4)3+PrTlTe3+H3PO4=Fe0.996(H2PO4)2H2O+Tl1.987(SO3)3+Pr1.998(SO4)3+Te2O3+P2O5+H2S";
+            var balancer = new BalancerGeneralized(eq);
+            Assert.Null(balancer.GuessedSimplestSolution.singleFreeVarValue);
+            Assert.Null(balancer.GuessedSimplestSolution.resultingEquation);
+            Assert.True(balancer.Balance());
+            Assert.Equal(expected: 14845224399, balancer.GuessedSimplestSolution.singleFreeVarValue);
+        }
+
+        [Fact]
+        public void Generalized_NoGuessForMultipleFreeVar()
+        {
+            const String eq = "CO+CO2+H2=CH4+H2O";
+            var balancer = new BalancerGeneralized(eq);
+            Assert.True(balancer.Balance());
+            Assert.Null(balancer.GuessedSimplestSolution.singleFreeVarValue);
+            Assert.Null(balancer.GuessedSimplestSolution.resultingEquation);
+        }
+
+        [Fact]
         public void Instantiation_CSV()
         {
             using StreamReader reader = new(path: @".\TestInstantiation.csv");

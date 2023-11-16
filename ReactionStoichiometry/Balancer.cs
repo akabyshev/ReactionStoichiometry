@@ -14,7 +14,9 @@ namespace ReactionStoichiometry
         }
         #endregion
 
+        [JsonProperty(Order = -2)]
         public readonly ChemicalReactionEquation Equation;
+
         private readonly List<String> _details = new();
 
         [JsonProperty(PropertyName = "Failure message")]
@@ -79,11 +81,7 @@ namespace ReactionStoichiometry
 
         private String SerializeToJson()
         {
-            var settings = new JsonSerializerSettings
-                           {
-                               NullValueHandling = NullValueHandling.Ignore
-                             , Formatting = Formatting.Indented
-                           };
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
 
             return JsonConvert.SerializeObject(this, settings);
         }

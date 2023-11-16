@@ -12,9 +12,7 @@ namespace ReactionStoichiometry
 
             var jArray = new JArray(Enumerable.Range(start: 0, data.RowCount())
                                               .Select(selector: r => new JArray(Enumerable.Range(start: 0, data.ColumnCount())
-                                                                                          .Select(
-                                                                                              selector:
-                                                                                              c => $"{data[r, c].Numerator}/{data[r, c].Denominator}"))));
+                                                                                          .Select(selector: c => data[r, c].ToString(format: "C")))));
 
             jArray.WriteTo(writer);
         }

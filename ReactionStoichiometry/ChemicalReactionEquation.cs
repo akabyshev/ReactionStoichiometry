@@ -7,27 +7,33 @@ namespace ReactionStoichiometry
 {
     public sealed class ChemicalReactionEquation
     {
-        [JsonProperty(PropertyName = "Generalized equation")]
-        public readonly String GeneralizedEquation;
-
         public readonly List<String> Substances;
-
-        [JsonProperty(PropertyName = "CCM rank")]
-        internal readonly Int32 CompositionMatrixRank;
-
-        [JsonProperty(PropertyName = "CCM nullity")]
-        internal readonly Int32 CompositionMatrixNullity;
 
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "CCM")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] CCM;
 
+        [JsonProperty(PropertyName = "CCM nullity")]
+        internal readonly Int32 CompositionMatrixNullity;
+
+        [JsonProperty(PropertyName = "CCM rank")]
+        internal readonly Int32 CompositionMatrixRank;
+
+        [JsonProperty(PropertyName = "Original input", Order = -2)]
+        internal readonly String OriginalEquation;
+
         // ReSharper disable once InconsistentNaming
-        [JsonProperty(PropertyName = "CCM in RREF")] [JsonConverter(typeof(RationalArrayJsonConverter))]
+        [JsonProperty(PropertyName = "RREF")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] RREF;
 
-        [JsonProperty(PropertyName = "Original equation")]
-        internal readonly String OriginalEquation;
+        [JsonIgnore]
+        public String GeneralizedEquation =>
+            StringOperations.AssembleEquationString(Substances
+                                                  , Enumerable.Range(start: 0, Substances.Count).Select(LabelFor).ToArray()
+                                                  , omitIf: static _ => false
+                                                  , adapter: static s => s
+                                                  , goesToRhsIf: static _ => false
+                                                  , allowEmptyRhs: true);
 
         internal ChemicalReactionEquation(String s)
         {
@@ -41,13 +47,6 @@ namespace ReactionStoichiometry
             RREF = CCM.GetRREF(trim: true);
             CompositionMatrixRank = RREF.RowCount();
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
-
-            GeneralizedEquation = StringOperations.AssembleEquationString(Substances
-                                                                             , Enumerable.Range(start: 0, Substances.Count).Select(LabelFor).ToArray()
-                                                                             , omitIf: static _ => false
-                                                                             , adapter: static s => s
-                                                                             , goesToRhsIf: static _ => false
-                                                                             , allowEmptyRhs: true);
         }
 
         public String LabelFor(Int32 i)

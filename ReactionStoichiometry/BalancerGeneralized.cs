@@ -5,11 +5,32 @@ namespace ReactionStoichiometry
 {
     public sealed class BalancerGeneralized : Balancer
     {
-        [JsonProperty(PropertyName = "Dependent coefficient expressions")]
         private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
 
         [JsonProperty(PropertyName = "Free variables")]
         private List<Int32>? _freeCoefficientIndices;
+
+        [JsonProperty(PropertyName = "Simplest solution")]
+        public (BigInteger? singleFreeVarValue, String? resultingEquation) GuessedSimplestSolution
+        {
+            get
+            {
+                if (_freeCoefficientIndices is not { Count: 1 })
+                {
+                    return (null, null);
+                }
+                var value = Equation.RREF.Column(_freeCoefficientIndices[index: 0])
+                                    .Select(selector: static r => r.Denominator)
+                                    .Aggregate(Helpers.LeastCommonMultiple);
+                return (value, Equation.EquationWithIntegerCoefficients(Instantiate(new[] { value })));
+            }
+        }
+
+        [JsonProperty(PropertyName = "Algebraic expressions")]
+        private String[]? AllAlgebraicExpressions =>
+            _dependentCoefficientExpressions?.Keys.Select(
+                                                selector: i => String.Format(format: "{0} = {1}", Equation.LabelFor(i), AlgebraicExpressionForCoefficient(i)))
+                                            .ToArray();
 
         public BalancerGeneralized(String equation) : base(equation)
         {
@@ -30,11 +51,7 @@ namespace ReactionStoichiometry
                                                                .CoefficientsAsString())
               , OutputFormat.Multiline => String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
                                                       , Equation.GeneralizedEquation
-                                                      , String.Join(Environment.NewLine
-                                                                  , _dependentCoefficientExpressions.Keys.Select(
-                                                                        selector: i => String.Format(format: "{0} = {1}"
-                                                                                                   , Equation.LabelFor(i)
-                                                                                                   , AlgebraicExpressionForCoefficient(i))))
+                                                      , String.Join(Environment.NewLine, AllAlgebraicExpressions!)
                                                       , _freeCoefficientIndices.Select(Equation.LabelFor).CoefficientsAsString()
                                                       , Environment.NewLine)
 
@@ -93,12 +110,10 @@ namespace ReactionStoichiometry
                 throw new InvalidOperationException();
             }
 
-            if (!_dependentCoefficientExpressions.ContainsKey(index))
+            if (!_dependentCoefficientExpressions.TryGetValue(index, out var expression))
             {
                 return null!;
             }
-
-            var expression = _dependentCoefficientExpressions[index];
 
             var numeratorParts = Enumerable.Range(index + 1, expression.Length - (index + 1))
                                            .Where(predicate: i => expression[i] != 0)

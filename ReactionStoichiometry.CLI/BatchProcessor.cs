@@ -42,10 +42,15 @@
 
                     writer.Write(balancer.ToString(format));
                     if (format != Balancer.OutputFormat.Json)
+                    {
                         writer.WriteLine(Environment.NewLine);
+                    }
                     else
+                    {
                         writer.WriteLine(value: ',');
+                    }
                 }
+                // ReSharper disable once InvertIf
                 if (format == Balancer.OutputFormat.Json)
                 {
                     writer.WriteLine(value: ']');
