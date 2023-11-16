@@ -1,77 +1,75 @@
-jsonData.serialized.forEach((record, record_index) => {
+function MakeJsonReadable(serialized, identifier) {
   const recordDiv = document.createElement("div");
 
-  record.Equation.Substances = record.Equation.Substances.map(
+  serialized.Equation.Substances = serialized.Equation.Substances.map(
     (substance) =>
       "<div>" + substance.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>") + "</div>"
   );
 
   const tableCCM = createTable(
-    record.Equation.CCM,
+    serialized.Equation.CCM,
     (index) => (index + 1).toString(),
-    (index) => record.Equation.Substances[index]
+    (index) => serialized.Equation.Substances[index]
   );
   tableCCM.classList.add("vertical-headers");
   const tableRREF = createTable(
-    record.Equation.RREF,
-    (index) => labelFor(record.Equation.Substances.length, index),
-    (index) => labelFor(record.Equation.Substances.length, index)
+    serialized.Equation.RREF,
+    (index) => labelFor(serialized.Equation.Substances.length, index),
+    (index) => labelFor(serialized.Equation.Substances.length, index)
   );
 
   recordDiv.innerHTML = `
-  <h3>Equation ${record_index + 1}</h3>
-  <p>
-  We begin by transforming the original equation
-  <div class="cre">${record.Equation["Original input"]}</div>
-  into its generalized form
-  <div class="cre">${constructGeneralizedEquation(record)}</div>
-  </p>
-  <p>Following that, we create a chemical composition matrix (CCM).
-  The matrix columns denote the substances engaged in the reaction (either as reactants or products),
-  with the matrix rows indicating the individual chemical elements that compose those substances: ${
-    tableCCM.outerHTML
-  }</p>
-  <p>Subsequently, we convert the CCM into its Reduced Row Echelon Form (RREF) through Gaussian elimination: ${
-    tableRREF.outerHTML
-  }</p>`;
+    <h3>${identifier}</h3>
+    <p>
+    We begin by transforming the original equation
+    <div class="cre">${serialized.Equation["Original input"]}</div>
+    into its generalized form
+    <div class="cre">${constructGeneralizedEquation(serialized)}</div>
+    </p>
+    <p>Following that, we create a chemical composition matrix (CCM).
+    The matrix columns denote the substances engaged in the reaction (either as reactants or products),
+    with the matrix rows indicating the individual chemical elements that compose those substances: ${
+      tableCCM.outerHTML
+    }</p>
+    <p>Subsequently, we convert the CCM into its Reduced Row Echelon Form (RREF) through Gaussian elimination: ${
+      tableRREF.outerHTML
+    }</p>`;
 
-  if (record.Success === false) {
+  if (serialized.Success === false) {
     recordDiv.innerHTML += `
-    <p>RREF turns out to be an identity matrix, so balancing the given equation is impossible</p>
-    `;
+      <p>RREF turns out to be an identity matrix, so balancing the given equation is impossible</p>
+      `;
   } else {
     const tableExpressions = createTable(
-      record["Algebraic expressions"].map((item) => [item]),
+      serialized["Algebraic expressions"].map((item) => [item]),
       (index) => (index + 1).toString(),
       () => "Expression"
     );
     recordDiv.innerHTML += `
-    <p>
-    RREF shows that all coefficients can be expressed as linear functions of ${
-      record["Free variables"].length > 1
-        ? "free variables"
-        : "the free variable"
-    }
-      <b>${record["Free variables"]
-        .map((i) => labelFor(record.Equation.Substances.length, i))
-        .join(", ")}
-      </b>:${tableExpressions.outerHTML}
-    </p>`;
-    if (record["Free variables"].length === 1) {
+      <p>
+      RREF shows that all coefficients can be expressed as linear functions of ${
+        serialized["Free variables"].length > 1
+          ? "free variables"
+          : "the free variable"
+      }
+        <b>${serialized["Free variables"]
+          .map((i) => labelFor(serialized.Equation.Substances.length, i))
+          .join(", ")}
+        </b>:${tableExpressions.outerHTML}
+      </p>`;
+    if (serialized["Free variables"].length === 1) {
       recordDiv.innerHTML += `That provides the generalized solution we sought. To obtain a simpler solution,
-    the next step involves identifying values for the free variable that yield coefficients with all-integer values.
-    In this case ${labelFor(
-      record.Equation.Substances.length,
-      record["Free variables"][0]
-    )} = ${record["Simplest solution"].Item1} works, and produces
-  <div class="cre">${record["Simplest solution"].Item2}</div>
-  `;
-    }
-    else
-    {
+      the next step involves identifying values for the free variable that yield coefficients with all-integer values.
+      In this case ${labelFor(
+        serialized.Equation.Substances.length,
+        serialized["Free variables"][0]
+      )} = ${serialized["Simplest solution"].Item1} works, and produces
+    <div class="cre">${serialized["Simplest solution"].Item2}</div>
+    `;
+    } else {
       recordDiv.innerHTML += `Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. 
-      Negative coefficients indicate that the substance functions as a reactant (is consumed), positive values denote produced substances. 
-      A coefficient of zero signifies that the substance is not essential for the reaction.`;
+        Negative coefficients indicate that the substance functions as a reactant (is consumed), positive values denote produced substances. 
+        A coefficient of zero signifies that the substance is not essential for the reaction.`;
     }
   }
 
@@ -79,7 +77,7 @@ jsonData.serialized.forEach((record, record_index) => {
   recordDiv.style.padding = "10px";
   recordDiv.style.width = "100%";
   document.body.appendChild(recordDiv);
-});
+}
 
 function labelFor(total, i) {
   return total > 7

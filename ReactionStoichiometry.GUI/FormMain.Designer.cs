@@ -46,14 +46,16 @@
             IsFreeVariable = new DataGridViewCheckBoxColumn();
             tabPermutate = new TabPage();
             listPermutator = new ListBox();
-            tabDetailedMultiline = new TabPage();
-            txtDetailedMultiline = new TextBox();
+            tabHtml = new TabPage();
+            folderBrowserDialog1 = new FolderBrowserDialog();
+            webviewPrintable = new Microsoft.Web.WebView2.WinForms.WebView2();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
             tabInstantiate.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).BeginInit();
             tabPermutate.SuspendLayout();
-            tabDetailedMultiline.SuspendLayout();
+            tabHtml.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize) webviewPrintable).BeginInit();
             SuspendLayout();
             // 
             // containerInput
@@ -109,7 +111,7 @@
             // 
             theTabControl.Controls.Add(tabInstantiate);
             theTabControl.Controls.Add(tabPermutate);
-            theTabControl.Controls.Add(tabDetailedMultiline);
+            theTabControl.Controls.Add(tabHtml);
             theTabControl.Dock = DockStyle.Fill;
             theTabControl.Location = new Point(0, 273);
             theTabControl.Name = "theTabControl";
@@ -243,28 +245,28 @@
             listPermutator.TabStop = false;
             listPermutator.MouseDoubleClick += OnListMouseDoubleClick;
             // 
-            // tabDetailedMultiline
+            // tabHtml
             // 
-            tabDetailedMultiline.Controls.Add(txtDetailedMultiline);
-            tabDetailedMultiline.Location = new Point(10, 58);
-            tabDetailedMultiline.Name = "tabDetailedMultiline";
-            tabDetailedMultiline.Padding = new Padding(3);
-            tabDetailedMultiline.Size = new Size(1868, 651);
-            tabDetailedMultiline.TabIndex = 0;
-            tabDetailedMultiline.Text = "Text";
-            tabDetailedMultiline.UseVisualStyleBackColor = true;
+            tabHtml.Controls.Add(webviewPrintable);
+            tabHtml.Location = new Point(10, 58);
+            tabHtml.Name = "tabHtml";
+            tabHtml.Padding = new Padding(3);
+            tabHtml.Size = new Size(1868, 651);
+            tabHtml.TabIndex = 0;
+            tabHtml.Text = "Result";
+            tabHtml.UseVisualStyleBackColor = true;
             // 
-            // txtDetailedMultiline
+            // webviewResults
             // 
-            txtDetailedMultiline.Dock = DockStyle.Fill;
-            txtDetailedMultiline.Location = new Point(3, 3);
-            txtDetailedMultiline.Multiline = true;
-            txtDetailedMultiline.Name = "txtDetailedMultiline";
-            txtDetailedMultiline.ReadOnly = true;
-            txtDetailedMultiline.ScrollBars = ScrollBars.Both;
-            txtDetailedMultiline.Size = new Size(1862, 645);
-            txtDetailedMultiline.TabIndex = 0;
-            txtDetailedMultiline.WordWrap = false;
+            webviewPrintable.AllowExternalDrop = true;
+            webviewPrintable.CreationProperties = null;
+            webviewPrintable.DefaultBackgroundColor = Color.White;
+            webviewPrintable.Dock = DockStyle.Fill;
+            webviewPrintable.Location = new Point(3, 3);
+            webviewPrintable.Name = "webviewPrintable";
+            webviewPrintable.Size = new Size(1862, 645);
+            webviewPrintable.TabIndex = 0;
+            webviewPrintable.ZoomFactor = 1D;
             // 
             // FormMain
             // 
@@ -283,8 +285,8 @@
             tabInstantiate.PerformLayout();
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).EndInit();
             tabPermutate.ResumeLayout(false);
-            tabDetailedMultiline.ResumeLayout(false);
-            tabDetailedMultiline.PerformLayout();
+            tabHtml.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize) webviewPrintable).EndInit();
             ResumeLayout(false);
         }
 
@@ -294,10 +296,9 @@
         private Button buttonBalance;
         private TextBox textBoxInput;
         private TabControl theTabControl;
-        private TabPage tabDetailedMultiline;
+        private TabPage tabHtml;
         private TabPage tabInstantiate;
         private TabPage tabPermutate;
-        private TextBox txtDetailedMultiline;
         private DataGridView gridCoefficients;
         private DataGridViewTextBoxColumn Substance;
         private DataGridViewTextBoxColumn Expression;
@@ -306,5 +307,7 @@
         private TextBox txtGeneralForm;
         private TextBox txtInstance;
         private ListBox listPermutator;
+        private FolderBrowserDialog folderBrowserDialog1;
+        private Microsoft.Web.WebView2.WinForms.WebView2 webviewPrintable;
     }
 }

@@ -9,7 +9,13 @@ namespace ReactionStoichiometry.GUI
         internal FormMain()
         {
             InitializeComponent();
+            InitializeWebView();
             ResetControls();
+        }
+
+        private async void InitializeWebView()
+        {
+            await webviewPrintable.EnsureCoreWebView2Async(environment: null);
         }
 
         #region Event Handlers
@@ -50,7 +56,7 @@ namespace ReactionStoichiometry.GUI
 
         private void ResetControls()
         {
-            txtDetailedMultiline.Text = String.Empty;
+            webviewPrintable.Source = new Uri(uriString: "about:blank");
             txtGeneralForm.Text = String.Empty;
             txtInstance.Text = String.Empty;
             listPermutator.Items.Clear();
@@ -69,13 +75,24 @@ namespace ReactionStoichiometry.GUI
             {
                 InitInstantiation();
                 InitPermutation();
-                txtDetailedMultiline.Text = _balancer.ToString(Balancer.OutputFormat.DetailedMultiline);
+                webviewPrintable.NavigateToString(GetHtmlContentFromJson(_balancer.ToString(Balancer.OutputFormat.Json)));
             }
             else
             {
                 ResetControls();
                 MessageBox.Show(text: "Balancing failed. Check your syntax and try again", caption: "Failed", MessageBoxButtons.OK);
             }
+        }
+
+        private static String GetHtmlContentFromJson(String jsonContent)
+        {
+            var htmlContent = WebViewResources.htmlContent.Replace(oldValue: "%jsContent%", WebViewResources.jsContent)
+                                              .Replace(oldValue: "%cssContent%", WebViewResources.cssContent)
+                                              .Replace(oldValue: "%jsonContent%", jsonContent);
+            #if DEBUG
+            File.WriteAllText(path: "webview.html", htmlContent);
+            #endif
+            return htmlContent;
         }
 
         private void InitInstantiation()
