@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections.ObjectModel;
+using System.Numerics;
 using Newtonsoft.Json;
 
 namespace ReactionStoichiometry
@@ -8,10 +9,10 @@ namespace ReactionStoichiometry
         private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
 
         [JsonProperty(PropertyName = "Free variables")]
-        private List<Int32>? _freeCoefficientIndices;
+        private ReadOnlyCollection<Int32>? _freeCoefficientIndices;
 
         [JsonProperty(PropertyName = "Simplest solution")]
-        public (BigInteger? singleFreeVarValue, String? resultingEquation) GuessedSimplestSolution
+        public (BigInteger? singleFreeVarValue, String? balancedEquation) GuessedSimplestSolution
         {
             get
             {
@@ -22,7 +23,7 @@ namespace ReactionStoichiometry
                 var value = Equation.RREF.Column(_freeCoefficientIndices[index: 0])
                                     .Select(selector: static r => r.Denominator)
                                     .Aggregate(Helpers.LeastCommonMultiple);
-                return (value, Equation.EquationWithIntegerCoefficients(Instantiate(new[] { value })));
+                return (value, Equation.EquationWithIntegerCoefficients(Equation.Instantiate(new[] { value })));
             }
         }
 
@@ -32,7 +33,11 @@ namespace ReactionStoichiometry
                                                 selector: i => String.Format(format: "{0} = {1}", Equation.LabelFor(i), AlgebraicExpressionForCoefficient(i)))
                                             .ToArray();
 
-        public BalancerGeneralized(String equation) : base(equation)
+        public BalancerGeneralized(String equationString) : this(new ChemicalReactionEquation(equationString))
+        {
+        }
+
+        public BalancerGeneralized(ChemicalReactionEquation equation) : base(equation)
         {
         }
 
@@ -71,37 +76,10 @@ namespace ReactionStoichiometry
                                                          .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
                                                                      , elementSelector: static row => row);
 
-            _freeCoefficientIndices = Enumerable.Range(start: 0, Equation.RREF.ColumnCount())
-                                                .Where(predicate: c => !_dependentCoefficientExpressions.ContainsKey(c)
-                                                                    && Equation.RREF.Column(c).Any(predicate: static t => t != 0))
-                                                .ToList();
+            _freeCoefficientIndices = Equation.SpecialColumnsIndices.AsReadOnly();
         }
 
-        public BigInteger[] Instantiate(BigInteger[] parameters)
-        {
-            if (parameters.Length != _freeCoefficientIndices!.Count)
-            {
-                throw new ArgumentException(message: "Array size mismatch", nameof(parameters));
-            }
-
-            var result = new BigInteger[Equation.Substances.Count];
-
-            for (var i = 0; i < _freeCoefficientIndices.Count; i++)
-            {
-                result[_freeCoefficientIndices[i]] = parameters[i];
-            }
-
-            foreach (var kvp in _dependentCoefficientExpressions!)
-            {
-                var calculated = _freeCoefficientIndices.Aggregate(BigInteger.Zero, func: (sum, i) => sum + result[i] * kvp.Value[i]);
-                AppSpecificException.ThrowIf(calculated % kvp.Value[kvp.Key] != 0, message: "Non-integer coefficient, try other SLE params");
-                calculated /= kvp.Value[kvp.Key];
-
-                result[kvp.Key] = -calculated;
-            }
-
-            return result;
-        }
+        internal BigInteger[] Instantiate(BigInteger[] parameters) => Equation.Instantiate(parameters);
 
         public String AlgebraicExpressionForCoefficient(Int32 index)
         {

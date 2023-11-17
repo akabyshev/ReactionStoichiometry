@@ -9,6 +9,9 @@ namespace ReactionStoichiometry
     {
         public readonly List<String> Substances;
 
+        [JsonProperty(PropertyName = "Original input")]
+        internal readonly String OriginalEquation;
+
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "CCM")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] CCM;
@@ -19,12 +22,11 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "CCM rank")]
         internal readonly Int32 CompositionMatrixRank;
 
-        [JsonProperty(PropertyName = "Original input", Order = -2)]
-        internal readonly String OriginalEquation;
-
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "RREF")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] RREF;
+
+        internal readonly Int32[] SpecialColumnsIndices;
 
         [JsonIgnore]
         public String GeneralizedEquation =>
@@ -35,7 +37,7 @@ namespace ReactionStoichiometry
                                                   , goesToRhsIf: static _ => false
                                                   , allowEmptyRhs: true);
 
-        internal ChemicalReactionEquation(String equationString)
+        public ChemicalReactionEquation(String equationString)
         {
             OriginalEquation = equationString.Replace(oldValue: " ", String.Empty);
 
@@ -49,6 +51,14 @@ namespace ReactionStoichiometry
             RREF = CCM.GetRREF(trim: true);
             CompositionMatrixRank = RREF.RowCount();
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
+
+            SpecialColumnsIndices = Enumerable.Range(start: 0, RREF.ColumnCount()).Where(c => !ContainsOnlySingleOne(RREF.Column(c))).ToArray();
+            return;
+
+            static Boolean ContainsOnlySingleOne(Rational[] array)
+            {
+                return array.Count(static r => !r.IsZero) == 1 && array.Count(static r => r.IsOne) == 1;
+            }
         }
 
         public String LabelFor(Int32 i)
@@ -70,7 +80,7 @@ namespace ReactionStoichiometry
         {
             if (coefficients.Length != Substances.Count)
             {
-                throw new ArgumentException(message: "Size mismatch");
+                throw new ArgumentException(message: "Array size mismatch");
             }
 
             for (var r = 0; r < CCM.RowCount(); r++)
@@ -139,5 +149,34 @@ namespace ReactionStoichiometry
 
         public static Boolean IsValidString(String equationString) =>
             StringOperations.LooksLikeChemicalReactionEquation(equationString.Replace(oldValue: " ", String.Empty));
+
+        public BigInteger[] Instantiate(BigInteger[] freeVarsValues)
+        {
+            if (freeVarsValues.Length != SpecialColumnsIndices.Length)
+            {
+                throw new ArgumentException(message: "Array size mismatch", nameof(freeVarsValues));
+            }
+
+            var result = new BigInteger[Substances.Count];
+
+            for (var i = 0; i < SpecialColumnsIndices.Length; i++)
+            {
+                result[SpecialColumnsIndices[i]] = freeVarsValues[i];
+            }
+
+            var rowIndex = -1;
+            foreach (var i in Enumerable.Range(start: 0, result.Length).Except(SpecialColumnsIndices))
+            {
+                rowIndex++;
+
+                var row = RREF.Row(rowIndex);
+                row[Array.FindIndex(row, match: static r => r.IsOne)] = 0; // remove the leading 1
+                var calculated = SpecialColumnsIndices.Aggregate(Rational.Zero, (cumulative, c) => cumulative + (row[c] * result[c]).CanonicalForm);
+                AppSpecificException.ThrowIf(calculated.Denominator != 1, message: "Non-integer coefficient, try other SLE params");
+                result[i] = -calculated.Numerator;
+            }
+
+            return result;
+        }
     }
 }

@@ -21,7 +21,7 @@ function MakeJsonReadable(serialized, identifier) {
   recordDiv.innerHTML = `
     <h3>${identifier}</h3>
     <p>
-    The solution begins by expressing the original equation
+    We begin by expressing the original equation
     <div class="cre">${serialized.Equation["Original input"]}</div>
     in its generalized form
     <div class="cre">${constructGeneralizedEquation(serialized)}</div>
@@ -80,7 +80,7 @@ function MakeJsonReadable(serialized, identifier) {
 
 function labelFor(total, i) {
   return "<i>" + (total > 7
-    ? "x" + (i + 1).toString().padStart(2, "0")
+    ? "x" + "<sub>" + (i + 1).toString().padStart(2, "0") + "</sub>" // could be Math.ceil(Math.log10(total + 1)) but...
     : String.fromCharCode("a".charCodeAt(0) + i))
     + "</i>";
 }

@@ -4,7 +4,7 @@
     {
         private const String IGNORED_LINE_MARK = "#";
 
-        internal static void Run(Balancer.OutputFormat format)
+        internal static void Run(OutputFormat format)
         {
             var balancers = new[] { typeof(BalancerInverseBased), typeof(BalancerGeneralized) };
 
@@ -13,7 +13,7 @@
                 using StreamReader reader = new(ConstructPath(filename: @"input\MyBatch"));
                 using StreamWriter writer = new(ConstructPath(format.ToString(), type.Name));
 
-                if (format == Balancer.OutputFormat.Json)
+                if (format == OutputFormat.Json)
                 {
                     writer.WriteLine(value: "{");
                     writer.WriteLine(value: "\"serialized\": [");
@@ -29,19 +29,19 @@
 
                     switch (format)
                     {
-                        case Balancer.OutputFormat.Simple:
+                        case OutputFormat.Simple:
                             writer.WriteLine(line);
                             break;
-                        case Balancer.OutputFormat.Multiline:
+                        case OutputFormat.Multiline:
                             writer.WriteLine(line);
                             break;
-                        case Balancer.OutputFormat.DetailedMultiline: break;
-                        case Balancer.OutputFormat.Json: break;
+                        case OutputFormat.DetailedMultiline: break;
+                        case OutputFormat.Json: break;
                         default: throw new ArgumentOutOfRangeException(nameof(format));
                     }
 
                     writer.Write(balancer.ToString(format));
-                    if (format != Balancer.OutputFormat.Json)
+                    if (format != OutputFormat.Json)
                     {
                         writer.WriteLine(Environment.NewLine);
                     }
@@ -51,7 +51,7 @@
                     }
                 }
                 // ReSharper disable once InvertIf
-                if (format == Balancer.OutputFormat.Json)
+                if (format == OutputFormat.Json)
                 {
                     writer.WriteLine(value: ']');
                     writer.WriteLine(value: '}');

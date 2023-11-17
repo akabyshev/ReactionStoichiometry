@@ -10,12 +10,12 @@ namespace ReactionStoichiometry.Tests
         {
             const String eq = "H2 + O2 = H2O";
             var balancer = new BalancerGeneralized(eq);
-            Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.Simple));
-            Assert.NotEqual(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.Json));
+            Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(OutputFormat.Simple));
+            Assert.NotEqual(GlobalConstants.FAILURE_MARK, balancer.ToString(OutputFormat.Json));
 
             Assert.True(balancer.Balance());
-            Assert.NotEqual(GlobalConstants.FAILURE_MARK, balancer.ToString(Balancer.OutputFormat.Simple));
-            Assert.Null(Record.Exception(testCode: () => _ = balancer.ToString(Balancer.OutputFormat.Json)));
+            Assert.NotEqual(GlobalConstants.FAILURE_MARK, balancer.ToString(OutputFormat.Simple));
+            Assert.Null(Record.Exception(testCode: () => _ = balancer.ToString(OutputFormat.Json)));
         }
 
         [Fact]
@@ -40,10 +40,9 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void RationalMatrixJsonSerialization_Simple()
         {
-            const String eq = "H2 + O2 = H2O";
+            Rational[,] matrix = { { 2, 0, 2 }, { 0, 2, 1 } };
             const String expectedSerialization = "[[\"2\",\"0\",\"2\"],[\"0\",\"2\",\"1\"]]";
-            var ccm = new BalancerGeneralized(eq).Equation.CCM;
-            var json = JsonConvert.SerializeObject(ccm, new RationalArrayJsonConverter());
+            var json = JsonConvert.SerializeObject(matrix, new RationalArrayJsonConverter());
             Assert.Equal(expectedSerialization, json);
         }
     }

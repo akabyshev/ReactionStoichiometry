@@ -4,7 +4,7 @@ namespace ReactionStoichiometry.GUI
 {
     internal sealed partial class FormMain : Form
     {
-        private BalancerGeneralized _balancer = null!;
+        private ChemicalReactionEquation _equation = null!;
 
         internal FormMain()
         {
@@ -71,15 +71,42 @@ namespace ReactionStoichiometry.GUI
         private void Balance()
         {
             var s = textBoxInput.Text;
+            _equation = new ChemicalReactionEquation(s);
+            var balancer = new BalancerGeneralized(_equation);
+            txtGeneralForm.Text = _equation.GeneralizedEquation;
 
-            _balancer = new BalancerGeneralized(s);
-            txtGeneralForm.Text = _balancer.Equation.GeneralizedEquation;
-
-            if (_balancer.Balance())
+            if (balancer.Balance())
             {
-                InitInstantiation();
+                #region Init instantiation tool
+                gridCoefficients.RowCount = _equation.Substances.Count;
+                for (var i = 0; i < _equation.Substances.Count; i++)
+                {
+                    gridCoefficients.Rows[i].HeaderCell.Value = _equation.LabelFor(i);
+                    gridCoefficients.Rows[i].Cells[columnName: "Substance"].Value = _equation.Substances[i];
+
+                    var expr = balancer.AlgebraicExpressionForCoefficient(i);
+                    var simplest = balancer.GuessedSimplestSolution.singleFreeVarValue;
+
+                    if (String.IsNullOrEmpty(expr))
+                    {
+                        gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
+                        gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = "\u27a2";
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = simplest ?? 0;
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
+                    }
+                    else
+                    {
+                        gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = false;
+                        gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = expr;
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = true;
+                    }
+                }
+
+                Instantiate();
+                # endregion
+
                 InitPermutation();
-                webviewResult.NavigateToString(GetHtmlContentFromJson(_balancer.ToString(Balancer.OutputFormat.Json)));
+                webviewResult.NavigateToString(GetHtmlContentFromJson(balancer.ToString(OutputFormat.Json)));
                 theTabControl.Enabled = true;
             }
             else
@@ -97,39 +124,10 @@ namespace ReactionStoichiometry.GUI
             return htmlContent;
         }
 
-        private void InitInstantiation()
-        {
-            gridCoefficients.RowCount = _balancer.Equation.Substances.Count;
-            for (var i = 0; i < _balancer.Equation.Substances.Count; i++)
-            {
-                gridCoefficients.Rows[i].HeaderCell.Value = _balancer.Equation.LabelFor(i);
-                gridCoefficients.Rows[i].Cells[columnName: "Substance"].Value = _balancer.Equation.Substances[i];
-
-                var expr = _balancer.AlgebraicExpressionForCoefficient(i);
-                var propose = _balancer.GuessedSimplestSolution.singleFreeVarValue;
-
-                if (String.IsNullOrEmpty(expr))
-                {
-                    gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
-                    gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = "\u27a2";
-                    gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = propose ?? 0;
-                    gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
-                }
-                else
-                {
-                    gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = false;
-                    gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = expr;
-                    gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = true;
-                }
-            }
-
-            Instantiate();
-        }
-
         private void InitPermutation()
         {
             listPermutator.Items.Clear();
-            foreach (var s in _balancer.Equation.Substances)
+            foreach (var s in _equation.Substances)
             {
                 listPermutator.Items.Add(s);
             }
@@ -175,8 +173,8 @@ namespace ReactionStoichiometry.GUI
                     parameters.Add(BigInteger.Parse(cv.ToString()!));
                 }
 
-                coefficients = _balancer.Instantiate(parameters.ToArray());
-                txtInstance.Text = _balancer.Equation.EquationWithIntegerCoefficients(coefficients);
+                coefficients = _equation.Instantiate(parameters.ToArray());
+                txtInstance.Text = _equation.EquationWithIntegerCoefficients(coefficients);
             }
             catch (FormatException)
             {

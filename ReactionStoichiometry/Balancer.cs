@@ -4,18 +4,8 @@ namespace ReactionStoichiometry
 {
     public abstract class Balancer
     {
-        #region OutputFormat enum
-        public enum OutputFormat
-        {
-            Simple
-          , Multiline
-          , DetailedMultiline
-          , Json
-        }
-        #endregion
-
-        [JsonProperty(Order = -2)]
-        public readonly ChemicalReactionEquation Equation;
+        [JsonProperty]
+        internal readonly ChemicalReactionEquation Equation;
 
         private readonly List<String> _details = new();
 
@@ -27,9 +17,13 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "Success")]
         private Boolean _success;
 
-        protected Balancer(String equationString)
+        protected Balancer(String equationString) : this(new ChemicalReactionEquation(equationString))
         {
-            Equation = new ChemicalReactionEquation(equationString);
+        }
+
+        protected Balancer(ChemicalReactionEquation equation)
+        {
+            Equation = equation;
             _details.Add(Equation.CCM.Readable(title: "CCM", columnHeaders: i => Equation.Substances[i]));
             _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
                                      , Equation.CCM.RowCount()
