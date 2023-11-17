@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 
 namespace ReactionStoichiometry.GUI
@@ -71,21 +72,24 @@ namespace ReactionStoichiometry.GUI
         private void Balance()
         {
             var s = textBoxInput.Text;
-            _equation = new ChemicalReactionEquation(s);
-            var balancer = new BalancerGeneralized(_equation);
+            _equation = new ChemicalReactionEquation(s, ChemicalReactionEquation.SolutionTypes.Generalized | ChemicalReactionEquation.SolutionTypes.InverseBased);
             txtGeneralForm.Text = _equation.GeneralizedEquation;
 
-            if (balancer.Balance())
+            var generalizedSolution = _equation.GetSolution(ChemicalReactionEquation.SolutionTypes.Generalized) as GeneralizedSolution;
+            Debug.Assert(generalizedSolution != null, nameof(generalizedSolution) + " != null");
+            AppSpecificException.ThrowIf(generalizedSolution == null, message: "CRE was not properly constructed");
+
+            if (generalizedSolution!.Success)
             {
                 #region Init instantiation tool
+                var simplest = generalizedSolution.GuessedSimplestSolution;
                 gridCoefficients.RowCount = _equation.Substances.Count;
                 for (var i = 0; i < _equation.Substances.Count; i++)
                 {
                     gridCoefficients.Rows[i].HeaderCell.Value = _equation.LabelFor(i);
                     gridCoefficients.Rows[i].Cells[columnName: "Substance"].Value = _equation.Substances[i];
 
-                    var expr = balancer.AlgebraicExpressionForCoefficient(i);
-                    var simplest = balancer.GuessedSimplestSolution.singleFreeVarValue;
+                    var expr = generalizedSolution.AlgebraicExpressions[i];
 
                     if (String.IsNullOrEmpty(expr))
                     {
@@ -106,7 +110,7 @@ namespace ReactionStoichiometry.GUI
                 # endregion
 
                 InitPermutation();
-                webviewResult.NavigateToString(GetHtmlContentFromJson(balancer.ToString(OutputFormat.Json)));
+                webviewResult.NavigateToString(GetHtmlContentFromJson(_equation.ToJson()));
                 theTabControl.Enabled = true;
             }
             else

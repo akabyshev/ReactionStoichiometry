@@ -37,7 +37,18 @@ namespace ReactionStoichiometry
                                                   , goesToRhsIf: static _ => false
                                                   , allowEmptyRhs: true);
 
-        public ChemicalReactionEquation(String equationString)
+        [JsonProperty(PropertyName = "Solutions")]
+        private readonly Dictionary<SolutionTypes, Solution> _solutions = new();
+
+        [Flags]
+        public enum SolutionTypes
+        {
+            Generalized = 1 << 0
+           ,
+            InverseBased = 1 << 1
+        }
+
+        public ChemicalReactionEquation(String equationString, SolutionTypes includeSolutionTypes)
         {
             OriginalEquation = equationString.Replace(oldValue: " ", String.Empty);
 
@@ -53,6 +64,17 @@ namespace ReactionStoichiometry
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
 
             SpecialColumnsIndices = Enumerable.Range(start: 0, RREF.ColumnCount()).Where(predicate: c => !ContainsOnlySingleOne(RREF.Column(c))).ToArray();
+
+            if (includeSolutionTypes.HasFlagFast(SolutionTypes.Generalized))
+                _solutions.Add(SolutionTypes.Generalized, new GeneralizedSolution());
+            if (includeSolutionTypes.HasFlagFast(SolutionTypes.InverseBased))
+                _solutions.Add(SolutionTypes.InverseBased, new InverseBasedSolution());
+
+            foreach (var solution in _solutions.Values)
+            {
+                solution.WorkOn(this);
+            }
+
             return;
 
             static Boolean ContainsOnlySingleOne(Rational[] array)
@@ -60,6 +82,8 @@ namespace ReactionStoichiometry
                 return array.Count(predicate: static r => !r.IsZero) == 1 && array.Count(predicate: static r => r.IsOne) == 1;
             }
         }
+
+        public Solution GetSolution(SolutionTypes solutionType) => _solutions[solutionType];
 
         public String LabelFor(Int32 i)
         {
@@ -110,7 +134,7 @@ namespace ReactionStoichiometry
             return result;
         }
 
-        internal Boolean ValidateSolution(BigInteger[] coefficients)
+        internal Boolean Validate(BigInteger[] coefficients)
         {
             if (coefficients.Length != Substances.Count)
             {
@@ -179,6 +203,20 @@ namespace ReactionStoichiometry
 
             Helpers.TrimAndGetCanonicalForms(ref result);
             return result;
+        }
+
+        public String ToJson()
+        {
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            return JsonConvert.SerializeObject(this, settings);
+        }
+    }
+
+    internal static class SolutionTypesExtensions
+    {
+        internal static Boolean HasFlagFast(this ChemicalReactionEquation.SolutionTypes value, ChemicalReactionEquation.SolutionTypes flag)
+        {
+            return (value & flag) != 0;
         }
     }
 }

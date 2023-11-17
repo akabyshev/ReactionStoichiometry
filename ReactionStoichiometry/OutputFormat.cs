@@ -5,6 +5,5 @@
         Simple
       , Multiline
       , DetailedMultiline
-      , Json
     }
 }

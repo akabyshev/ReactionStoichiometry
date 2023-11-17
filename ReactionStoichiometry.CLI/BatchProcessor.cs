@@ -1,62 +1,61 @@
-﻿namespace ReactionStoichiometry.CLI
+﻿using System.Text;
+
+namespace ReactionStoichiometry.CLI
 {
     internal abstract class BatchProcessor
     {
         private const String IGNORED_LINE_MARK = "#";
 
-        internal static void Run(OutputFormat format)
+        internal static void Run()
         {
-            var balancers = new[] { typeof(BalancerInverseBased), typeof(BalancerGeneralized) };
-
-            foreach (var type in balancers)
+            foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
             {
-                using StreamReader reader = new(ConstructPath(filename: @"input\MyBatch"));
-                using StreamWriter writer = new(ConstructPath(format.ToString(), type.Name));
-
-                if (format == OutputFormat.Json)
-                {
-                    writer.WriteLine(value: "{");
-                    writer.WriteLine(value: "\"serialized\": [");
-                }
-                while (reader.ReadLine() is { } line)
-                {
-                    if (line.StartsWith(IGNORED_LINE_MARK) || line.Length == 0)
-                    {
-                        continue;
-                    }
-                    var balancer = (Balancer)Activator.CreateInstance(type, line)!;
-                    balancer.Balance();
-
-                    switch (format)
-                    {
-                        case OutputFormat.Simple:
-                            writer.WriteLine(line);
-                            break;
-                        case OutputFormat.Multiline:
-                            writer.WriteLine(line);
-                            break;
-                        case OutputFormat.DetailedMultiline: break;
-                        case OutputFormat.Json: break;
-                        default: throw new ArgumentOutOfRangeException(nameof(format));
-                    }
-
-                    writer.Write(balancer.ToString(format));
-                    if (format != OutputFormat.Json)
-                    {
-                        writer.WriteLine(Environment.NewLine);
-                    }
-                    else
-                    {
-                        writer.WriteLine(value: ',');
-                    }
-                }
-                // ReSharper disable once InvertIf
-                if (format == OutputFormat.Json)
-                {
-                    writer.WriteLine(value: ']');
-                    writer.WriteLine(value: '}');
-                }
+                File.WriteAllText(ConstructPath(format.ToString(), "BalancerGeneralized"), String.Empty);
+                File.WriteAllText(ConstructPath(format.ToString(), "BalancerInverseBased"), String.Empty);
             }
+
+            using StreamWriter writerJson = new(@"batch.json");
+            writerJson.WriteLine(value: "{");
+            writerJson.WriteLine(value: "\"serialized\": [");
+
+            using StreamReader reader = new(ConstructPath(filename: @"input\MyBatch"));
+            while (reader.ReadLine() is { } line)
+            {
+                if (line.StartsWith(IGNORED_LINE_MARK) || line.Length == 0)
+                {
+                    continue;
+                }
+
+                var equation = new ChemicalReactionEquation(line
+                                                          , ChemicalReactionEquation.SolutionTypes.Generalized
+                                                          | ChemicalReactionEquation.SolutionTypes.InverseBased);
+
+                foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
+                {
+                    var filePathGeneralized = ConstructPath(format.ToString(), "BalancerGeneralized");
+                    var filePathInverseBased = ConstructPath(format.ToString(), "BalancerInverseBased");
+
+                    using StreamWriter writerGeneralized = new(filePathGeneralized, append: true);
+                    using StreamWriter writerInverseBased = new(filePathInverseBased, append: true);
+
+                    if (format != OutputFormat.DetailedMultiline)
+                    {
+                        writerGeneralized.WriteLine(line);
+                        writerInverseBased.WriteLine(line);
+                    }
+
+                    writerGeneralized.Write(equation.GetSolution(ChemicalReactionEquation.SolutionTypes.Generalized).ToString(format));
+                    writerGeneralized.WriteLine(Environment.NewLine);
+                    writerInverseBased.Write(equation.GetSolution(ChemicalReactionEquation.SolutionTypes.InverseBased).ToString(format));
+                    writerInverseBased.WriteLine(Environment.NewLine);
+                }
+
+                writerJson.Write(equation.ToJson());
+                writerJson.WriteLine(value: ',');
+            }
+
+            writerJson.WriteLine(value: ']');
+            writerJson.WriteLine(value: '}');
         }
 
         private static String ConstructPath(String filename, String? str2 = null)
