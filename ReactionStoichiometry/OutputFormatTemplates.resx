@@ -120,11 +120,15 @@
   <data name="MULTILINE_TEMPLATE" xml:space="preserve">
     <value>[Input]
 %Skeletal%
-[Details]
-%Details%
+
 [Output]
 %Outcome%
-[Diagnostics]
-%Diagnostics%</value>
+%Diagnostics%
+
+[Details]
+%CCM_stats%
+%CCM%
+%RREF%
+----------------------------</value>
   </data>
 </root>

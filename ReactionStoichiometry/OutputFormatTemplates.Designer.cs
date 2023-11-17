@@ -63,12 +63,16 @@ namespace ReactionStoichiometry {
         /// <summary>
         ///   Looks up a localized string similar to [Input]
         ///%Skeletal%
-        ///[Details]
-        ///%Details%
+        ///
         ///[Output]
         ///%Outcome%
-        ///[Diagnostics]
-        ///%Diagnostics%.
+        ///%Diagnostics%
+        ///
+        ///[Details]
+        ///%CCM_stats%
+        ///%CCM%
+        ///%RREF%
+        ///----------------------------.
         /// </summary>
         internal static string MULTILINE_TEMPLATE {
             get {

@@ -79,8 +79,6 @@ namespace ReactionStoichiometry
             _freeCoefficientIndices = Equation.SpecialColumnsIndices.AsReadOnly();
         }
 
-        internal BigInteger[] Instantiate(BigInteger[] parameters) => Equation.Instantiate(parameters);
-
         public String AlgebraicExpressionForCoefficient(Int32 index)
         {
             if (_dependentCoefficientExpressions == null)
@@ -127,6 +125,11 @@ namespace ReactionStoichiometry
             }
 
             return result;
+        }
+
+        internal BigInteger[] Instantiate(BigInteger[] parameters)
+        {
+            return Equation.Instantiate(parameters);
         }
     }
 }

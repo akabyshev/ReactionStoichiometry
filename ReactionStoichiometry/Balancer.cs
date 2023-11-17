@@ -7,8 +7,6 @@ namespace ReactionStoichiometry
         [JsonProperty]
         internal readonly ChemicalReactionEquation Equation;
 
-        private readonly List<String> _details = new();
-
         [JsonProperty(PropertyName = "Failure message")]
         private String _failureMessage = String.Empty;
 
@@ -24,13 +22,6 @@ namespace ReactionStoichiometry
         protected Balancer(ChemicalReactionEquation equation)
         {
             Equation = equation;
-            _details.Add(Equation.CCM.Readable(title: "CCM", columnHeaders: i => Equation.Substances[i]));
-            _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
-                                     , Equation.CCM.RowCount()
-                                     , Equation.CCM.ColumnCount()
-                                     , Equation.CompositionMatrixRank
-                                     , Equation.CompositionMatrixNullity));
-            _details.Add(Equation.RREF.Readable(title: "RREF", Equation.LabelFor, Equation.LabelFor));
         }
 
         protected abstract void BalanceImplementation();
@@ -40,17 +31,24 @@ namespace ReactionStoichiometry
             // ReSharper disable once SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault
             return format switch
             {
-                OutputFormat.DetailedMultiline => FillTemplate(OutputFormatTemplates.MULTILINE_TEMPLATE)
+                OutputFormat.DetailedMultiline => FillDetailedMultilineTemplate()
               , OutputFormat.Json => SerializeToJson()
               , _ => throw new ArgumentOutOfRangeException(nameof(format))
             };
 
-            String FillTemplate(String template)
+            String FillDetailedMultilineTemplate()
             {
-                return template.Replace(oldValue: "%Skeletal%", Equation.OriginalEquation)
-                               .Replace(oldValue: "%Details%", String.Join(Environment.NewLine, _details))
-                               .Replace(oldValue: "%Outcome%", ToString(OutputFormat.Multiline))
-                               .Replace(oldValue: "%Diagnostics%", _failureMessage);
+                return OutputFormatTemplates.MULTILINE_TEMPLATE.Replace(oldValue: "%Skeletal%", Equation.OriginalEquation)
+                                            .Replace(oldValue: "%CCM%", Equation.CCM.Readable(title: "CCM", columnHeaders: i => Equation.Substances[i]))
+                                            .Replace(oldValue: "%RREF%", Equation.RREF.Readable(title: "RREF", Equation.LabelFor, Equation.LabelFor))
+                                            .Replace(oldValue: "%CCM_stats%"
+                                                   , String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
+                                                                 , Equation.CCM.RowCount()
+                                                                 , Equation.CCM.ColumnCount()
+                                                                 , Equation.CompositionMatrixRank
+                                                                 , Equation.CompositionMatrixNullity))
+                                            .Replace(oldValue: "%Outcome%", ToString(OutputFormat.Multiline))
+                                            .Replace(oldValue: "%Diagnostics%", _failureMessage);
             }
         }
 
