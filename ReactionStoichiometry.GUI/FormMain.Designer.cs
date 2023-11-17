@@ -47,7 +47,7 @@
             tabPermutate = new TabPage();
             listPermutator = new ListBox();
             tabHtml = new TabPage();
-            webviewPrintable = new Microsoft.Web.WebView2.WinForms.WebView2();
+            webviewResult = new Microsoft.Web.WebView2.WinForms.WebView2();
             folderBrowserDialog1 = new FolderBrowserDialog();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
@@ -55,7 +55,7 @@
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).BeginInit();
             tabPermutate.SuspendLayout();
             tabHtml.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize) webviewPrintable).BeginInit();
+            ((System.ComponentModel.ISupportInitialize) webviewResult).BeginInit();
             SuspendLayout();
             // 
             // containerInput
@@ -92,7 +92,7 @@
             buttonBalance.Name = "buttonBalance";
             buttonBalance.Size = new Size(188, 180);
             buttonBalance.TabIndex = 6;
-            buttonBalance.Text = "Go!";
+            buttonBalance.Text = "Start";
             buttonBalance.UseVisualStyleBackColor = true;
             buttonBalance.Click += On_buttonBalance_Click;
             // 
@@ -109,9 +109,9 @@
             // 
             // theTabControl
             // 
+            theTabControl.Controls.Add(tabHtml);
             theTabControl.Controls.Add(tabInstantiate);
             theTabControl.Controls.Add(tabPermutate);
-            theTabControl.Controls.Add(tabHtml);
             theTabControl.Dock = DockStyle.Fill;
             theTabControl.Location = new Point(0, 273);
             theTabControl.Name = "theTabControl";
@@ -128,7 +128,7 @@
             tabInstantiate.Padding = new Padding(3);
             tabInstantiate.Size = new Size(1868, 651);
             tabInstantiate.TabIndex = 2;
-            tabInstantiate.Text = "Instantiate a solution";
+            tabInstantiate.Text = "Instantiate";
             tabInstantiate.UseVisualStyleBackColor = true;
             // 
             // txtInstance
@@ -247,7 +247,7 @@
             // 
             // tabHtml
             // 
-            tabHtml.Controls.Add(webviewPrintable);
+            tabHtml.Controls.Add(webviewResult);
             tabHtml.Location = new Point(10, 58);
             tabHtml.Name = "tabHtml";
             tabHtml.Padding = new Padding(3);
@@ -258,15 +258,15 @@
             // 
             // webviewPrintable
             // 
-            webviewPrintable.AllowExternalDrop = false;
-            webviewPrintable.CreationProperties = null;
-            webviewPrintable.DefaultBackgroundColor = Color.White;
-            webviewPrintable.Dock = DockStyle.Fill;
-            webviewPrintable.Location = new Point(3, 3);
-            webviewPrintable.Name = "webviewPrintable";
-            webviewPrintable.Size = new Size(1862, 645);
-            webviewPrintable.TabIndex = 0;
-            webviewPrintable.ZoomFactor = 1D;
+            webviewResult.AllowExternalDrop = false;
+            webviewResult.CreationProperties = null;
+            webviewResult.DefaultBackgroundColor = Color.White;
+            webviewResult.Dock = DockStyle.Fill;
+            webviewResult.Location = new Point(3, 3);
+            webviewResult.Name = "webviewResult";
+            webviewResult.Size = new Size(1862, 645);
+            webviewResult.TabIndex = 0;
+            webviewResult.ZoomFactor = 1D;
             // 
             // FormMain
             // 
@@ -286,7 +286,7 @@
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).EndInit();
             tabPermutate.ResumeLayout(false);
             tabHtml.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize) webviewPrintable).EndInit();
+            ((System.ComponentModel.ISupportInitialize) webviewResult).EndInit();
             ResumeLayout(false);
         }
 
@@ -308,6 +308,6 @@
         private TextBox txtInstance;
         private ListBox listPermutator;
         private FolderBrowserDialog folderBrowserDialog1;
-        private Microsoft.Web.WebView2.WinForms.WebView2 webviewPrintable;
+        private Microsoft.Web.WebView2.WinForms.WebView2 webviewResult;
     }
 }

@@ -27,9 +27,9 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "Success")]
         private Boolean _success;
 
-        protected Balancer(String equation)
+        protected Balancer(String equationString)
         {
-            Equation = new ChemicalReactionEquation(equation.Replace(oldValue: " ", String.Empty));
+            Equation = new ChemicalReactionEquation(equationString);
             _details.Add(Equation.CCM.Readable(title: "CCM", columnHeaders: i => Equation.Substances[i]));
             _details.Add(String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
                                      , Equation.CCM.RowCount()

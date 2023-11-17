@@ -203,7 +203,7 @@ namespace ReactionStoichiometry.Tests
             var balancer1 = new BalancerGeneralized(equation: "H2+O2=H2O");
             Assert.True(balancer1.Balance());
 
-            var balancer2 = new BalancerInverseBased(equation: "H2+O2=H2O");
+            var balancer2 = new BalancerInverseBased(equationString: "H2+O2=H2O");
             Assert.True(balancer2.Balance());
 
             Assert.NotEqual(balancer1.ToString(Balancer.OutputFormat.DetailedMultiline), balancer2.ToString(Balancer.OutputFormat.DetailedMultiline));

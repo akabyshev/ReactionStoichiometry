@@ -1,5 +1,4 @@
 using System.Numerics;
-using Microsoft.Web.WebView2.Core;
 
 namespace ReactionStoichiometry.GUI
 {
@@ -12,12 +11,6 @@ namespace ReactionStoichiometry.GUI
             InitializeComponent();
             InitializeWebView();
             ResetControls();
-        }
-
-        private async void InitializeWebView()
-        {
-            await webviewPrintable.EnsureCoreWebView2Async(environment: null);
-            webviewPrintable.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
         }
 
         #region Event Handlers
@@ -50,23 +43,29 @@ namespace ReactionStoichiometry.GUI
 
             listPermutator.SelectedItems.Clear();
 
-            var s = String.Join(separator: "+", listPermutator.Items.OfType<String>()) + "=0";
+            var s = String.Join(separator: " + ", listPermutator.Items.OfType<String>()) + " = 0";
             textBoxInput.Text = s;
             Balance();
         }
         #endregion
 
+        private async void InitializeWebView()
+        {
+            await webviewResult.EnsureCoreWebView2Async(environment: null);
+            webviewResult.CoreWebView2.Settings.AreDefaultContextMenusEnabled = false;
+        }
+
         private async void ResetControls()
         {
-            await webviewPrintable.EnsureCoreWebView2Async(environment: null);
-            webviewPrintable.NavigateToString(String.Empty);
+            await webviewResult.EnsureCoreWebView2Async(environment: null);
+            webviewResult.NavigateToString(String.Empty);
+
             txtGeneralForm.Text = String.Empty;
             txtInstance.Text = String.Empty;
             listPermutator.Items.Clear();
             gridCoefficients.Rows.Clear();
-            theTabControl.Enabled = false;
 
-            buttonBalance.Enabled = textBoxInput.Text.LooksLikeChemicalReactionEquation();
+            buttonBalance.Enabled = ChemicalReactionEquation.IsValidString(textBoxInput.Text);
         }
 
         private void Balance()
@@ -80,7 +79,7 @@ namespace ReactionStoichiometry.GUI
             {
                 InitInstantiation();
                 InitPermutation();
-                webviewPrintable.NavigateToString(GetHtmlContentFromJson(_balancer.ToString(Balancer.OutputFormat.Json)));
+                webviewResult.NavigateToString(GetHtmlContentFromJson(_balancer.ToString(Balancer.OutputFormat.Json)));
                 theTabControl.Enabled = true;
             }
             else
@@ -92,8 +91,8 @@ namespace ReactionStoichiometry.GUI
 
         private static String GetHtmlContentFromJson(String jsonContent)
         {
-            var htmlContent = WebViewResources.htmlContent.Replace(oldValue: "%jsContent%", WebViewResources.jsContent)
-                                              .Replace(oldValue: "%cssContent%", WebViewResources.cssContent)
+            var htmlContent = ResourcesWebview.htmlContent.Replace(oldValue: "%jsContent%", ResourcesWebview.jsContent)
+                                              .Replace(oldValue: "%cssContent%", ResourcesWebview.cssContent)
                                               .Replace(oldValue: "%jsonContent%", jsonContent);
             return htmlContent;
         }

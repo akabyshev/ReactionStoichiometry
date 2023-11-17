@@ -35,13 +35,15 @@ namespace ReactionStoichiometry
                                                   , goesToRhsIf: static _ => false
                                                   , allowEmptyRhs: true);
 
-        internal ChemicalReactionEquation(String s)
+        internal ChemicalReactionEquation(String equationString)
         {
-            if (!s.LooksLikeChemicalReactionEquation())
+            OriginalEquation = equationString.Replace(oldValue: " ", String.Empty);
+
+            if (!IsValidString(OriginalEquation))
             {
                 throw new ArgumentException(message: "Invalid string");
             }
-            OriginalEquation = s;
+
             Substances = OriginalEquation.Split('=', '+').Where(predicate: static s => s != "0").ToList();
             CCM = GetCompositionMatrix();
             RREF = CCM.GetRREF(trim: true);
@@ -134,5 +136,8 @@ namespace ReactionStoichiometry
             Helpers.TrimAndGetCanonicalForms(ref result);
             return result;
         }
+
+        public static Boolean IsValidString(String equationString) =>
+            StringOperations.LooksLikeChemicalReactionEquation(equationString.Replace(oldValue: " ", String.Empty));
     }
 }

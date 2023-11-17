@@ -19,7 +19,7 @@ Console.WriteLine(value: "---------------------------");
 
 Console.WriteLine(value: "Equation?");
 var equation = Console.ReadLine();
-if (equation != null && equation.LooksLikeChemicalReactionEquation())
+if (equation != null && ChemicalReactionEquation.IsValidString(equation))
 {
     var b = new BalancerGeneralized(equation);
     b.Balance();

@@ -203,23 +203,22 @@ MakeJsonReadable(jsonobject, "Solution");
   recordDiv.innerHTML = `
     <h3>${identifier}</h3>
     <p>
-    We begin by transforming the original equation
+    The solution begins by expressing the original equation
     <div class="cre">${serialized.Equation["Original input"]}</div>
-    into its generalized form
+    in its generalized form
     <div class="cre">${constructGeneralizedEquation(serialized)}</div>
     </p>
-    <p>Following that, we create a chemical composition matrix (CCM).
-    The matrix columns denote the substances engaged in the reaction (either as reactants or products),
-    with the matrix rows indicating the individual chemical elements that compose those substances: ${
+    <p>Following this, a chemical composition matrix (CCM) is constructed.
+    The matrix columns represent the substances involved in the reaction, while the rows indicate the constituent chemical elements: ${
       tableCCM.outerHTML
     }</p>
-    <p>Subsequently, we convert the CCM into its Reduced Row Echelon Form (RREF) through Gaussian elimination: ${
+    <p>Subsequently, the CCM is transformed into its Reduced Row Echelon Form (RREF) using Gaussian elimination: ${
       tableRREF.outerHTML
     }</p>`;
 
   if (serialized.Success === false) {
     recordDiv.innerHTML += `
-      <p>RREF turns out to be an identity matrix, so balancing the given equation is impossible</p>
+      <p>That results in an identity matrix, indicating that it's impossible to balance the provided equation.</p>
       `;
   } else {
     const tableExpressions = createTable(
@@ -229,7 +228,7 @@ MakeJsonReadable(jsonobject, "Solution");
     );
     recordDiv.innerHTML += `
       <p>
-      RREF shows that all coefficients can be expressed as linear functions of ${
+      The RREF demonstrates how all coefficients can be expressed as linear functions of ${
         serialized["Free variables"].length > 1
           ? "free variables"
           : "the free variable"
@@ -240,18 +239,18 @@ MakeJsonReadable(jsonobject, "Solution");
         </b>:${tableExpressions.outerHTML}
       </p>`;
     if (serialized["Free variables"].length === 1) {
-      recordDiv.innerHTML += `That provides the generalized solution we sought. To obtain a simpler solution,
-      the next step involves identifying values for the free variable that yield coefficients with all-integer values.
-      In this case ${labelFor(
+      recordDiv.innerHTML += `The obtained generalized solution leads us to the next step: 
+      determining values for the free variable that ensure all coefficients are integers. 
+      Setting it to the least common multiple of all the denominators, <b> ${labelFor(
         serialized.Equation.Substances.length,
         serialized["Free variables"][0]
-      )} = ${serialized["Simplest solution"].Item1} works, and produces
+      )} = ${serialized["Simplest solution"].Item1} </b> yields the final solution:
     <div class="cre">${serialized["Simplest solution"].Item2}</div>
     `;
     } else {
-      recordDiv.innerHTML += `Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. 
-        Negative coefficients indicate that the substance functions as a reactant (is consumed), positive values denote produced substances. 
-        A coefficient of zero signifies that the substance is not essential for the reaction.`;
+      recordDiv.innerHTML += `There is an infinite number of solutions in this case. Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. 
+      Negative coefficients indicate a reactant, positive values denote produced substances. A coefficient of zero signifies that the substance is not essential for the reaction.
+      `;
     }
   }
 

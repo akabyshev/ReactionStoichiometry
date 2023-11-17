@@ -12,7 +12,7 @@ namespace ReactionStoichiometry
 
         internal ReadOnlyCollection<BigInteger[]> SolutionSets => _independentReactions?.AsReadOnly() ?? throw new InvalidOperationException();
 
-        public BalancerInverseBased(String equation) : base(equation)
+        public BalancerInverseBased(String equationString) : base(equationString)
         {
         }
 

@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace ReactionStoichiometry
 {
-    public static class StringOperations
+    internal static class StringOperations
     {
         internal const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
         internal const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
@@ -20,9 +20,9 @@ namespace ReactionStoichiometry
 
         private const String SUBSTANCE_ALPHABET = @$"[A-Za-z0-9\.{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
 
-        public static Boolean LooksLikeChemicalReactionEquation(this String skeletal)
+        internal static Boolean LooksLikeChemicalReactionEquation(String equationString)
         {
-            return Regex.IsMatch(skeletal.Replace(oldValue: " ", String.Empty), SKELETAL_STRUCTURE);
+            return Regex.IsMatch(equationString, SKELETAL_STRUCTURE);
         }
 
         internal static String UnfoldSubstance(String substance)

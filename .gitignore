@@ -6,6 +6,7 @@
 # Aziz: stuff to ignore
 batchdata/
 *.zip
+zz-readme.txt
 
 # User-specific files
 *.rsuser

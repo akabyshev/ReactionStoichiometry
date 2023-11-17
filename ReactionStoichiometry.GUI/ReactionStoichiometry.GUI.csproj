@@ -38,17 +38,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="WebViewResources.Designer.cs">
+    <Compile Update="ResourcesWebview.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>WebViewResources.resx</DependentUpon>
+      <DependentUpon>ResourcesWebview.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="WebViewResources.resx">
+    <EmbeddedResource Update="ResourcesWebview.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>WebViewResources.Designer.cs</LastGenOutput>
+      <LastGenOutput>ResourcesWebview.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

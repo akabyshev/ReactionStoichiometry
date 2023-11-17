@@ -16,10 +16,9 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void StringLooksLikeChemicalReactionEquation_Simple()
         {
-            Assert.False("C6H5COOH + O2 -> CO2 + H2O".LooksLikeChemicalReactionEquation());
-            Assert.True("C6H5COOH + O2 = CO2 + H2O".LooksLikeChemicalReactionEquation());
-            Assert.True("   C6H5COOH +     O2 = CO2 +  H2O    ".LooksLikeChemicalReactionEquation());
-            Assert.True(@"C6H5COOH+O2=CO2+H2O".LooksLikeChemicalReactionEquation());
+            Assert.False(StringOperations.LooksLikeChemicalReactionEquation(equationString: @"C6H5COOH + O2 = CO2 + H2O"));
+            Assert.False(StringOperations.LooksLikeChemicalReactionEquation(equationString: @"C6H5COOH+O2->CO2+H2O"));
+            Assert.True(StringOperations.LooksLikeChemicalReactionEquation(equationString: @"C6H5COOH+O2=CO2+H2O"));
         }
 
         [Fact]
