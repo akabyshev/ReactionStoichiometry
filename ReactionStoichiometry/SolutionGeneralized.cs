@@ -6,18 +6,16 @@ namespace ReactionStoichiometry
 {
     public sealed class SolutionGeneralized : Solution
     {
-        private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
-
-        [JsonProperty(PropertyName = "FreeVariableIndices")]
-        private readonly ReadOnlyCollection<Int32> _freeCoefficientIndices;
-
         [JsonProperty(PropertyName = "AlgebraicExpressions")]
         public readonly ReadOnlyCollection<String>? AlgebraicExpressions;
 
         [JsonProperty(PropertyName = "SimplestSolution")]
         public readonly ReadOnlyCollection<BigInteger>? GuessedSimplestSolution;
 
-        internal override String Type => "Generalized";
+        private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
+
+        [JsonProperty(PropertyName = "FreeVariableIndices")]
+        private readonly ReadOnlyCollection<Int32> _freeCoefficientIndices;
 
         internal SolutionGeneralized(ChemicalReactionEquation equation)
         {
@@ -50,7 +48,9 @@ namespace ReactionStoichiometry
                                                                        equation.Labels[i] :
                                                                        String.Format(format: "{0} = {1}"
                                                                                    , equation.Labels[i]
-                                                                                   , AlgebraicExpressionForCoefficient(i))).ToList().AsReadOnly();
+                                                                                   , AlgebraicExpressionForCoefficient(i)))
+                                                 .ToList()
+                                                 .AsReadOnly();
                 Success = true;
             }
             catch (AppSpecificException e)
@@ -65,13 +65,13 @@ namespace ReactionStoichiometry
                 String.Format(format: "{0} with coefficients {1}"
                             , equation.GeneralizedEquation
                             , AlgebraicExpressions.Select(selector: static s => !s.Contains(value: " = ") ? s : s.Split(separator: " = ")[1])
-                                                   .CoefficientsAsString());
+                                                  .CoefficientsAsString());
             AsMultilineString = AlgebraicExpressions == null ?
                 GlobalConstants.FAILURE_MARK :
                 String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
                             , equation.GeneralizedEquation
                             , String.Join(Environment.NewLine, AlgebraicExpressions.Where(predicate: static s => s.Contains(value: " = ")))
-                            , _freeCoefficientIndices.Select(i => equation.Labels[i]).CoefficientsAsString()
+                            , _freeCoefficientIndices.Select(selector: i => equation.Labels[i]).CoefficientsAsString()
                             , Environment.NewLine);
             AsDetailedMultilineString = GetAsDetailedMultilineString(equation);
 

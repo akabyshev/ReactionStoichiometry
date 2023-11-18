@@ -65,11 +65,9 @@ namespace ReactionStoichiometry.GUI {
         ///  font-family: Arial, sans-serif;
         ///}
         ///
-        ///.cre {
-        ///    display: flex;
-        ///    justify-content: center;
-        ///    align-items: inherit;
+        ///.cre p {
         ///    width: 100%;
+        ///    font-family: monospace;
         ///}
         ///
         ///table {
@@ -94,7 +92,8 @@ namespace ReactionStoichiometry.GUI {
         ///thead,
         ///tbody {
         ///  vertical-align: middle;
-        ///  text-alig [rest of string was truncated]&quot;;.
+        ///  text-align: right;
+        ///}.
         /// </summary>
         internal static string cssContent {
             get {
@@ -134,16 +133,16 @@ namespace ReactionStoichiometry.GUI {
         ///
         ///  record.Substances = record.Substances.map(
         ///    (substance) =&gt;
-        ///      &quot;&lt;div&gt;&quot; + substance.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;) + &quot;&lt;/div&gt;&quot;
+        ///      substance.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;)
         ///  );
         ///
         ///  record.Labels = record.Labels.map(
         ///    (label) =&gt; &quot;&lt;i&gt;&quot; + label.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;) + &quot;&lt;/i&gt;&quot;
         ///  );
         ///
-        ///  if (record.Solutions.Generalized.AlgebraicExpressions) {
-        ///    record.Solutions.Generalized.AlgebraicExpressions =
-        ///      rec [rest of string was truncated]&quot;;.
+        ///  if (record.GeneralizedSolution.AlgebraicExpressions) {
+        ///    record.GeneralizedSolution.AlgebraicExpressions =
+        ///      record.GeneralizedSolution.A [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string jsContent {
             get {

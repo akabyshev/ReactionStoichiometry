@@ -22,8 +22,8 @@ Console.WriteLine(value: "Equation?");
 var equationString = Console.ReadLine();
 if (equationString != null && ChemicalReactionEquation.IsValidString(equationString))
 {
-    var equation = new ChemicalReactionEquation(equationString, ChemicalReactionEquation.SolutionTypes.Generalized);
-    var solution = equation.GetSolution(ChemicalReactionEquation.SolutionTypes.Generalized);
+    var equation = new ChemicalReactionEquation(equationString);
+    var solution = equation.GeneralizedSolution;
     Console.WriteLine(solution.ToString(OutputFormat.DetailedMultiline));
     Console.WriteLine(equation.ToJson());
 }

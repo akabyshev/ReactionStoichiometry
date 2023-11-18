@@ -7,19 +7,14 @@ namespace ReactionStoichiometry
 {
     public sealed class ChemicalReactionEquation
     {
-        #region SolutionTypes enum
-        [Flags]
-        public enum SolutionTypes
-        {
-            Generalized = 1 << 0
-          , InverseBased = 1 << 1
-        }
-        #endregion
+        [JsonProperty(PropertyName = "GeneralizedSolution")]
+        public readonly SolutionGeneralized GeneralizedSolution;
 
-        public readonly List<String> Substances;
+        [JsonProperty(PropertyName = "InverseBasedSolution")]
+        public readonly SolutionInverseBased InverseBasedSolution;
 
-        [JsonProperty(PropertyName = "Labels")]
-        internal readonly List<String> Labels;
+        [JsonProperty(PropertyName = "Substances")]
+        public readonly IReadOnlyList<String> Substances;
 
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "CCM")] [JsonConverter(typeof(RationalArrayJsonConverter))]
@@ -31,6 +26,12 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "Rank")]
         internal readonly Int32 CompositionMatrixRank;
 
+        [JsonProperty(PropertyName = "Elements")]
+        internal readonly IReadOnlyList<String> Elements;
+
+        [JsonProperty(PropertyName = "Labels")]
+        internal readonly IReadOnlyList<String> Labels;
+
         [JsonProperty(PropertyName = "OriginalInput")]
         internal readonly String OriginalEquation;
 
@@ -39,9 +40,6 @@ namespace ReactionStoichiometry
         internal readonly Rational[,] RREF;
 
         internal readonly Int32[] SpecialColumnsIndices;
-
-        [JsonProperty(PropertyName = "Solutions")]
-        private readonly Dictionary<SolutionTypes, Solution> _solutions = new();
 
         [JsonIgnore]
         public String GeneralizedEquation =>
@@ -52,7 +50,7 @@ namespace ReactionStoichiometry
                                                   , goesToRhsIf: static _ => false
                                                   , allowEmptyRhs: true);
 
-        public ChemicalReactionEquation(String equationString, SolutionTypes includeSolutionTypes)
+        public ChemicalReactionEquation(String equationString)
         {
             OriginalEquation = equationString.Replace(oldValue: " ", String.Empty);
 
@@ -62,23 +60,16 @@ namespace ReactionStoichiometry
             }
 
             Substances = OriginalEquation.Split('=', '+').Where(predicate: static s => s != "0").ToList();
-            Labels = Enumerable.Range(start: 0, Substances.Count).Select(static i => 'x' + (i + 1).ToString(format: "D2")).ToList();
-
-            CCM = GetCompositionMatrix();
+            Labels = Enumerable.Range(start: 0, Substances.Count).Select(selector: static i => 'x' + (i + 1).ToString(format: "D2")).ToList();
+            FillCompositionMatrix(out CCM, out Elements);
             RREF = CCM.GetRREF(trim: true);
             CompositionMatrixRank = RREF.RowCount();
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
 
             SpecialColumnsIndices = Enumerable.Range(start: 0, RREF.ColumnCount()).Where(predicate: c => !ContainsOnlySingleOne(RREF.Column(c))).ToArray();
 
-            if (includeSolutionTypes.HasFlagFast(SolutionTypes.Generalized))
-            {
-                _solutions.Add(SolutionTypes.Generalized, new SolutionGeneralized(this));
-            }
-            if (includeSolutionTypes.HasFlagFast(SolutionTypes.InverseBased))
-            {
-                _solutions.Add(SolutionTypes.InverseBased, new SolutionInverseBased(this));
-            }
+            GeneralizedSolution = new SolutionGeneralized(this);
+            InverseBasedSolution = new SolutionInverseBased(this);
 
             return;
 
@@ -86,11 +77,6 @@ namespace ReactionStoichiometry
             {
                 return array.Count(predicate: static r => !r.IsZero) == 1 && array.Count(predicate: static r => r.IsOne) == 1;
             }
-        }
-
-        public Solution GetSolution(SolutionTypes solutionType)
-        {
-            return _solutions[solutionType];
         }
 
         public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
@@ -166,7 +152,7 @@ namespace ReactionStoichiometry
             return true;
         }
 
-        private Rational[,] GetCompositionMatrix()
+        private void FillCompositionMatrix(out Rational[,] matrix, out IReadOnlyList<String> outElements)
         {
             var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
             var elements = Regex.Matches(OriginalEquation, StringOperations.ELEMENT_SYMBOL)
@@ -175,12 +161,12 @@ namespace ReactionStoichiometry
                                 .ToList();
             elements.AddRange(pseudoElementsOfCharge); // it is important to have those as trailing rows of the matrix
 
-            var result = new Rational[elements.Count, Substances.Count];
+            matrix = new Rational[elements.Count, Substances.Count];
             for (var r = 0; r < elements.Count; r++)
             {
                 for (var c = 0; c < Substances.Count; c++)
                 {
-                    result[r, c] = 0;
+                    matrix[r, c] = 0;
                 }
             }
 
@@ -198,28 +184,20 @@ namespace ReactionStoichiometry
                         var match = matches[i];
                         sum += Rational.ParseDecimal(match.Groups[groupnum: 1].Value);
                     }
-                    result[r, c] += sum;
+                    matrix[r, c] += sum;
                 }
             }
 
             var (indexE, indexQn, indexQp) = (elements.IndexOf(item: "{e}"), elements.IndexOf(item: "Qn"), elements.IndexOf(item: "Qp"));
             for (var c = 0; c < Substances.Count; c++)
             {
-                result[indexE, c] = -result[indexQn, c] + result[indexQp, c];
-                result[indexQn, c] = 0;
-                result[indexQp, c] = 0;
+                matrix[indexE, c] = -matrix[indexQn, c] + matrix[indexQp, c];
+                matrix[indexQn, c] = 0;
+                matrix[indexQp, c] = 0;
             }
 
-            Helpers.TrimAndGetCanonicalForms(ref result);
-            return result;
-        }
-    }
-
-    internal static class SolutionTypesExtensions
-    {
-        internal static Boolean HasFlagFast(this ChemicalReactionEquation.SolutionTypes value, ChemicalReactionEquation.SolutionTypes flag)
-        {
-            return (value & flag) != 0;
+            Helpers.TrimAndGetCanonicalForms(ref matrix);
+            outElements = elements.Take(matrix.RowCount()).ToList().AsReadOnly();
         }
     }
 }

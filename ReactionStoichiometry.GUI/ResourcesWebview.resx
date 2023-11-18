@@ -122,11 +122,9 @@
   font-family: Arial, sans-serif;
 }
 
-.cre {
-    display: flex;
-    justify-content: center;
-    align-items: inherit;
+.cre p {
     width: 100%;
+    font-family: monospace;
 }
 
 table {
@@ -180,24 +178,24 @@ MakeJsonReadable(jsonobject, "Solution");
 
   record.Substances = record.Substances.map(
     (substance) =&gt;
-      "&lt;div&gt;" + substance.replace(/(\d+(\.\d+)?)/g, "&lt;sub&gt;$1&lt;/sub&gt;") + "&lt;/div&gt;"
+      substance.replace(/(\d+(\.\d+)?)/g, "&lt;sub&gt;$1&lt;/sub&gt;")
   );
 
   record.Labels = record.Labels.map(
     (label) =&gt; "&lt;i&gt;" + label.replace(/(\d+(\.\d+)?)/g, "&lt;sub&gt;$1&lt;/sub&gt;") + "&lt;/i&gt;"
   );
 
-  if (record.Solutions.Generalized.AlgebraicExpressions) {
-    record.Solutions.Generalized.AlgebraicExpressions =
-      record.Solutions.Generalized.AlgebraicExpressions.map((expression) =&gt;
+  if (record.GeneralizedSolution.AlgebraicExpressions) {
+    record.GeneralizedSolution.AlgebraicExpressions =
+      record.GeneralizedSolution.AlgebraicExpressions.map((expression) =&gt;
         expression.replace(/(?&lt;=x)\d{2}/g, "&lt;sub&gt;$&amp;&lt;/sub&gt;")
       );
   }
 
   const tableCCM = createTable(
     record.CCM,
-    (index) =&gt; (index + 1).toString(),
-    (index) =&gt; record.Substances[index]
+    (index) =&gt; record.Elements[index],
+    (index) =&gt; record.Labels[index]
   );
   tableCCM.classList.add("vertical-headers");
 
@@ -211,9 +209,9 @@ MakeJsonReadable(jsonobject, "Solution");
     &lt;h3&gt;${identifier}&lt;/h3&gt;
     &lt;p&gt;
     We begin by expressing the original equation
-    &lt;div class="cre"&gt;${record.OriginalInput}&lt;/div&gt;
+    &lt;p class="cre"&gt;${record.OriginalInput}&lt;/p&gt;
     in its generalized form
-    &lt;div class="cre"&gt;${constructGeneralizedEquation(record)}&lt;/div&gt;
+    &lt;p class="cre"&gt;${constructGeneralizedEquation(record)}&lt;/p&gt;
     &lt;/p&gt;
     &lt;p&gt;Following this, a chemical composition matrix (CCM) is constructed.
     The matrix columns represent the substances involved in the reaction, while the rows indicate the constituent chemical elements: ${
@@ -223,13 +221,13 @@ MakeJsonReadable(jsonobject, "Solution");
       tableRREF.outerHTML
     }&lt;/p&gt;`;
 
-  if (record.Solutions.Generalized.Success === false) {
+  if (record.GeneralizedSolution.Success === false) {
     recordDiv.innerHTML += `
       &lt;p&gt;That results in an identity matrix, indicating that it's impossible to balance the provided equation.&lt;/p&gt;
       `;
   } else {
     const tableExpressions = createTable(
-      record.Solutions.Generalized.AlgebraicExpressions.filter((item) =&gt;
+      record.GeneralizedSolution.AlgebraicExpressions.filter((item) =&gt;
         item.includes(" = ")
       ).map((item) =&gt; [item]),
       (index) =&gt; (index + 1).toString(),
@@ -239,26 +237,26 @@ MakeJsonReadable(jsonobject, "Solution");
     recordDiv.innerHTML += `
       &lt;p&gt;
       The RREF demonstrates how all coefficients can be expressed as linear functions of &lt;u&gt;${
-        record.Solutions.Generalized.FreeVariableIndices.length &gt; 1
+        record.GeneralizedSolution.FreeVariableIndices.length &gt; 1
           ? "free variables"
           : "the free variable"
       }
-        ${record.Solutions.Generalized.FreeVariableIndices.map(
+        ${record.GeneralizedSolution.FreeVariableIndices.map(
           (index) =&gt; record.Labels[index]
         ).join(", ")}&lt;/u&gt;:
         ${tableExpressions.outerHTML}
       &lt;/p&gt;`;
 
-    if (record.Solutions.Generalized.FreeVariableIndices.length === 1) {
+    if (record.GeneralizedSolution.FreeVariableIndices.length === 1) {
       const tableFoundSolution = createTable(
         record.Labels.map((item, index) =&gt; [
-          item + " = " + record.Solutions.Generalized.SimplestSolution[index],
+          item + " = " + record.GeneralizedSolution.SimplestSolution[index],
         ]),
         (index) =&gt; (index + 1).toString(),
-        () =&gt; "Coefficient values"
+        () =&gt; "Coefficients"
       );
 
-      recordDiv.innerHTML += `&lt;p&gt;The next step is determining values for the free variable that yields integers coefficients. 
+      recordDiv.innerHTML += `&lt;p&gt;The next step is determining values for the free variable that yields integer coefficients. 
       Setting it to &lt;u&gt;the least common multiple of all the denominators&lt;/u&gt; results in: ${tableFoundSolution.outerHTML}&lt;/p&gt;
       `;
     } else {
@@ -282,13 +280,11 @@ function constructGeneralizedEquation(record) {
   result = Array.from(
     { length: record.Substances.length },
     (_, index) =&gt;
-      "&lt;div&gt;" +
       record.Labels[index] +
-      "&lt;/div&gt;" +
       INTERPUNCT +
       record.Substances[index]
   ).join(" + ");
-  return result + " = &lt;div&gt;0&lt;/div&gt;";
+  return result + " = 0";
 }
 
 function createTable(data, rowLabelFunc, columnLabelFunc) {

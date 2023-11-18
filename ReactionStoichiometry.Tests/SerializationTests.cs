@@ -9,30 +9,26 @@ namespace ReactionStoichiometry.Tests
         public void Json_Simple()
         {
             const String eq = "H2 + O2 = H2O";
-            var balancer = new BalancerGeneralized(eq);
-            Assert.Equal(GlobalConstants.FAILURE_MARK, balancer.ToString(OutputFormat.Simple));
-            Assert.NotEqual(GlobalConstants.FAILURE_MARK, balancer.ToString(OutputFormat.Json));
-
-            Assert.True(balancer.Balance());
-            Assert.NotEqual(GlobalConstants.FAILURE_MARK, balancer.ToString(OutputFormat.Simple));
-            Assert.Null(Record.Exception(testCode: () => _ = balancer.ToString(OutputFormat.Json)));
+            var equation = new ChemicalReactionEquation(eq);
+            Assert.NotEqual(GlobalConstants.FAILURE_MARK, equation.GeneralizedSolution.ToString(OutputFormat.Simple));
+            Assert.Null(Record.Exception(testCode: () => _ = equation.ToJson()));
         }
 
         [Fact]
         public void JsonDeserializationExceptions_Simple()
         {
-            Assert.Throws<JsonReaderException>(testCode: () => { _ = JsonConvert.DeserializeObject<Balancer>(value: "some random string"); });
+            Assert.Throws<JsonReaderException>(testCode: () => { _ = JsonConvert.DeserializeObject<ChemicalReactionEquation>(value: "some random string"); });
 
             const String randomJsonString = "{\"Name\":\"John\",\"Age\":30}";
-            Assert.Throws<JsonSerializationException>(testCode: () => { _ = JsonConvert.DeserializeObject<Balancer>(randomJsonString); });
+            Assert.Throws<NullReferenceException>(testCode: () => { _ = JsonConvert.DeserializeObject<ChemicalReactionEquation>(randomJsonString); });
 
             const String eq = "H2 + O2 = H2O";
-            var balancer = new BalancerGeneralized(eq);
+            var equation = new ChemicalReactionEquation(eq);
             var converter = new RationalArrayJsonConverter();
             Assert.Throws<NotImplementedException>(testCode: () =>
                                                              {
                                                                  _ = JsonConvert.DeserializeObject<Rational[,]>(
-                                                                     JsonConvert.SerializeObject(balancer.Equation.CCM, converter)
+                                                                     JsonConvert.SerializeObject(equation.CCM, converter)
                                                                    , converter);
                                                              });
         }

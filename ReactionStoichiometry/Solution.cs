@@ -15,8 +15,6 @@ namespace ReactionStoichiometry
 
         [field: JsonProperty(PropertyName = "Success")]
         public Boolean Success { get; private protected init; }
-        [JsonProperty(PropertyName = "Type")]
-        internal abstract String Type { get; }
 
         public String ToString(OutputFormat format)
         {
@@ -34,7 +32,9 @@ namespace ReactionStoichiometry
             var result = OutputFormatTemplates.MULTILINE_TEMPLATE.Replace(oldValue: "%Skeletal%", equation.OriginalEquation)
                                               .Replace(oldValue: "%CCM%", equation.CCM.Readable(title: "CCM", columnHeaders: i => equation.Substances[i]))
                                               .Replace(oldValue: "%RREF%"
-                                                     , equation.RREF.Readable(title: "RREF", i => equation.Labels[i], i => equation.Labels[i]))
+                                                     , equation.RREF.Readable(title: "RREF"
+                                                                            , rowHeaders: i => equation.Labels[i]
+                                                                            , columnHeaders: i => equation.Labels[i]))
                                               .Replace(oldValue: "%CCM_stats%"
                                                      , String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
                                                                    , equation.CCM.RowCount()

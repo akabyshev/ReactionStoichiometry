@@ -24,9 +24,7 @@
                     continue;
                 }
 
-                var equation = new ChemicalReactionEquation(line
-                                                          , ChemicalReactionEquation.SolutionTypes.Generalized
-                                                          | ChemicalReactionEquation.SolutionTypes.InverseBased);
+                var equation = new ChemicalReactionEquation(line);
 
                 foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
                 {
@@ -42,9 +40,9 @@
                         writerInverseBased.WriteLine(line);
                     }
 
-                    writerGeneralized.Write(equation.GetSolution(ChemicalReactionEquation.SolutionTypes.Generalized).ToString(format));
+                    writerGeneralized.Write(equation.GeneralizedSolution.ToString(format));
                     writerGeneralized.WriteLine(Environment.NewLine);
-                    writerInverseBased.Write(equation.GetSolution(ChemicalReactionEquation.SolutionTypes.InverseBased).ToString(format));
+                    writerInverseBased.Write(equation.InverseBasedSolution.ToString(format));
                     writerInverseBased.WriteLine(Environment.NewLine);
                 }
 

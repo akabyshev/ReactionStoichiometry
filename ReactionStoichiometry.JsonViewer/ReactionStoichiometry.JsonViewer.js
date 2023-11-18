@@ -10,16 +10,16 @@ function MakeJsonReadable(record, identifier) {
     (label) => "<i>" + label.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>") + "</i>"
   );
 
-  if (record.Solutions.Generalized.AlgebraicExpressions) {
-    record.Solutions.Generalized.AlgebraicExpressions =
-      record.Solutions.Generalized.AlgebraicExpressions.map((expression) =>
+  if (record.GeneralizedSolution.AlgebraicExpressions) {
+    record.GeneralizedSolution.AlgebraicExpressions =
+      record.GeneralizedSolution.AlgebraicExpressions.map((expression) =>
         expression.replace(/(?<=x)\d{2}/g, "<sub>$&</sub>")
       );
   }
 
   const tableCCM = createTable(
     record.CCM,
-    (index) => (index + 1).toString(),
+    (index) => record.Elements[index],
     (index) => record.Labels[index]
   );
   tableCCM.classList.add("vertical-headers");
@@ -46,13 +46,13 @@ function MakeJsonReadable(record, identifier) {
       tableRREF.outerHTML
     }</p>`;
 
-  if (record.Solutions.Generalized.Success === false) {
+  if (record.GeneralizedSolution.Success === false) {
     recordDiv.innerHTML += `
       <p>That results in an identity matrix, indicating that it's impossible to balance the provided equation.</p>
       `;
   } else {
     const tableExpressions = createTable(
-      record.Solutions.Generalized.AlgebraicExpressions.filter((item) =>
+      record.GeneralizedSolution.AlgebraicExpressions.filter((item) =>
         item.includes(" = ")
       ).map((item) => [item]),
       (index) => (index + 1).toString(),
@@ -62,20 +62,20 @@ function MakeJsonReadable(record, identifier) {
     recordDiv.innerHTML += `
       <p>
       The RREF demonstrates how all coefficients can be expressed as linear functions of <u>${
-        record.Solutions.Generalized.FreeVariableIndices.length > 1
+        record.GeneralizedSolution.FreeVariableIndices.length > 1
           ? "free variables"
           : "the free variable"
       }
-        ${record.Solutions.Generalized.FreeVariableIndices.map(
+        ${record.GeneralizedSolution.FreeVariableIndices.map(
           (index) => record.Labels[index]
         ).join(", ")}</u>:
         ${tableExpressions.outerHTML}
       </p>`;
 
-    if (record.Solutions.Generalized.FreeVariableIndices.length === 1) {
+    if (record.GeneralizedSolution.FreeVariableIndices.length === 1) {
       const tableFoundSolution = createTable(
         record.Labels.map((item, index) => [
-          item + " = " + record.Solutions.Generalized.SimplestSolution[index],
+          item + " = " + record.GeneralizedSolution.SimplestSolution[index],
         ]),
         (index) => (index + 1).toString(),
         () => "Coefficients"

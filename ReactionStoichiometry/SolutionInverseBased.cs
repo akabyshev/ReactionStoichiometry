@@ -4,12 +4,10 @@ using Rationals;
 
 namespace ReactionStoichiometry
 {
-    internal sealed class SolutionInverseBased : Solution
+    public sealed class SolutionInverseBased : Solution
     {
         [JsonProperty(PropertyName = "Independent reactions")]
         private readonly List<BigInteger[]> _independentReactions = new();
-
-        internal override String Type => "RREF-Inverse-based";
 
         internal SolutionInverseBased(ChemicalReactionEquation equation)
         {
