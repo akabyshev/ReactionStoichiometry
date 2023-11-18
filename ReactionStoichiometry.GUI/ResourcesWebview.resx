@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="cssContent" xml:space="preserve">
-    <value><![CDATA[body {
+    <value>body {
   font-family: Arial, sans-serif;
 }
 
@@ -157,95 +157,95 @@ thead,
 tbody {
   text-align: right;
   vertical-align: middle;
-}]]></value>
+}</value>
   </data>
   <data name="htmlContent" xml:space="preserve">
-    <value><![CDATA[<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReactionStoichiometry.JsonViewer</title>
-<style type='text/css'>
+    <value>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+	&lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;ReactionStoichiometry.JsonViewer&lt;/title&gt;
+&lt;style type='text/css'&gt;
                     %cssContent%
-                </style>
-</head>
-<body>
-    <script type='text/javascript'>
+                &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;script type='text/javascript'&gt;
                     %jsContent%;
 const jsonobject = %jsonContent%;
 MakeJsonReadable(jsonobject, "Solution");
-                </script>
-</body>
-</html>]]></value>
+                &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</value>
   </data>
   <data name="jsContent" xml:space="preserve">
-    <value><![CDATA[function MakeJsonReadable(serialized, identifier) {
+    <value>function MakeJsonReadable(serialized, identifier) {
   const recordDiv = document.createElement("div");
 
-  serialized.Equation.Substances = serialized.Equation.Substances.map(
-    (substance) =>
-      "<div>" + substance.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>") + "</div>"
+  serialized.Substances = serialized.Substances.map(
+    (substance) =&gt;
+      "&lt;div&gt;" + substance.replace(/(\d+(\.\d+)?)/g, "&lt;sub&gt;$1&lt;/sub&gt;") + "&lt;/div&gt;"
   );
 
   const tableCCM = createTable(
-    serialized.Equation.CCM,
-    (index) => (index + 1).toString(),
-    (index) => serialized.Equation.Substances[index]
+    serialized.CCM,
+    (index) =&gt; (index + 1).toString(),
+    (index) =&gt; serialized.Substances[index]
   );
   tableCCM.classList.add("vertical-headers");
   const tableRREF = createTable(
-    serialized.Equation.RREF,
-    (index) => labelFor(serialized.Equation.Substances.length, index),
-    (index) => labelFor(serialized.Equation.Substances.length, index)
+    serialized.RREF,
+    (index) =&gt; labelFor(serialized.Substances.length, index),
+    (index) =&gt; labelFor(serialized.Substances.length, index)
   );
 
   recordDiv.innerHTML = `
-    <h3>${identifier}</h3>
-    <p>
-    The solution begins by expressing the original equation
-    <div class="cre">${serialized.Equation["Original input"]}</div>
+    &lt;h3&gt;${identifier}&lt;/h3&gt;
+    &lt;p&gt;
+    We begin by expressing the original equation
+    &lt;div class="cre"&gt;${serialized["Original input"]}&lt;/div&gt;
     in its generalized form
-    <div class="cre">${constructGeneralizedEquation(serialized)}</div>
-    </p>
-    <p>Following this, a chemical composition matrix (CCM) is constructed.
+    &lt;div class="cre"&gt;${constructGeneralizedEquation(serialized)}&lt;/div&gt;
+    &lt;/p&gt;
+    &lt;p&gt;Following this, a chemical composition matrix (CCM) is constructed.
     The matrix columns represent the substances involved in the reaction, while the rows indicate the constituent chemical elements: ${
       tableCCM.outerHTML
-    }</p>
-    <p>Subsequently, the CCM is transformed into its Reduced Row Echelon Form (RREF) using Gaussian elimination: ${
+    }&lt;/p&gt;
+    &lt;p&gt;Subsequently, the CCM is transformed into its Reduced Row Echelon Form (RREF) using Gaussian elimination: ${
       tableRREF.outerHTML
-    }</p>`;
+    }&lt;/p&gt;`;
 
-  if (serialized.Success === false) {
+  if (serialized.Solutions.Generalized.Success === false) {
     recordDiv.innerHTML += `
-      <p>That results in an identity matrix, indicating that it's impossible to balance the provided equation.</p>
+      &lt;p&gt;That results in an identity matrix, indicating that it's impossible to balance the provided equation.&lt;/p&gt;
       `;
   } else {
     const tableExpressions = createTable(
-      serialized["Algebraic expressions"].map((item) => [item]),
-      (index) => (index + 1).toString(),
-      () => "Expression"
+      serialized.Solutions.Generalized["Algebraic expressions"].filter(item =&gt; item !== null).map((item) =&gt; [item]),
+      (index) =&gt; (index + 1).toString(),
+      () =&gt; "Expression"
     );
     recordDiv.innerHTML += `
-      <p>
+      &lt;p&gt;
       The RREF demonstrates how all coefficients can be expressed as linear functions of ${
-        serialized["Free variables"].length > 1
+        serialized.Solutions.Generalized["Free variables"].length &gt; 1
           ? "free variables"
           : "the free variable"
       }
-        <b>${serialized["Free variables"]
-          .map((i) => labelFor(serialized.Equation.Substances.length, i))
+        &lt;b&gt;${serialized.Solutions.Generalized["Free variables"]
+          .map((i) =&gt; labelFor(serialized.Substances.length, i))
           .join(", ")}
-        </b>:${tableExpressions.outerHTML}
-      </p>`;
-    if (serialized["Free variables"].length === 1) {
+        &lt;/b&gt;:${tableExpressions.outerHTML}
+      &lt;/p&gt;`;
+    if (serialized.Solutions.Generalized["Free variables"].length === 1) {
       recordDiv.innerHTML += `The obtained generalized solution leads us to the next step: 
       determining values for the free variable that ensure all coefficients are integers. 
-      Setting it to the least common multiple of all the denominators, <b> ${labelFor(
-        serialized.Equation.Substances.length,
-        serialized["Free variables"][0]
-      )} = ${serialized["Simplest solution"].Item1} </b> yields the final solution:
-    <div class="cre">${serialized["Simplest solution"].Item2}</div>
+      Setting it to the least common multiple of all the denominators, &lt;b&gt; ${labelFor(
+        serialized.Substances.length,
+        serialized.Solutions.Generalized["Free variables"][0]
+      )} = ${serialized.Solutions.Generalized["Simplest solution"]} &lt;/b&gt; yields the final solution:
+    &lt;div class="cre"&gt;BHAHAHA&lt;/div&gt;
     `;
     } else {
       recordDiv.innerHTML += `There is an infinite number of solutions in this case. Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. 
@@ -261,24 +261,25 @@ MakeJsonReadable(jsonobject, "Solution");
 }
 
 function labelFor(total, i) {
-  return total > 7
-    ? "x" + (i + 1).toString().padStart(2, "0")
-    : String.fromCharCode("a".charCodeAt(0) + i);
+  return "&lt;i&gt;" + (total &gt; 7
+    ? "x" + "&lt;sub&gt;" + (i + 1).toString().padStart(2, "0") + "&lt;/sub&gt;" // could be Math.ceil(Math.log10(total + 1)) but...
+    : String.fromCharCode("a".charCodeAt(0) + i))
+    + "&lt;/i&gt;";
 }
 
 function constructGeneralizedEquation(record) {
   const INTERPUNCT = "\u00B7";
   let result = "";
   result = Array.from(
-    { length: record.Equation.Substances.length },
-    (_, index) =>
-      "<div>" +
-      labelFor(record.Equation.Substances.length, index) +
-      "</div>" +
+    { length: record.Substances.length },
+    (_, index) =&gt;
+      "&lt;div&gt;" +
+      labelFor(record.Substances.length, index) +
+      "&lt;/div&gt;" +
       INTERPUNCT +
-      record.Equation.Substances[index]
+      record.Substances[index]
   ).join(" + ");
-  return result + " = <div>0</div>";
+  return result + " = &lt;div&gt;0&lt;/div&gt;";
 }
 
 function createTable(data, rowLabelFunc, columnLabelFunc) {
@@ -287,7 +288,7 @@ function createTable(data, rowLabelFunc, columnLabelFunc) {
   const tableHead = document.createElement("thead");
   const tableRowOfColumnHeaders = document.createElement("tr");
   tableRowOfColumnHeaders.appendChild(document.createElement("th"));
-  for (let index = 0; index < data[0].length; index++) {
+  for (let index = 0; index &lt; data[0].length; index++) {
     const currentCell = document.createElement("th");
     currentCell.innerHTML = columnLabelFunc(index);
     tableRowOfColumnHeaders.appendChild(currentCell);
@@ -295,12 +296,12 @@ function createTable(data, rowLabelFunc, columnLabelFunc) {
   tableHead.appendChild(tableRowOfColumnHeaders);
 
   const tableBody = document.createElement("tbody");
-  data.forEach((dataRow, dataRowIndex) => {
+  data.forEach((dataRow, dataRowIndex) =&gt; {
     const currentRow = document.createElement("tr");
     const currentRowHeaderCell = document.createElement("td");
-    currentRowHeaderCell.innerText = rowLabelFunc(dataRowIndex);
+    currentRowHeaderCell.innerHTML = rowLabelFunc(dataRowIndex);
     currentRow.appendChild(currentRowHeaderCell);
-    dataRow.forEach((entry) => {
+    dataRow.forEach((entry) =&gt; {
       const currentCell = document.createElement("td");
       currentCell.textContent = entry;
       if (entry === "0") {
@@ -315,6 +316,6 @@ function createTable(data, rowLabelFunc, columnLabelFunc) {
   table.appendChild(tableHead);
   table.appendChild(tableBody);
   return table;
-}]]></value>
+}</value>
   </data>
 </root>

@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace ReactionStoichiometry.CLI
+﻿namespace ReactionStoichiometry.CLI
 {
     internal abstract class BatchProcessor
     {
@@ -10,11 +8,11 @@ namespace ReactionStoichiometry.CLI
         {
             foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
             {
-                File.WriteAllText(ConstructPath(format.ToString(), "BalancerGeneralized"), String.Empty);
-                File.WriteAllText(ConstructPath(format.ToString(), "BalancerInverseBased"), String.Empty);
+                File.WriteAllText(ConstructPath(format.ToString(), str2: "BalancerGeneralized"), String.Empty);
+                File.WriteAllText(ConstructPath(format.ToString(), str2: "BalancerInverseBased"), String.Empty);
             }
 
-            using StreamWriter writerJson = new(@"batch.json");
+            using StreamWriter writerJson = new(path: "batch.json");
             writerJson.WriteLine(value: "{");
             writerJson.WriteLine(value: "\"serialized\": [");
 
@@ -32,8 +30,8 @@ namespace ReactionStoichiometry.CLI
 
                 foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
                 {
-                    var filePathGeneralized = ConstructPath(format.ToString(), "BalancerGeneralized");
-                    var filePathInverseBased = ConstructPath(format.ToString(), "BalancerInverseBased");
+                    var filePathGeneralized = ConstructPath(format.ToString(), str2: "BalancerGeneralized");
+                    var filePathInverseBased = ConstructPath(format.ToString(), str2: "BalancerInverseBased");
 
                     using StreamWriter writerGeneralized = new(filePathGeneralized, append: true);
                     using StreamWriter writerInverseBased = new(filePathInverseBased, append: true);

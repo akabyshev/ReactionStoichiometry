@@ -7,6 +7,15 @@ namespace ReactionStoichiometry
 {
     public sealed class ChemicalReactionEquation
     {
+        #region SolutionTypes enum
+        [Flags]
+        public enum SolutionTypes
+        {
+            Generalized = 1 << 0
+          , InverseBased = 1 << 1
+        }
+        #endregion
+
         public readonly List<String> Substances;
 
         // ReSharper disable once InconsistentNaming
@@ -28,6 +37,9 @@ namespace ReactionStoichiometry
 
         internal readonly Int32[] SpecialColumnsIndices;
 
+        [JsonProperty(PropertyName = "Solutions")]
+        private readonly Dictionary<SolutionTypes, Solution> _solutions = new();
+
         [JsonIgnore]
         public String GeneralizedEquation =>
             StringOperations.AssembleEquationString(Substances
@@ -36,17 +48,6 @@ namespace ReactionStoichiometry
                                                   , adapter: static s => s
                                                   , goesToRhsIf: static _ => false
                                                   , allowEmptyRhs: true);
-
-        [JsonProperty(PropertyName = "Solutions")]
-        private readonly Dictionary<SolutionTypes, Solution> _solutions = new();
-
-        [Flags]
-        public enum SolutionTypes
-        {
-            Generalized = 1 << 0
-           ,
-            InverseBased = 1 << 1
-        }
 
         public ChemicalReactionEquation(String equationString, SolutionTypes includeSolutionTypes)
         {
@@ -66,13 +67,12 @@ namespace ReactionStoichiometry
             SpecialColumnsIndices = Enumerable.Range(start: 0, RREF.ColumnCount()).Where(predicate: c => !ContainsOnlySingleOne(RREF.Column(c))).ToArray();
 
             if (includeSolutionTypes.HasFlagFast(SolutionTypes.Generalized))
-                _solutions.Add(SolutionTypes.Generalized, new GeneralizedSolution());
-            if (includeSolutionTypes.HasFlagFast(SolutionTypes.InverseBased))
-                _solutions.Add(SolutionTypes.InverseBased, new InverseBasedSolution());
-
-            foreach (var solution in _solutions.Values)
             {
-                solution.WorkOn(this);
+                _solutions.Add(SolutionTypes.Generalized, new GeneralizedSolution(this));
+            }
+            if (includeSolutionTypes.HasFlagFast(SolutionTypes.InverseBased))
+            {
+                _solutions.Add(SolutionTypes.InverseBased, new InverseBasedSolution(this));
             }
 
             return;
@@ -83,7 +83,10 @@ namespace ReactionStoichiometry
             }
         }
 
-        public Solution GetSolution(SolutionTypes solutionType) => _solutions[solutionType];
+        public Solution GetSolution(SolutionTypes solutionType)
+        {
+            return _solutions[solutionType];
+        }
 
         public String LabelFor(Int32 i)
         {
@@ -132,6 +135,12 @@ namespace ReactionStoichiometry
             }
 
             return result;
+        }
+
+        public String ToJson()
+        {
+            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            return JsonConvert.SerializeObject(this, settings);
         }
 
         internal Boolean Validate(BigInteger[] coefficients)
@@ -203,12 +212,6 @@ namespace ReactionStoichiometry
 
             Helpers.TrimAndGetCanonicalForms(ref result);
             return result;
-        }
-
-        public String ToJson()
-        {
-            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-            return JsonConvert.SerializeObject(this, settings);
         }
     }
 

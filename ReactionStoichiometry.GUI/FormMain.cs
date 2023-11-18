@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Numerics;
 
 namespace ReactionStoichiometry.GUI
@@ -72,40 +71,36 @@ namespace ReactionStoichiometry.GUI
         private void Balance()
         {
             var s = textBoxInput.Text;
-            _equation = new ChemicalReactionEquation(s, ChemicalReactionEquation.SolutionTypes.Generalized | ChemicalReactionEquation.SolutionTypes.InverseBased);
+            _equation = new ChemicalReactionEquation(s
+                                                   , ChemicalReactionEquation.SolutionTypes.Generalized | ChemicalReactionEquation.SolutionTypes.InverseBased);
             txtGeneralForm.Text = _equation.GeneralizedEquation;
 
             var generalizedSolution = _equation.GetSolution(ChemicalReactionEquation.SolutionTypes.Generalized) as GeneralizedSolution;
-            Debug.Assert(generalizedSolution != null, nameof(generalizedSolution) + " != null");
-            AppSpecificException.ThrowIf(generalizedSolution == null, message: "CRE was not properly constructed");
 
             if (generalizedSolution!.Success)
             {
                 #region Init instantiation tool
-                var simplest = generalizedSolution.GuessedSimplestSolution;
                 gridCoefficients.RowCount = _equation.Substances.Count;
                 for (var i = 0; i < _equation.Substances.Count; i++)
                 {
-                    gridCoefficients.Rows[i].HeaderCell.Value = _equation.LabelFor(i);
                     gridCoefficients.Rows[i].Cells[columnName: "Substance"].Value = _equation.Substances[i];
 
                     var expr = generalizedSolution.AlgebraicExpressions[i];
+                    gridCoefficients.Rows[i].Cells[columnName: "Coefficient"].Value = expr;
 
-                    if (String.IsNullOrEmpty(expr))
+                    if (expr.Contains(value: " = "))
                     {
-                        gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
-                        gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = "\u27a2";
-                        gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = simplest ?? 0;
-                        gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
+                        gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = false;
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = true;
                     }
                     else
                     {
-                        gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = false;
-                        gridCoefficients.Rows[i].Cells[columnName: "Expression"].Value = expr;
-                        gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = true;
+                        gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = generalizedSolution.GuessedSimplestSolution ?? 0;
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].Style.Font = new Font(gridCoefficients.Font, FontStyle.Bold | FontStyle.Underline);
                     }
                 }
-
                 Instantiate();
                 # endregion
 

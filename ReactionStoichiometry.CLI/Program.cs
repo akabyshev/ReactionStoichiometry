@@ -2,16 +2,17 @@
 
 using System.Diagnostics;
 using ReactionStoichiometry;
+using ReactionStoichiometry.CLI;
 
 #if RUN_BATCH_PROCESSING
 var stopwatch = new Stopwatch();
 stopwatch.Start();
-ReactionStoichiometry.CLI.BatchProcessor.Run();
+BatchProcessor.Run();
 stopwatch.Stop();
 Console.WriteLine($"Batch processing look {stopwatch.Elapsed.TotalMilliseconds} milliseconds");
 
 const String fileWrapped = @"D:\Solutions\ReactionStoichiometry\ReactionStoichiometry.JsonViewer\wrapped_json.js";
-File.WriteAllText(fileWrapped, "const jsonData =" + Environment.NewLine + File.ReadAllText("batch.json"));
+File.WriteAllText(fileWrapped, "const jsonData =" + Environment.NewLine + File.ReadAllText(path: "batch.json"));
 Console.WriteLine(value: "Updated wrapped_json.js");
 
 Console.WriteLine(value: "---------------------------");

@@ -1,28 +1,28 @@
 function MakeJsonReadable(serialized, identifier) {
   const recordDiv = document.createElement("div");
 
-  serialized.Equation.Substances = serialized.Equation.Substances.map(
+  serialized.Substances = serialized.Substances.map(
     (substance) =>
       "<div>" + substance.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>") + "</div>"
   );
 
   const tableCCM = createTable(
-    serialized.Equation.CCM,
+    serialized.CCM,
     (index) => (index + 1).toString(),
-    (index) => serialized.Equation.Substances[index]
+    (index) => serialized.Substances[index]
   );
   tableCCM.classList.add("vertical-headers");
   const tableRREF = createTable(
-    serialized.Equation.RREF,
-    (index) => labelFor(serialized.Equation.Substances.length, index),
-    (index) => labelFor(serialized.Equation.Substances.length, index)
+    serialized.RREF,
+    (index) => labelFor(serialized.Substances.length, index),
+    (index) => labelFor(serialized.Substances.length, index)
   );
 
   recordDiv.innerHTML = `
     <h3>${identifier}</h3>
     <p>
     We begin by expressing the original equation
-    <div class="cre">${serialized.Equation["Original input"]}</div>
+    <div class="cre">${serialized["Original input"]}</div>
     in its generalized form
     <div class="cre">${constructGeneralizedEquation(serialized)}</div>
     </p>
@@ -34,36 +34,36 @@ function MakeJsonReadable(serialized, identifier) {
       tableRREF.outerHTML
     }</p>`;
 
-  if (serialized.Success === false) {
+  if (serialized.Solutions.Generalized.Success === false) {
     recordDiv.innerHTML += `
       <p>That results in an identity matrix, indicating that it's impossible to balance the provided equation.</p>
       `;
   } else {
     const tableExpressions = createTable(
-      serialized["Algebraic expressions"].map((item) => [item]),
+      serialized.Solutions.Generalized["Algebraic expressions"].filter(item => item !== null).map((item) => [item]),
       (index) => (index + 1).toString(),
       () => "Expression"
     );
     recordDiv.innerHTML += `
       <p>
       The RREF demonstrates how all coefficients can be expressed as linear functions of ${
-        serialized["Free variables"].length > 1
+        serialized.Solutions.Generalized["Free variables"].length > 1
           ? "free variables"
           : "the free variable"
       }
-        <b>${serialized["Free variables"]
-          .map((i) => labelFor(serialized.Equation.Substances.length, i))
+        <b>${serialized.Solutions.Generalized["Free variables"]
+          .map((i) => labelFor(serialized.Substances.length, i))
           .join(", ")}
         </b>:${tableExpressions.outerHTML}
       </p>`;
-    if (serialized["Free variables"].length === 1) {
+    if (serialized.Solutions.Generalized["Free variables"].length === 1) {
       recordDiv.innerHTML += `The obtained generalized solution leads us to the next step: 
       determining values for the free variable that ensure all coefficients are integers. 
       Setting it to the least common multiple of all the denominators, <b> ${labelFor(
-        serialized.Equation.Substances.length,
-        serialized["Free variables"][0]
-      )} = ${serialized["Simplest solution"].Item1} </b> yields the final solution:
-    <div class="cre">${serialized["Simplest solution"].Item2}</div>
+        serialized.Substances.length,
+        serialized.Solutions.Generalized["Free variables"][0]
+      )} = ${serialized.Solutions.Generalized["Simplest solution"]} </b> yields the final solution:
+    <div class="cre">BHAHAHA</div>
     `;
     } else {
       recordDiv.innerHTML += `There is an infinite number of solutions in this case. Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. 
@@ -89,13 +89,13 @@ function constructGeneralizedEquation(record) {
   const INTERPUNCT = "\u00B7";
   let result = "";
   result = Array.from(
-    { length: record.Equation.Substances.length },
+    { length: record.Substances.length },
     (_, index) =>
       "<div>" +
-      labelFor(record.Equation.Substances.length, index) +
+      labelFor(record.Substances.length, index) +
       "</div>" +
       INTERPUNCT +
-      record.Equation.Substances[index]
+      record.Substances[index]
   ).join(" + ");
   return result + " = <div>0</div>";
 }

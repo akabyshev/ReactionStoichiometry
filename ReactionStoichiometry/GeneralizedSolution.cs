@@ -6,58 +6,69 @@ namespace ReactionStoichiometry
 {
     public sealed class GeneralizedSolution : Solution
     {
-        private Dictionary<Int32, BigInteger[]>? _dependentCoefficientExpressions;
+        private readonly List<String> _algebraicExpressions = new();
+        private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
 
         [JsonProperty(PropertyName = "Free variables")]
-        private ReadOnlyCollection<Int32>? _freeCoefficientIndices;
+        private readonly ReadOnlyCollection<Int32> _freeCoefficientIndices;
+
+        [JsonProperty(PropertyName = "Algebraic expressions")]
+        public ReadOnlyCollection<String> AlgebraicExpressions => _algebraicExpressions.AsReadOnly();
 
         [JsonProperty(PropertyName = "Simplest solution")]
         public BigInteger? GuessedSimplestSolution { get; private set; }
 
-        private readonly List<String?> _algebraicExpressions = new();
-
-        [JsonProperty(PropertyName = "Algebraic expressions")]
-        public ReadOnlyCollection<String?> AlgebraicExpressions => _algebraicExpressions.AsReadOnly();
-
         internal override String Name => nameof(GeneralizedSolution);
 
-        protected override void WorkOn_Impl(ChemicalReactionEquation equation)
+        internal GeneralizedSolution(ChemicalReactionEquation equation)
         {
-            AppSpecificException.ThrowIf(equation.RREF.IsIdentityMatrix(), message: "SLE is unsolvable");
-
-            _dependentCoefficientExpressions = Enumerable.Range(start: 0, equation.RREF.RowCount())
-                                                         .Select(selector: r => equation.RREF.Row(r)
-                                                                                        .ScaleToIntegers()
-                                                                                        .Select(selector: static i => -i)
-                                                                                        .ToArray())
-                                                         .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
-                                                                     , elementSelector: static row => row)
-                                            ?? throw new InvalidOperationException();
-
             _freeCoefficientIndices = equation.SpecialColumnsIndices.AsReadOnly();
 
-            GuessedSimplestSolution = _freeCoefficientIndices.Count == 1 ?
-                equation.RREF.Column(_freeCoefficientIndices[index: 0]).Select(selector: static r => r.Denominator).Aggregate(Helpers.LeastCommonMultiple) :
-                null;
+            try
+            {
+                AppSpecificException.ThrowIf(equation.RREF.IsIdentityMatrix(), message: "SLE is unsolvable");
 
-            _algebraicExpressions.AddRange(Enumerable.Range(start: 0, equation.Substances.Count)
-                                                     .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
-                                                                           null :
-                                                                           String.Format(format: "{0} = {1}"
-                                                                                       , equation.LabelFor(i)
-                                                                                       , AlgebraicExpressionForCoefficient(i))));
-            AsSimpleString = String.Format(format: "{0} with coefficients {1}"
-                                         , equation.GeneralizedEquation
-                                         , Enumerable.Range(start: 0, equation.Substances.Count)
-                                                     .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
-                                                                           equation.LabelFor(i) :
-                                                                           AlgebraicExpressionForCoefficient(i))
-                                                     .CoefficientsAsString());
-            AsMultilineString = String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
-                                            , equation.GeneralizedEquation
-                                            , String.Join(Environment.NewLine, _algebraicExpressions.Where(static s => s != null))
-                                            , _freeCoefficientIndices.Select(equation.LabelFor).CoefficientsAsString()
-                                            , Environment.NewLine);
+                _dependentCoefficientExpressions = Enumerable.Range(start: 0, equation.RREF.RowCount())
+                                                             .Select(selector: r => equation.RREF.Row(r)
+                                                                                            .ScaleToIntegers()
+                                                                                            .Select(selector: static i => -i)
+                                                                                            .ToArray())
+                                                             .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
+                                                                         , elementSelector: static row => row);
+
+                GuessedSimplestSolution = _freeCoefficientIndices.Count == 1 ?
+                    equation.RREF.Column(_freeCoefficientIndices[index: 0]).Select(selector: static r => r.Denominator).Aggregate(Helpers.LeastCommonMultiple) :
+                    null;
+
+                _algebraicExpressions.AddRange(Enumerable.Range(start: 0, equation.Substances.Count)
+                                                         .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
+                                                                               equation.LabelFor(i) :
+                                                                               String.Format(format: "{0} = {1}"
+                                                                                           , equation.LabelFor(i)
+                                                                                           , AlgebraicExpressionForCoefficient(i))));
+                Success = true;
+            }
+            catch (AppSpecificException e)
+            {
+                FailureMessage = "This equation can't be balanced: " + e.Message;
+                Success = false;
+            }
+
+
+            AsSimpleString = _algebraicExpressions.Count == 0 ?
+                GlobalConstants.FAILURE_MARK :
+                String.Format(format: "{0} with coefficients {1}"
+                            , equation.GeneralizedEquation
+                            , _algebraicExpressions.Select(selector: static s => !s.Contains(value: " = ") ? s : s.Split(separator: " = ")[1])
+                                                   .CoefficientsAsString());
+            AsMultilineString = _algebraicExpressions.Count == 0 ?
+                GlobalConstants.FAILURE_MARK :
+                String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
+                            , equation.GeneralizedEquation
+                            , String.Join(Environment.NewLine, _algebraicExpressions.Where(predicate: static s => s.Contains(value: " = ")))
+                            , _freeCoefficientIndices.Select(equation.LabelFor).CoefficientsAsString()
+                            , Environment.NewLine);
+            AsDetailedMultilineString = GetAsDetailedMultilineString(equation);
 
             return;
 
@@ -103,19 +114,6 @@ namespace ReactionStoichiometry
 
                 return result;
             }
-        }
-
-        public override String ToString(OutputFormat format)
-        {
-            return format switch
-            {
-                OutputFormat.Simple or OutputFormat.Multiline when _dependentCoefficientExpressions == null || _freeCoefficientIndices == null =>
-                    GlobalConstants.FAILURE_MARK
-              , OutputFormat.Simple => AsSimpleString
-              , OutputFormat.Multiline => AsMultilineString
-              , OutputFormat.DetailedMultiline => AsDetailedMultilineString
-              , _ => throw new ArgumentOutOfRangeException(nameof(format))
-            };
         }
     }
 }

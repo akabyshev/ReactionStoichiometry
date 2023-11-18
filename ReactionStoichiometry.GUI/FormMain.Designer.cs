@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             containerInput = new GroupBox();
@@ -37,25 +36,25 @@
             buttonBalance = new Button();
             txtGeneralForm = new TextBox();
             theTabControl = new TabControl();
-            tabInstantiate = new TabPage();
-            txtInstance = new TextBox();
-            gridCoefficients = new DataGridView();
-            Substance = new DataGridViewTextBoxColumn();
-            Expression = new DataGridViewTextBoxColumn();
-            Value = new DataGridViewTextBoxColumn();
-            IsFreeVariable = new DataGridViewCheckBoxColumn();
-            tabPermutate = new TabPage();
-            listPermutator = new ListBox();
             tabHtml = new TabPage();
             webviewResult = new Microsoft.Web.WebView2.WinForms.WebView2();
+            tabInstantiate = new TabPage();
+            gridCoefficients = new DataGridView();
+            txtInstance = new TextBox();
+            tabPermutate = new TabPage();
+            listPermutator = new ListBox();
             folderBrowserDialog1 = new FolderBrowserDialog();
+            Substance = new DataGridViewTextBoxColumn();
+            Coefficient = new DataGridViewTextBoxColumn();
+            Value = new DataGridViewTextBoxColumn();
+            IsFreeVariable = new DataGridViewCheckBoxColumn();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
+            tabHtml.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize) webviewResult).BeginInit();
             tabInstantiate.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).BeginInit();
             tabPermutate.SuspendLayout();
-            tabHtml.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize) webviewResult).BeginInit();
             SuspendLayout();
             // 
             // containerInput
@@ -119,10 +118,33 @@
             theTabControl.Size = new Size(1888, 719);
             theTabControl.TabIndex = 10;
             // 
+            // tabHtml
+            // 
+            tabHtml.Controls.Add(webviewResult);
+            tabHtml.Location = new Point(10, 58);
+            tabHtml.Name = "tabHtml";
+            tabHtml.Padding = new Padding(3);
+            tabHtml.Size = new Size(1868, 651);
+            tabHtml.TabIndex = 0;
+            tabHtml.Text = "Result";
+            tabHtml.UseVisualStyleBackColor = true;
+            // 
+            // webviewResult
+            // 
+            webviewResult.AllowExternalDrop = false;
+            webviewResult.CreationProperties = null;
+            webviewResult.DefaultBackgroundColor = Color.White;
+            webviewResult.Dock = DockStyle.Fill;
+            webviewResult.Location = new Point(3, 3);
+            webviewResult.Name = "webviewResult";
+            webviewResult.Size = new Size(1862, 645);
+            webviewResult.TabIndex = 0;
+            webviewResult.ZoomFactor = 1D;
+            // 
             // tabInstantiate
             // 
-            tabInstantiate.Controls.Add(txtInstance);
             tabInstantiate.Controls.Add(gridCoefficients);
+            tabInstantiate.Controls.Add(txtInstance);
             tabInstantiate.Location = new Point(10, 58);
             tabInstantiate.Name = "tabInstantiate";
             tabInstantiate.Padding = new Padding(3);
@@ -131,22 +153,11 @@
             tabInstantiate.Text = "Instantiate";
             tabInstantiate.UseVisualStyleBackColor = true;
             // 
-            // txtInstance
-            // 
-            txtInstance.Dock = DockStyle.Bottom;
-            txtInstance.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            txtInstance.Location = new Point(3, 601);
-            txtInstance.Name = "txtInstance";
-            txtInstance.ReadOnly = true;
-            txtInstance.Size = new Size(1862, 47);
-            txtInstance.TabIndex = 5;
-            txtInstance.TextAlign = HorizontalAlignment.Center;
-            // 
             // gridCoefficients
             // 
             gridCoefficients.AllowUserToAddRows = false;
             gridCoefficients.AllowUserToDeleteRows = false;
-            gridCoefficients.AllowUserToResizeColumns = false;
+            gridCoefficients.AllowUserToOrderColumns = true;
             gridCoefficients.AllowUserToResizeRows = false;
             gridCoefficients.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
@@ -159,68 +170,47 @@
             gridCoefficients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             gridCoefficients.ColumnHeadersHeight = 58;
             gridCoefficients.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            gridCoefficients.Columns.AddRange(new DataGridViewColumn[] { Substance, Expression, Value, IsFreeVariable });
+            gridCoefficients.Columns.AddRange(new DataGridViewColumn[] { Substance, Coefficient, Value, IsFreeVariable });
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle2.BackColor = SystemColors.Window;
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+            gridCoefficients.DefaultCellStyle = dataGridViewCellStyle2;
             gridCoefficients.Dock = DockStyle.Fill;
             gridCoefficients.Location = new Point(3, 3);
             gridCoefficients.Name = "gridCoefficients";
-            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = SystemColors.Control;
-            dataGridViewCellStyle4.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle4.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
-            gridCoefficients.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
-            gridCoefficients.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle3.BackColor = SystemColors.Control;
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle3.Padding = new Padding(8, 2, 0, 2);
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            gridCoefficients.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            gridCoefficients.RowHeadersWidth = 58;
+            gridCoefficients.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             gridCoefficients.RowTemplate.Height = 49;
+            gridCoefficients.ScrollBars = ScrollBars.Vertical;
             gridCoefficients.SelectionMode = DataGridViewSelectionMode.CellSelect;
             gridCoefficients.ShowCellToolTips = false;
             gridCoefficients.ShowEditingIcon = false;
-            gridCoefficients.Size = new Size(1862, 645);
+            gridCoefficients.Size = new Size(1862, 598);
             gridCoefficients.TabIndex = 4;
             gridCoefficients.CellEndEdit += OnCellEndEdit;
             // 
-            // Substance
+            // txtInstance
             // 
-            Substance.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            Substance.Frozen = true;
-            Substance.HeaderText = "Substance";
-            Substance.MinimumWidth = 12;
-            Substance.Name = "Substance";
-            Substance.ReadOnly = true;
-            Substance.SortMode = DataGridViewColumnSortMode.NotSortable;
-            Substance.Width = 167;
-            // 
-            // Expression
-            // 
-            Expression.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleRight;
-            Expression.DefaultCellStyle = dataGridViewCellStyle2;
-            Expression.HeaderText = "Expression";
-            Expression.MinimumWidth = 12;
-            Expression.Name = "Expression";
-            Expression.ReadOnly = true;
-            Expression.SortMode = DataGridViewColumnSortMode.NotSortable;
-            Expression.Width = 175;
-            // 
-            // Value
-            // 
-            Value.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleRight;
-            Value.DefaultCellStyle = dataGridViewCellStyle3;
-            Value.HeaderText = "Value";
-            Value.MinimumWidth = 12;
-            Value.Name = "Value";
-            Value.ReadOnly = true;
-            Value.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // IsFreeVariable
-            // 
-            IsFreeVariable.HeaderText = "IsFreeVariable";
-            IsFreeVariable.MinimumWidth = 12;
-            IsFreeVariable.Name = "IsFreeVariable";
-            IsFreeVariable.ReadOnly = true;
-            IsFreeVariable.Visible = false;
-            IsFreeVariable.Width = 222;
+            txtInstance.Dock = DockStyle.Bottom;
+            txtInstance.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            txtInstance.Location = new Point(3, 601);
+            txtInstance.Name = "txtInstance";
+            txtInstance.ReadOnly = true;
+            txtInstance.Size = new Size(1862, 47);
+            txtInstance.TabIndex = 5;
+            txtInstance.TextAlign = HorizontalAlignment.Center;
             // 
             // tabPermutate
             // 
@@ -245,28 +235,43 @@
             listPermutator.TabStop = false;
             listPermutator.MouseDoubleClick += OnListMouseDoubleClick;
             // 
-            // tabHtml
+            // Substance
             // 
-            tabHtml.Controls.Add(webviewResult);
-            tabHtml.Location = new Point(10, 58);
-            tabHtml.Name = "tabHtml";
-            tabHtml.Padding = new Padding(3);
-            tabHtml.Size = new Size(1868, 651);
-            tabHtml.TabIndex = 0;
-            tabHtml.Text = "Result";
-            tabHtml.UseVisualStyleBackColor = true;
+            Substance.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            Substance.HeaderText = "Substance";
+            Substance.MinimumWidth = 12;
+            Substance.Name = "Substance";
+            Substance.ReadOnly = true;
+            Substance.SortMode = DataGridViewColumnSortMode.NotSortable;
+            Substance.Width = 167;
             // 
-            // webviewPrintable
+            // Coefficient
             // 
-            webviewResult.AllowExternalDrop = false;
-            webviewResult.CreationProperties = null;
-            webviewResult.DefaultBackgroundColor = Color.White;
-            webviewResult.Dock = DockStyle.Fill;
-            webviewResult.Location = new Point(3, 3);
-            webviewResult.Name = "webviewResult";
-            webviewResult.Size = new Size(1862, 645);
-            webviewResult.TabIndex = 0;
-            webviewResult.ZoomFactor = 1D;
+            Coefficient.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            Coefficient.HeaderText = "Coefficient";
+            Coefficient.MinimumWidth = 12;
+            Coefficient.Name = "Coefficient";
+            Coefficient.ReadOnly = true;
+            Coefficient.SortMode = DataGridViewColumnSortMode.NotSortable;
+            Coefficient.Width = 179;
+            // 
+            // Value
+            // 
+            Value.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            Value.HeaderText = "Value";
+            Value.MinimumWidth = 12;
+            Value.Name = "Value";
+            Value.ReadOnly = true;
+            Value.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // IsFreeVariable
+            // 
+            IsFreeVariable.HeaderText = "IsFreeVariable";
+            IsFreeVariable.MinimumWidth = 12;
+            IsFreeVariable.Name = "IsFreeVariable";
+            IsFreeVariable.ReadOnly = true;
+            IsFreeVariable.Visible = false;
+            IsFreeVariable.Width = 222;
             // 
             // FormMain
             // 
@@ -281,12 +286,12 @@
             containerInput.ResumeLayout(false);
             containerInput.PerformLayout();
             theTabControl.ResumeLayout(false);
+            tabHtml.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize) webviewResult).EndInit();
             tabInstantiate.ResumeLayout(false);
             tabInstantiate.PerformLayout();
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).EndInit();
             tabPermutate.ResumeLayout(false);
-            tabHtml.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize) webviewResult).EndInit();
             ResumeLayout(false);
         }
 
@@ -300,14 +305,14 @@
         private TabPage tabInstantiate;
         private TabPage tabPermutate;
         private DataGridView gridCoefficients;
-        private DataGridViewTextBoxColumn Substance;
-        private DataGridViewTextBoxColumn Expression;
-        private DataGridViewTextBoxColumn Value;
-        private DataGridViewCheckBoxColumn IsFreeVariable;
         private TextBox txtGeneralForm;
         private TextBox txtInstance;
         private ListBox listPermutator;
         private FolderBrowserDialog folderBrowserDialog1;
         private Microsoft.Web.WebView2.WinForms.WebView2 webviewResult;
+        private DataGridViewTextBoxColumn Substance;
+        private DataGridViewTextBoxColumn Coefficient;
+        private DataGridViewTextBoxColumn Value;
+        private DataGridViewCheckBoxColumn IsFreeVariable;
     }
 }

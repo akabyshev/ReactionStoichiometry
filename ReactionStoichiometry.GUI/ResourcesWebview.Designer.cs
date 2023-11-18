@@ -136,18 +136,19 @@ namespace ReactionStoichiometry.GUI {
         ///   Looks up a localized string similar to function MakeJsonReadable(serialized, identifier) {
         ///  const recordDiv = document.createElement(&quot;div&quot;);
         ///
-        ///  serialized.Equation.Substances = serialized.Equation.Substances.map(
+        ///  serialized.Substances = serialized.Substances.map(
         ///    (substance) =&gt;
         ///      &quot;&lt;div&gt;&quot; + substance.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;) + &quot;&lt;/div&gt;&quot;
         ///  );
         ///
         ///  const tableCCM = createTable(
-        ///    serialized.Equation.CCM,
+        ///    serialized.CCM,
         ///    (index) =&gt; (index + 1).toString(),
-        ///    (index) =&gt; serialized.Equation.Substances[index]
+        ///    (index) =&gt; serialized.Substances[index]
         ///  );
         ///  tableCCM.classList.add(&quot;vertical-headers&quot;);
-        ///  const tableR [rest of string was truncated]&quot;;.
+        ///  const tableRREF = createTable(
+        ///    serialized.R [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string jsContent {
             get {
