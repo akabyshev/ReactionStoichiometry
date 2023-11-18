@@ -2,15 +2,9 @@ body {
   font-family: Arial, sans-serif;
 }
 
-p {
-  margin: 5px 0;
-}
-
-.cre {
-    display: flex;
-    justify-content: center;
-    align-items: inherit;
+.cre p {
     width: 100%;
+    font-family: monospace;
 }
 
 table {
@@ -27,14 +21,13 @@ th {
 }
 
 .vertical-headers th {
-    writing-mode: vertical-lr;
     transform: rotate(180deg);
-  text-align: left;
-
+    writing-mode: vertical-lr;
+    vertical-align: top;
   }
 
 thead,
 tbody {
-  text-align: right;
   vertical-align: middle;
+  text-align: right;
 }

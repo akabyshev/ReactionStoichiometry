@@ -66,7 +66,6 @@ namespace ReactionStoichiometry {
         ///
         ///[Output]
         ///%Outcome%
-        ///%Diagnostics%
         ///
         ///[Details]
         ///%CCM_stats%

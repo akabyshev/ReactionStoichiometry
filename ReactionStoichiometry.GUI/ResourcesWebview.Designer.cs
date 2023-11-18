@@ -65,10 +65,6 @@ namespace ReactionStoichiometry.GUI {
         ///  font-family: Arial, sans-serif;
         ///}
         ///
-        ///p {
-        ///  margin: 5px 0;
-        ///}
-        ///
         ///.cre {
         ///    display: flex;
         ///    justify-content: center;
@@ -90,15 +86,15 @@ namespace ReactionStoichiometry.GUI {
         ///}
         ///
         ///.vertical-headers th {
-        ///    writing-mode: vertical-lr;
         ///    transform: rotate(180deg);
-        ///  text-align: left;
-        ///
+        ///    writing-mode: vertical-lr;
+        ///    vertical-align: top;
         ///  }
         ///
         ///thead,
         ///tbody {
-        ///  text-align: [rest of string was truncated]&quot;;.
+        ///  vertical-align: middle;
+        ///  text-alig [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string cssContent {
             get {
@@ -133,22 +129,21 @@ namespace ReactionStoichiometry.GUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to function MakeJsonReadable(serialized, identifier) {
+        ///   Looks up a localized string similar to function MakeJsonReadable(record, identifier) {
         ///  const recordDiv = document.createElement(&quot;div&quot;);
         ///
-        ///  serialized.Substances = serialized.Substances.map(
+        ///  record.Substances = record.Substances.map(
         ///    (substance) =&gt;
         ///      &quot;&lt;div&gt;&quot; + substance.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;) + &quot;&lt;/div&gt;&quot;
         ///  );
         ///
-        ///  const tableCCM = createTable(
-        ///    serialized.CCM,
-        ///    (index) =&gt; (index + 1).toString(),
-        ///    (index) =&gt; serialized.Substances[index]
+        ///  record.Labels = record.Labels.map(
+        ///    (label) =&gt; &quot;&lt;i&gt;&quot; + label.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;) + &quot;&lt;/i&gt;&quot;
         ///  );
-        ///  tableCCM.classList.add(&quot;vertical-headers&quot;);
-        ///  const tableRREF = createTable(
-        ///    serialized.R [rest of string was truncated]&quot;;.
+        ///
+        ///  if (record.Solutions.Generalized.AlgebraicExpressions) {
+        ///    record.Solutions.Generalized.AlgebraicExpressions =
+        ///      rec [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string jsContent {
             get {

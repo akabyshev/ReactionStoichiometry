@@ -75,7 +75,7 @@ namespace ReactionStoichiometry.GUI
                                                    , ChemicalReactionEquation.SolutionTypes.Generalized | ChemicalReactionEquation.SolutionTypes.InverseBased);
             txtGeneralForm.Text = _equation.GeneralizedEquation;
 
-            var generalizedSolution = _equation.GetSolution(ChemicalReactionEquation.SolutionTypes.Generalized) as GeneralizedSolution;
+            var generalizedSolution = _equation.GetSolution(ChemicalReactionEquation.SolutionTypes.Generalized) as SolutionGeneralized;
 
             if (generalizedSolution!.Success)
             {
@@ -85,7 +85,7 @@ namespace ReactionStoichiometry.GUI
                 {
                     gridCoefficients.Rows[i].Cells[columnName: "Substance"].Value = _equation.Substances[i];
 
-                    var expr = generalizedSolution.AlgebraicExpressions[i];
+                    var expr = generalizedSolution.AlgebraicExpressions![i];
                     gridCoefficients.Rows[i].Cells[columnName: "Coefficient"].Value = expr;
 
                     if (expr.Contains(value: " = "))
@@ -97,7 +97,8 @@ namespace ReactionStoichiometry.GUI
                     {
                         gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
                         gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
-                        gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = generalizedSolution.GuessedSimplestSolution ?? 0;
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].Value =
+                            generalizedSolution.GuessedSimplestSolution != null ? generalizedSolution.GuessedSimplestSolution[i] : 0;
                         gridCoefficients.Rows[i].Cells[columnName: "Value"].Style.Font = new Font(gridCoefficients.Font, FontStyle.Bold | FontStyle.Underline);
                     }
                 }

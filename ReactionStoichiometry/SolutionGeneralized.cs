@@ -4,23 +4,22 @@ using Newtonsoft.Json;
 
 namespace ReactionStoichiometry
 {
-    public sealed class GeneralizedSolution : Solution
+    public sealed class SolutionGeneralized : Solution
     {
-        private readonly List<String> _algebraicExpressions = new();
         private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
 
-        [JsonProperty(PropertyName = "Free variables")]
+        [JsonProperty(PropertyName = "FreeVariableIndices")]
         private readonly ReadOnlyCollection<Int32> _freeCoefficientIndices;
 
-        [JsonProperty(PropertyName = "Algebraic expressions")]
-        public ReadOnlyCollection<String> AlgebraicExpressions => _algebraicExpressions.AsReadOnly();
+        [JsonProperty(PropertyName = "AlgebraicExpressions")]
+        public readonly ReadOnlyCollection<String>? AlgebraicExpressions;
 
-        [JsonProperty(PropertyName = "Simplest solution")]
-        public BigInteger? GuessedSimplestSolution { get; private set; }
+        [JsonProperty(PropertyName = "SimplestSolution")]
+        public readonly ReadOnlyCollection<BigInteger>? GuessedSimplestSolution;
 
-        internal override String Name => nameof(GeneralizedSolution);
+        internal override String Type => "Generalized";
 
-        internal GeneralizedSolution(ChemicalReactionEquation equation)
+        internal SolutionGeneralized(ChemicalReactionEquation equation)
         {
             _freeCoefficientIndices = equation.SpecialColumnsIndices.AsReadOnly();
 
@@ -36,16 +35,22 @@ namespace ReactionStoichiometry
                                                              .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
                                                                          , elementSelector: static row => row);
 
-                GuessedSimplestSolution = _freeCoefficientIndices.Count == 1 ?
-                    equation.RREF.Column(_freeCoefficientIndices[index: 0]).Select(selector: static r => r.Denominator).Aggregate(Helpers.LeastCommonMultiple) :
-                    null;
+                GuessedSimplestSolution = _freeCoefficientIndices.Count != 1 ?
+                    null :
+                    equation.Instantiate(new[]
+                                         {
+                                             equation.RREF.Column(_freeCoefficientIndices[index: 0])
+                                                     .Select(selector: static r => r.Denominator)
+                                                     .Aggregate(Helpers.LeastCommonMultiple)
+                                         })
+                            .AsReadOnly();
 
-                _algebraicExpressions.AddRange(Enumerable.Range(start: 0, equation.Substances.Count)
-                                                         .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
-                                                                               equation.LabelFor(i) :
-                                                                               String.Format(format: "{0} = {1}"
-                                                                                           , equation.LabelFor(i)
-                                                                                           , AlgebraicExpressionForCoefficient(i))));
+                AlgebraicExpressions = Enumerable.Range(start: 0, equation.Substances.Count)
+                                                 .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
+                                                                       equation.Labels[i] :
+                                                                       String.Format(format: "{0} = {1}"
+                                                                                   , equation.Labels[i]
+                                                                                   , AlgebraicExpressionForCoefficient(i))).ToList().AsReadOnly();
                 Success = true;
             }
             catch (AppSpecificException e)
@@ -55,18 +60,18 @@ namespace ReactionStoichiometry
             }
 
 
-            AsSimpleString = _algebraicExpressions.Count == 0 ?
+            AsSimpleString = AlgebraicExpressions == null ?
                 GlobalConstants.FAILURE_MARK :
                 String.Format(format: "{0} with coefficients {1}"
                             , equation.GeneralizedEquation
-                            , _algebraicExpressions.Select(selector: static s => !s.Contains(value: " = ") ? s : s.Split(separator: " = ")[1])
+                            , AlgebraicExpressions.Select(selector: static s => !s.Contains(value: " = ") ? s : s.Split(separator: " = ")[1])
                                                    .CoefficientsAsString());
-            AsMultilineString = _algebraicExpressions.Count == 0 ?
+            AsMultilineString = AlgebraicExpressions == null ?
                 GlobalConstants.FAILURE_MARK :
                 String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
                             , equation.GeneralizedEquation
-                            , String.Join(Environment.NewLine, _algebraicExpressions.Where(predicate: static s => s.Contains(value: " = ")))
-                            , _freeCoefficientIndices.Select(equation.LabelFor).CoefficientsAsString()
+                            , String.Join(Environment.NewLine, AlgebraicExpressions.Where(predicate: static s => s.Contains(value: " = ")))
+                            , _freeCoefficientIndices.Select(i => equation.Labels[i]).CoefficientsAsString()
                             , Environment.NewLine);
             AsDetailedMultilineString = GetAsDetailedMultilineString(equation);
 
@@ -92,7 +97,7 @@ namespace ReactionStoichiometry
                                                                      {
                                                                          coefficient = "-";
                                                                      }
-                                                                     return $"{coefficient}{equation.LabelFor(i)}";
+                                                                     return $"{coefficient}{equation.Labels[i]}";
                                                                  })
                                                .ToList();
 

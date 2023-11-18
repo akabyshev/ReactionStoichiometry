@@ -18,17 +18,20 @@ namespace ReactionStoichiometry
 
         public readonly List<String> Substances;
 
+        [JsonProperty(PropertyName = "Labels")]
+        internal readonly List<String> Labels;
+
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "CCM")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] CCM;
 
-        [JsonProperty(PropertyName = "CCM nullity")]
+        [JsonProperty(PropertyName = "Nullity")]
         internal readonly Int32 CompositionMatrixNullity;
 
-        [JsonProperty(PropertyName = "CCM rank")]
+        [JsonProperty(PropertyName = "Rank")]
         internal readonly Int32 CompositionMatrixRank;
 
-        [JsonProperty(PropertyName = "Original input")]
+        [JsonProperty(PropertyName = "OriginalInput")]
         internal readonly String OriginalEquation;
 
         // ReSharper disable once InconsistentNaming
@@ -43,7 +46,7 @@ namespace ReactionStoichiometry
         [JsonIgnore]
         public String GeneralizedEquation =>
             StringOperations.AssembleEquationString(Substances
-                                                  , Enumerable.Range(start: 0, Substances.Count).Select(LabelFor).ToArray()
+                                                  , Labels
                                                   , omitIf: static _ => false
                                                   , adapter: static s => s
                                                   , goesToRhsIf: static _ => false
@@ -59,6 +62,8 @@ namespace ReactionStoichiometry
             }
 
             Substances = OriginalEquation.Split('=', '+').Where(predicate: static s => s != "0").ToList();
+            Labels = Enumerable.Range(start: 0, Substances.Count).Select(static i => 'x' + (i + 1).ToString(format: "D2")).ToList();
+
             CCM = GetCompositionMatrix();
             RREF = CCM.GetRREF(trim: true);
             CompositionMatrixRank = RREF.RowCount();
@@ -68,11 +73,11 @@ namespace ReactionStoichiometry
 
             if (includeSolutionTypes.HasFlagFast(SolutionTypes.Generalized))
             {
-                _solutions.Add(SolutionTypes.Generalized, new GeneralizedSolution(this));
+                _solutions.Add(SolutionTypes.Generalized, new SolutionGeneralized(this));
             }
             if (includeSolutionTypes.HasFlagFast(SolutionTypes.InverseBased))
             {
-                _solutions.Add(SolutionTypes.InverseBased, new InverseBasedSolution(this));
+                _solutions.Add(SolutionTypes.InverseBased, new SolutionInverseBased(this));
             }
 
             return;
@@ -86,11 +91,6 @@ namespace ReactionStoichiometry
         public Solution GetSolution(SolutionTypes solutionType)
         {
             return _solutions[solutionType];
-        }
-
-        public String LabelFor(Int32 i)
-        {
-            return Substances.Count > GlobalConstants.LETTER_LABEL_THRESHOLD ? 'x' + (i + 1).ToString(format: "D2") : ((Char)('a' + i)).ToString();
         }
 
         public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
