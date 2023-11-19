@@ -131,9 +131,8 @@ namespace ReactionStoichiometry.GUI {
         ///   Looks up a localized string similar to function MakeJsonReadable(record, identifier) {
         ///  const recordDiv = document.createElement(&quot;div&quot;);
         ///
-        ///  record.Substances = record.Substances.map(
-        ///    (substance) =&gt;
-        ///      substance.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;)
+        ///  record.Substances = record.Substances.map((substance) =&gt;
+        ///    substance.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;)
         ///  );
         ///
         ///  record.Labels = record.Labels.map(
@@ -142,7 +141,7 @@ namespace ReactionStoichiometry.GUI {
         ///
         ///  if (record.GeneralizedSolution.AlgebraicExpressions) {
         ///    record.GeneralizedSolution.AlgebraicExpressions =
-        ///      record.GeneralizedSolution.A [rest of string was truncated]&quot;;.
+        ///      record.GeneralizedSolution.Algebraic [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string jsContent {
             get {

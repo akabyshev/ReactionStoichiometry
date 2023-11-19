@@ -12,14 +12,14 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "SimplestSolution")]
         public readonly ReadOnlyCollection<BigInteger>? GuessedSimplestSolution;
 
-        private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
-
         [JsonProperty(PropertyName = "FreeVariableIndices")]
-        private readonly ReadOnlyCollection<Int32> _freeCoefficientIndices;
+        internal readonly ReadOnlyCollection<Int32> FreeCoefficientIndices;
+
+        private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
 
         internal SolutionGeneralized(ChemicalReactionEquation equation)
         {
-            _freeCoefficientIndices = equation.SpecialColumnsIndices.AsReadOnly();
+            FreeCoefficientIndices = equation.SpecialColumnsIndices.AsReadOnly();
 
             try
             {
@@ -33,18 +33,18 @@ namespace ReactionStoichiometry
                                                              .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
                                                                          , elementSelector: static row => row);
 
-                GuessedSimplestSolution = _freeCoefficientIndices.Count != 1 ?
+                GuessedSimplestSolution = FreeCoefficientIndices.Count != 1 ?
                     null :
                     equation.Instantiate(new[]
                                          {
-                                             equation.RREF.Column(_freeCoefficientIndices[index: 0])
+                                             equation.RREF.Column(FreeCoefficientIndices[index: 0])
                                                      .Select(selector: static r => r.Denominator)
                                                      .Aggregate(Helpers.LeastCommonMultiple)
                                          })
                             .AsReadOnly();
 
                 AlgebraicExpressions = Enumerable.Range(start: 0, equation.Substances.Count)
-                                                 .Select(selector: i => _freeCoefficientIndices.Contains(i) ?
+                                                 .Select(selector: i => FreeCoefficientIndices.Contains(i) ?
                                                                        equation.Labels[i] :
                                                                        String.Format(format: "{0} = {1}"
                                                                                    , equation.Labels[i]
@@ -71,7 +71,7 @@ namespace ReactionStoichiometry
                 String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
                             , equation.GeneralizedEquation
                             , String.Join(Environment.NewLine, AlgebraicExpressions.Where(predicate: static s => s.Contains(value: " = ")))
-                            , _freeCoefficientIndices.Select(selector: i => equation.Labels[i]).CoefficientsAsString()
+                            , FreeCoefficientIndices.Select(selector: i => equation.Labels[i]).CoefficientsAsString()
                             , Environment.NewLine);
             AsDetailedMultilineString = GetAsDetailedMultilineString(equation);
 

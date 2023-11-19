@@ -1,9 +1,8 @@
 function MakeJsonReadable(record, identifier) {
   const recordDiv = document.createElement("div");
 
-  record.Substances = record.Substances.map(
-    (substance) =>
-      substance.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>")
+  record.Substances = record.Substances.map((substance) =>
+    substance.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>")
   );
 
   record.Labels = record.Labels.map(
@@ -85,12 +84,32 @@ function MakeJsonReadable(record, identifier) {
       Setting it to <u>the least common multiple of all the denominators</u> results in: ${tableFoundSolution.outerHTML}</p>
       `;
     } else {
-      recordDiv.innerHTML += `<p> There is an infinite number of solutions in this case. 
-      Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. </p>
-      `;
+      if (record.InverseBasedSolution.Success) {
+        const tableSubreactions = createTable(
+          record.InverseBasedSolution.IndependentReactions,
+          (index) => (index + 1).toString(),
+          (index) => record.Substances[index]
+        );
+        recordDiv.innerHTML += `<p>Any integer solutions will be a linear combination of these 'subreactions': ${tableSubreactions.outerHTML} </p>`;
+
+        if (record.InverseBasedSolution.CombinationSample.Item2) {
+          const tableCombination = createTable(
+            record.Labels.map((item, index) => [
+              item +
+                " = " +
+                record.InverseBasedSolution.CombinationSample.Item2[index],
+            ]),
+            (index) => (index + 1).toString(),
+            () => "Coefficients"
+          );
+          recordDiv.innerHTML += `</p>For example, ${record.InverseBasedSolution.CombinationSample.Item1} combination of those yields ${tableCombination.outerHTML}</p>`;
+        }
+      } else {
+        recordDiv.innerHTML += `<p>Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. </p>`;
+      }
     }
 
-    recordDiv.innerHTML += `Negative coefficients indicate a reactant, positive values denote produced substances. A coefficient of zero signifies that the substance is not essential for the reaction.`
+    recordDiv.innerHTML += `Negative coefficients indicate a reactant, positive values denote produced substances. A coefficient of zero signifies that the substance is not a part of the reaction.`;
   }
 
   recordDiv.style.border = "1px solid black";
@@ -104,10 +123,7 @@ function constructGeneralizedEquation(record) {
   let result = "";
   result = Array.from(
     { length: record.Substances.length },
-    (_, index) =>
-      record.Labels[index] +
-      INTERPUNCT +
-      record.Substances[index]
+    (_, index) => record.Labels[index] + INTERPUNCT + record.Substances[index]
   ).join(" + ");
   return result + " = 0";
 }

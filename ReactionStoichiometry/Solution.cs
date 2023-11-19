@@ -30,7 +30,10 @@ namespace ReactionStoichiometry
         private protected String GetAsDetailedMultilineString(ChemicalReactionEquation equation)
         {
             var result = OutputFormatTemplates.MULTILINE_TEMPLATE.Replace(oldValue: "%Skeletal%", equation.OriginalEquation)
-                                              .Replace(oldValue: "%CCM%", equation.CCM.Readable(title: "CCM", columnHeaders: i => equation.Substances[i]))
+                                              .Replace(oldValue: "%CCM%"
+                                                     , equation.CCM.Readable(title: "CCM"
+                                                                           , rowHeaders: i => equation.Elements[i]
+                                                                           , columnHeaders: i => equation.Substances[i]))
                                               .Replace(oldValue: "%RREF%"
                                                      , equation.RREF.Readable(title: "RREF"
                                                                             , rowHeaders: i => equation.Labels[i]

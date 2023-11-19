@@ -88,6 +88,8 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(new BigInteger[] { 1, 2, 3 }, new Rational[] { 1, 2, 3 }.ScaleToIntegers());
             Assert.Equal(new BigInteger[] { 6, 3, 2 }, new Rational[] { 1, new(1, 2), new(1, 3) }.ScaleToIntegers());
             Assert.Equal(new BigInteger[] { 132, 11, 12, 0 }, new Rational[] { 1, new(2, 24), new(3, 33), 0 }.ScaleToIntegers());
+
+            Assert.Equal(new BigInteger[] { 1, 2, 4 }, new Rational[] { 8, 16, 32 }.ScaleToIntegers());
         }
 
         [Fact]

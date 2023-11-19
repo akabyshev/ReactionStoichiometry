@@ -6,8 +6,11 @@ namespace ReactionStoichiometry
 {
     public sealed class SolutionInverseBased : Solution
     {
-        [JsonProperty(PropertyName = "Independent reactions")]
-        private readonly List<BigInteger[]> _independentReactions = new();
+        [JsonProperty(PropertyName = "CombinationSample")]
+        public readonly (String? weights, BigInteger[]? resultingCoefficients) CombinationSample = (null, null);
+
+        [JsonProperty(PropertyName = "IndependentReactions")]
+        internal readonly List<BigInteger[]> IndependentReactions = new();
 
         internal SolutionInverseBased(ChemicalReactionEquation equation)
         {
@@ -33,9 +36,22 @@ namespace ReactionStoichiometry
                     inverse = square.GetInverse();
                 }
 
-                _independentReactions = Enumerable.Range(inverse.ColumnCount() - equation.CompositionMatrixNullity, equation.CompositionMatrixNullity)
-                                                  .Select(selector: c => inverse.Column(c).ScaleToIntegers())
-                                                  .ToList();
+                IndependentReactions = Enumerable.Range(inverse.ColumnCount() - equation.CompositionMatrixNullity, equation.CompositionMatrixNullity)
+                                                 .Select(selector: c => inverse.Column(c).ScaleToIntegers())
+                                                 .ToList();
+                if (IndependentReactions is { Count: > 1 })
+                {
+                    var random = new Random();
+                    var weights = new Int32[IndependentReactions.Count];
+
+                    for (var i = 0; i < weights.Length; i++)
+                    {
+                        weights[i] = random.Next(minValue: 1, maxValue: 4);
+                    }
+
+                    CombinationSample = (weights.CoefficientsAsString(), GetCombinationOfIndependents(weights));
+                }
+
                 Success = true;
             }
             catch (AppSpecificException e)
@@ -45,15 +61,30 @@ namespace ReactionStoichiometry
             }
 
 
-            AsSimpleString = _independentReactions.Count == 0 ?
+            AsSimpleString = IndependentReactions.Count == 0 ?
                 GlobalConstants.FAILURE_MARK :
                 String.Format(format: "{0} with coefficients {1}"
                             , equation.GeneralizedEquation
-                            , String.Join(separator: ", ", _independentReactions.Select(StringOperations.CoefficientsAsString)));
-            AsMultilineString = _independentReactions.Count == 0 ?
+                            , String.Join(separator: ", ", IndependentReactions.Select(StringOperations.CoefficientsAsString)));
+            AsMultilineString = IndependentReactions.Count == 0 ?
                 GlobalConstants.FAILURE_MARK :
-                String.Join(Environment.NewLine, _independentReactions.Select(equation.EquationWithIntegerCoefficients));
+                String.Join(Environment.NewLine, IndependentReactions.Select(equation.EquationWithIntegerCoefficients));
             AsDetailedMultilineString = GetAsDetailedMultilineString(equation);
+        }
+
+        private BigInteger[]? GetCombinationOfIndependents(IReadOnlyList<Int32> weights)
+        {
+            var result = new BigInteger[IndependentReactions[index: 0].Length];
+
+            for (var r = 0; r < IndependentReactions.Count; r++)
+            {
+                for (var c = 0; c < result.Length; c++)
+                {
+                    result[c] += IndependentReactions[r][c] * weights[r];
+                }
+            }
+
+            return result.Any(predicate: static v => v.IsZero) ? null : result.Select(selector: static i => new Rational(i)).ToArray().ScaleToIntegers();
         }
     }
 }

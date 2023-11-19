@@ -54,10 +54,7 @@ namespace ReactionStoichiometry
         {
             OriginalEquation = equationString.Replace(oldValue: " ", String.Empty);
 
-            if (!IsValidString(OriginalEquation))
-            {
-                throw new ArgumentException(message: "Invalid string");
-            }
+            AppSpecificException.ThrowIf(!IsValidString(OriginalEquation), message: "Invalid string");
 
             Substances = OriginalEquation.Split('=', '+').Where(predicate: static s => s != "0").ToList();
             Labels = Enumerable.Range(start: 0, Substances.Count).Select(selector: static i => 'x' + (i + 1).ToString(format: "D2")).ToList();

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Numerics;
 using Rationals;
 
 namespace ReactionStoichiometry
@@ -201,14 +200,6 @@ namespace ReactionStoichiometry
                 Debug.WriteLine(rref.Readable(nameof(rref)));
                 throw;
             }
-        }
-
-        internal static BigInteger[] ScaleToIntegers(this Rational[] rationals)
-        {
-            var multiple = rationals.Select(selector: static r => r.Denominator).Aggregate(Helpers.LeastCommonMultiple);
-            var wholes = rationals.Select(selector: r => (r * multiple).CanonicalForm.Numerator).ToArray();
-            var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
-            return wholes.Select(selector: r => divisor != 0 ? r / divisor : r).ToArray();
         }
     }
 }

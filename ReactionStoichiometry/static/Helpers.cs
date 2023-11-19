@@ -38,5 +38,13 @@ namespace ReactionStoichiometry
             }
             return BigInteger.Abs(a * b) / BigInteger.GreatestCommonDivisor(a, b);
         }
+
+        internal static BigInteger[] ScaleToIntegers(this Rational[] rationals)
+        {
+            var multiple = rationals.Select(selector: static r => r.Denominator).Aggregate(LeastCommonMultiple);
+            var wholes = rationals.Select(selector: r => (r * multiple).CanonicalForm.Numerator).ToArray();
+            var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
+            return wholes.Select(selector: r => divisor != 0 ? r / divisor : r).ToArray();
+        }
     }
 }
