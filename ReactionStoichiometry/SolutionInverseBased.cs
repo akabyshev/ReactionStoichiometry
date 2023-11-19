@@ -39,14 +39,13 @@ namespace ReactionStoichiometry
                 IndependentReactions = Enumerable.Range(inverse.ColumnCount() - equation.CompositionMatrixNullity, equation.CompositionMatrixNullity)
                                                  .Select(selector: c => inverse.Column(c).ScaleToIntegers())
                                                  .ToList();
-                if (IndependentReactions is { Count: > 1 })
+                if (IndependentReactions.Count > 1)
                 {
-                    var random = new Random();
                     var weights = new Int32[IndependentReactions.Count];
 
                     for (var i = 0; i < weights.Length; i++)
                     {
-                        weights[i] = random.Next(minValue: 1, maxValue: 4);
+                        weights[i] = i;
                     }
 
                     CombinationSample = (weights.CoefficientsAsString(), GetCombinationOfIndependents(weights));
@@ -72,7 +71,7 @@ namespace ReactionStoichiometry
             AsDetailedMultilineString = GetAsDetailedMultilineString(equation);
         }
 
-        private BigInteger[]? GetCombinationOfIndependents(IReadOnlyList<Int32> weights)
+        internal BigInteger[]? GetCombinationOfIndependents(IReadOnlyList<Int32> weights)
         {
             var result = new BigInteger[IndependentReactions[index: 0].Length];
 
