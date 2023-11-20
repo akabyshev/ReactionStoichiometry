@@ -108,18 +108,15 @@ namespace ReactionStoichiometry.GUI {
         ///	&lt;meta charset=&quot;UTF-8&quot;&gt;
         ///    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
         ///    &lt;title&gt;ReactionStoichiometry.JsonViewer&lt;/title&gt;
-        ///&lt;style type=&apos;text/css&apos;&gt;
-        ///                    %cssContent%
-        ///                &lt;/style&gt;
+        ///	&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;ReactionStoichiometry.JsonViewer.css&quot;&gt;
+        ///    &lt;style type=&apos;text/css&apos;&gt;%cssContent%&lt;/style&gt;
         ///&lt;/head&gt;
         ///&lt;body&gt;
         ///    &lt;script type=&apos;text/javascript&apos;&gt;
-        ///                    %jsContent%;
-        ///const jsonobject = %jsonContent%;
-        ///MakeJsonReadable(jsonobject, &quot;Solution&quot;);
-        ///                &lt;/script&gt;
-        ///&lt;/body&gt;
-        ///&lt;/html&gt;.
+        ///        %jsContent%;
+        ///        const jsonobject = %jsonContent%;
+        ///        MakeJsonReadable(jsonobject, &quot;Solution&quot;);
+        ///    &lt;/scri [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string htmlContent {
             get {

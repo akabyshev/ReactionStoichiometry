@@ -20,29 +20,27 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "CCM")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] CCM;
 
+        [JsonProperty(PropertyName = "Elements")]
+        internal readonly IReadOnlyList<String> ChemicalElements;
+
         [JsonProperty(PropertyName = "Nullity")]
         internal readonly Int32 CompositionMatrixNullity;
 
         [JsonProperty(PropertyName = "Rank")]
         internal readonly Int32 CompositionMatrixRank;
 
-        [JsonProperty(PropertyName = "Elements")]
-        internal readonly IReadOnlyList<String> Elements;
+        [JsonProperty(PropertyName = "OriginalEquationString")]
+        internal readonly String InOriginalForm;
 
         [JsonProperty(PropertyName = "Labels")]
         internal readonly IReadOnlyList<String> Labels;
-
-        [JsonProperty(PropertyName = "OriginalInput")]
-        internal readonly String OriginalEquation;
 
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "RREF")] [JsonConverter(typeof(RationalArrayJsonConverter))]
         internal readonly Rational[,] RREF;
 
-        internal readonly Int32[] SpecialColumnsIndices;
-
         [JsonIgnore]
-        public String GeneralizedEquation =>
+        public String InGeneralForm =>
             StringOperations.AssembleEquationString(Substances
                                                   , Labels
                                                   , omitIf: static _ => false
@@ -52,28 +50,19 @@ namespace ReactionStoichiometry
 
         public ChemicalReactionEquation(String equationString)
         {
-            OriginalEquation = equationString.Replace(oldValue: " ", String.Empty);
+            InOriginalForm = equationString.Replace(oldValue: " ", String.Empty);
 
-            AppSpecificException.ThrowIf(!IsValidString(OriginalEquation), message: "Invalid string");
+            AppSpecificException.ThrowIf(!IsValidString(InOriginalForm), message: "Invalid string");
 
-            Substances = OriginalEquation.Split('=', '+').Where(predicate: static s => s != "0").ToList();
+            Substances = InOriginalForm.Split('=', '+').Where(predicate: static s => s != "0").ToList();
             Labels = Enumerable.Range(start: 0, Substances.Count).Select(selector: static i => 'x' + (i + 1).ToString(format: "D2")).ToList();
-            FillCompositionMatrix(out CCM, out Elements);
+            FillCompositionMatrix(out CCM, out ChemicalElements);
             RREF = CCM.GetRREF(trim: true);
             CompositionMatrixRank = RREF.RowCount();
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
 
-            SpecialColumnsIndices = Enumerable.Range(start: 0, RREF.ColumnCount()).Where(predicate: c => !ContainsOnlySingleOne(RREF.Column(c))).ToArray();
-
             GeneralizedSolution = new SolutionGeneralized(this);
             InverseBasedSolution = new SolutionInverseBased(this);
-
-            return;
-
-            static Boolean ContainsOnlySingleOne(Rational[] array)
-            {
-                return array.Count(predicate: static r => !r.IsZero) == 1 && array.Count(predicate: static r => r.IsOne) == 1;
-            }
         }
 
         public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
@@ -89,35 +78,6 @@ namespace ReactionStoichiometry
         public static Boolean IsValidString(String equationString)
         {
             return StringOperations.LooksLikeChemicalReactionEquation(equationString.Replace(oldValue: " ", String.Empty));
-        }
-
-        public BigInteger[] Instantiate(BigInteger[] freeVarsValues)
-        {
-            if (freeVarsValues.Length != SpecialColumnsIndices.Length)
-            {
-                throw new ArgumentException(message: "Array size mismatch", nameof(freeVarsValues));
-            }
-
-            var result = new BigInteger[Substances.Count];
-
-            for (var i = 0; i < SpecialColumnsIndices.Length; i++)
-            {
-                result[SpecialColumnsIndices[i]] = freeVarsValues[i];
-            }
-
-            var rowIndex = -1;
-            foreach (var i in Enumerable.Range(start: 0, result.Length).Except(SpecialColumnsIndices))
-            {
-                rowIndex++;
-
-                var row = RREF.Row(rowIndex);
-                row[Array.FindIndex(row, match: static r => r.IsOne)] = 0; // remove the leading 1
-                var calculated = SpecialColumnsIndices.Aggregate(Rational.Zero, func: (cumulative, c) => cumulative + (row[c] * result[c]).CanonicalForm);
-                AppSpecificException.ThrowIf(calculated.Denominator != 1, message: "Non-integer coefficient, try other SLE params");
-                result[i] = -calculated.Numerator;
-            }
-
-            return result;
         }
 
         public String ToJson()
@@ -152,7 +112,7 @@ namespace ReactionStoichiometry
         private void FillCompositionMatrix(out Rational[,] matrix, out IReadOnlyList<String> outElements)
         {
             var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
-            var elements = Regex.Matches(OriginalEquation, StringOperations.ELEMENT_SYMBOL)
+            var elements = Regex.Matches(InOriginalForm, StringOperations.ELEMENT_SYMBOL)
                                 .Select(selector: static m => m.Value)
                                 .Except(pseudoElementsOfCharge)
                                 .ToList();

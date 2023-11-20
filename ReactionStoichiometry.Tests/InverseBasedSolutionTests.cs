@@ -12,7 +12,7 @@ namespace ReactionStoichiometry.Tests
             Assert.False(solution.Success);
             Assert.Equal(GlobalConstants.FAILURE_MARK, solution.ToString(OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, solution.ToString(OutputFormat.DetailedMultiline));
-            Assert.Empty(solution.IndependentReactions);
+            Assert.Null(solution.IndependentReactions);
             Assert.Null(solution.CombinationSample.weights);
             Assert.Null(solution.CombinationSample.resultingCoefficients);
         }
@@ -28,14 +28,17 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.DetailedMultiline));
 
-            Assert.True(equation.Validate(equation.Instantiate(new BigInteger[] { 0, 0 })));
-            Assert.Throws<AppSpecificException>(testCode: () => equation.EquationWithIntegerCoefficients(equation.Instantiate(new BigInteger[] { 0, 0 })));
+            Assert.True(equation.Validate(equation.GeneralizedSolution.Instantiate(new BigInteger[] { 0, 0 })));
+            Assert.Throws<AppSpecificException>(
+                testCode: () => equation.EquationWithIntegerCoefficients(equation.GeneralizedSolution.Instantiate(new BigInteger[] { 0, 0 })));
 
-            Assert.True(equation.Validate(equation.Instantiate(new BigInteger[] { 2, 0 })));
-            Assert.Equal(expected: "3慈2 = 2慈3", equation.EquationWithIntegerCoefficients(equation.Instantiate(new BigInteger[] { 2, 0 })));
+            Assert.True(equation.Validate(equation.GeneralizedSolution.Instantiate(new BigInteger[] { 2, 0 })));
+            Assert.Equal(expected: "3慈2 = 2慈3"
+                       , equation.EquationWithIntegerCoefficients(equation.GeneralizedSolution.Instantiate(new BigInteger[] { 2, 0 })));
 
-            Assert.True(equation.Validate(equation.Instantiate(new BigInteger[] { 0, 2 })));
-            Assert.Equal(expected: "2意a + Cl2 = 2意aCl", equation.EquationWithIntegerCoefficients(equation.Instantiate(new BigInteger[] { 0, 2 })));
+            Assert.True(equation.Validate(equation.GeneralizedSolution.Instantiate(new BigInteger[] { 0, 2 })));
+            Assert.Equal(expected: "2意a + Cl2 = 2意aCl"
+                       , equation.EquationWithIntegerCoefficients(equation.GeneralizedSolution.Instantiate(new BigInteger[] { 0, 2 })));
         }
 
         [Fact]
@@ -56,6 +59,7 @@ namespace ReactionStoichiometry.Tests
             {
                 var equation = new ChemicalReactionEquation(line);
                 Assert.True(equation.InverseBasedSolution.Success);
+                Assert.NotNull(equation.InverseBasedSolution.IndependentReactions);
 
                 foreach (var coefficients in equation.InverseBasedSolution.IndependentReactions)
                 {
@@ -69,13 +73,28 @@ namespace ReactionStoichiometry.Tests
         {
             var solution = new ChemicalReactionEquation(equationString: "C6H5C2H5 + O2 = C6H5OH + CO2 + H2O").InverseBasedSolution;
             Assert.True(solution.Success);
+            Assert.NotNull(solution.IndependentReactions);
             Assert.Equal(expected: 2, solution.IndependentReactions.Count);
-            Assert.NotNull(solution.CombinationSample.weights);
-            Assert.Null(solution.CombinationSample.resultingCoefficients); // current implementation sets 1,2 weights
             Assert.Null(solution.GetCombinationOfIndependents(new[] { 0, 0 }));
             Assert.Null(solution.GetCombinationOfIndependents(new[] { 1, 1 })); // C6H5C2H5 is -6 and +6
             Assert.Null(solution.GetCombinationOfIndependents(new[] { 4, 5 })); // C6H5OH is -10*4 and +8*5
             Assert.NotNull(solution.GetCombinationOfIndependents(new[] { 4, 6 }));
+
+            // implementation-specific:
+            Assert.Equal(new[] { 1, 2 }, solution.CombinationSample.weights);
+            Assert.NotNull(solution.CombinationSample.resultingCoefficients);
+        }
+
+        [Fact]
+        public void CombinationsOfTwo_ImplementationSpecific_CounterExample()
+        {
+            // weights of 1,2 must not work on the equation in this test
+            var solution = new ChemicalReactionEquation(equationString: "CO+CO2+H2=CH4+H2O").InverseBasedSolution;
+            Assert.True(solution.Success);
+            Assert.NotNull(solution.IndependentReactions);
+            Assert.Equal(expected: 2, solution.IndependentReactions.Count);
+            Assert.Null(solution.CombinationSample.resultingCoefficients);
+            Assert.Null(solution.CombinationSample.weights);
         }
 
         [Fact]
@@ -83,6 +102,7 @@ namespace ReactionStoichiometry.Tests
         {
             var solution = new ChemicalReactionEquation(equationString: "K4Fe(CN)6+H2SO4+H2O=K2SO4+FeSO4+(NH4)2SO4+CO").InverseBasedSolution;
             Assert.True(solution.Success);
+            Assert.NotNull(solution.IndependentReactions);
             Assert.Single(solution.IndependentReactions);
             Assert.Null(solution.CombinationSample.weights);
             Assert.Null(solution.CombinationSample.resultingCoefficients);

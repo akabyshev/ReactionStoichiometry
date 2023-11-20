@@ -10,10 +10,9 @@ namespace ReactionStoichiometry.Tests
             const String eq = "Fe2(SO4)3+PrTlTe3+H3PO4=Fe0.996(H2PO4)2H2O+Tl1.987(SO3)3+Pr1.998(SO4)3+Te2O3+P2O5+H2S";
             var equation = new ChemicalReactionEquation(eq);
             Assert.True(equation.GeneralizedSolution.Success);
-            Assert.NotNull(equation.GeneralizedSolution.GuessedSimplestSolution);
-            Assert.Single(equation.GeneralizedSolution.FreeCoefficientIndices);
-            Assert.Equal(expected: 14845224399
-                       , equation.GeneralizedSolution.GuessedSimplestSolution[equation.GeneralizedSolution.FreeCoefficientIndices[index: 0]]);
+            Assert.NotNull(equation.GeneralizedSolution.SimplestSolution);
+            Assert.True(equation.GeneralizedSolution.FreeCoefficientIndices is { Count: 1 });
+            Assert.Equal(expected: 14845224399, equation.GeneralizedSolution.SimplestSolution[equation.GeneralizedSolution.FreeCoefficientIndices[index: 0]]);
         }
 
         [Fact]
@@ -22,7 +21,7 @@ namespace ReactionStoichiometry.Tests
             const String eq = "CO+CO2+H2=CH4+H2O";
             var equation = new ChemicalReactionEquation(eq);
             Assert.True(equation.GeneralizedSolution.Success);
-            Assert.Null(equation.GeneralizedSolution.GuessedSimplestSolution);
+            Assert.Null(equation.GeneralizedSolution.SimplestSolution);
         }
 
         [Fact]
@@ -36,12 +35,12 @@ namespace ReactionStoichiometry.Tests
             Assert.True(equation.GeneralizedSolution.Success);
             Assert.Equal(sln, equation.GeneralizedSolution.ToString(OutputFormat.Simple));
 
-            Assert.Throws<ArgumentException>(testCode: () => _ = equation.Instantiate(new BigInteger[] { 2, 5, 3 }));
-            Assert.Throws<AppSpecificException>(testCode: () => _ = equation.Instantiate(new BigInteger[] { 3, 2 }));
+            Assert.Throws<ArgumentException>(testCode: () => _ = equation.GeneralizedSolution.Instantiate(new BigInteger[] { 2, 5, 3 }));
+            Assert.Throws<AppSpecificException>(testCode: () => _ = equation.GeneralizedSolution.Instantiate(new BigInteger[] { 3, 2 }));
 
-            Assert.Null(Record.Exception(testCode: () => _ = equation.Instantiate(new BigInteger[] { 2, 5 })));
-            Assert.True(equation.Validate(equation.Instantiate(new BigInteger[] { 2, 5 })));
-            Assert.True(equation.Validate(equation.Instantiate(new BigInteger[] { 0, 0 })));
+            Assert.Null(Record.Exception(testCode: () => _ = equation.GeneralizedSolution.Instantiate(new BigInteger[] { 2, 5 })));
+            Assert.True(equation.Validate(equation.GeneralizedSolution.Instantiate(new BigInteger[] { 2, 5 })));
+            Assert.True(equation.Validate(equation.GeneralizedSolution.Instantiate(new BigInteger[] { 0, 0 })));
         }
 
         [Fact]
@@ -53,8 +52,8 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(GlobalConstants.FAILURE_MARK, solution.ToString(OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, solution.ToString(OutputFormat.DetailedMultiline));
             Assert.Null(solution.AlgebraicExpressions);
-            Assert.Null(solution.GuessedSimplestSolution);
-            Assert.Empty(solution.FreeCoefficientIndices);
+            Assert.Null(solution.SimplestSolution);
+            Assert.Null(solution.FreeCoefficientIndices);
         }
 
         [Fact]

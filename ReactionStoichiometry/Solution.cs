@@ -10,11 +10,19 @@ namespace ReactionStoichiometry
         private protected String AsMultilineString = UNINITIALIZED_STRING;
         private protected String AsSimpleString = UNINITIALIZED_STRING;
 
+        [JsonIgnore]
+        private protected readonly ChemicalReactionEquation Equation;
+
         [JsonProperty(PropertyName = "Failure message")]
         private protected String? FailureMessage;
 
         [field: JsonProperty(PropertyName = "Success")]
         public Boolean Success { get; private protected init; }
+
+        protected Solution(ChemicalReactionEquation equation)
+        {
+            Equation = equation;
+        }
 
         public String ToString(OutputFormat format)
         {
@@ -27,23 +35,23 @@ namespace ReactionStoichiometry
             };
         }
 
-        private protected String GetAsDetailedMultilineString(ChemicalReactionEquation equation)
+        private protected String GetAsDetailedMultilineString()
         {
-            var result = OutputFormatTemplates.MULTILINE_TEMPLATE.Replace(oldValue: "%Skeletal%", equation.OriginalEquation)
+            var result = OutputFormatTemplates.MULTILINE_TEMPLATE.Replace(oldValue: "%Skeletal%", Equation.InOriginalForm)
                                               .Replace(oldValue: "%CCM%"
-                                                     , equation.CCM.Readable(title: "CCM"
-                                                                           , rowHeaders: i => equation.Elements[i]
-                                                                           , columnHeaders: i => equation.Substances[i]))
+                                                     , Equation.CCM.Readable(title: "CCM"
+                                                                           , rowHeaders: i => Equation.ChemicalElements[i]
+                                                                           , columnHeaders: i => Equation.Substances[i]))
                                               .Replace(oldValue: "%RREF%"
-                                                     , equation.RREF.Readable(title: "RREF"
-                                                                            , rowHeaders: i => equation.Labels[i]
-                                                                            , columnHeaders: i => equation.Labels[i]))
+                                                     , Equation.RREF.Readable(title: "RREF"
+                                                                            , rowHeaders: i => Equation.Labels[i]
+                                                                            , columnHeaders: i => Equation.Labels[i]))
                                               .Replace(oldValue: "%CCM_stats%"
                                                      , String.Format(format: "RxC: {0}x{1}, rank = {2}, nullity = {3}"
-                                                                   , equation.CCM.RowCount()
-                                                                   , equation.CCM.ColumnCount()
-                                                                   , equation.CompositionMatrixRank
-                                                                   , equation.CompositionMatrixNullity));
+                                                                   , Equation.CCM.RowCount()
+                                                                   , Equation.CCM.ColumnCount()
+                                                                   , Equation.CompositionMatrixRank
+                                                                   , Equation.CompositionMatrixNullity));
             return result.Replace(oldValue: "%Outcome%", Success ? AsMultilineString : AsMultilineString + Environment.NewLine + FailureMessage);
         }
     }

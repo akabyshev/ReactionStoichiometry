@@ -159,18 +159,20 @@ tbody {
 	&lt;meta charset="UTF-8"&gt;
     &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
     &lt;title&gt;ReactionStoichiometry.JsonViewer&lt;/title&gt;
-&lt;style type='text/css'&gt;
-                    %cssContent%
-                &lt;/style&gt;
+	&lt;link rel="stylesheet" type="text/css" href="ReactionStoichiometry.JsonViewer.css"&gt;
+    &lt;style type='text/css'&gt;%cssContent%&lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
     &lt;script type='text/javascript'&gt;
-                    %jsContent%;
-const jsonobject = %jsonContent%;
-MakeJsonReadable(jsonobject, "Solution");
-                &lt;/script&gt;
+        %jsContent%;
+        const jsonobject = %jsonContent%;
+        MakeJsonReadable(jsonobject, "Solution");
+    &lt;/script&gt;
 &lt;/body&gt;
-&lt;/html&gt;</value>
+&lt;/html&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</value>
   </data>
   <data name="jsContent" xml:space="preserve">
     <value>function MakeJsonReadable(record, identifier) {
@@ -208,7 +210,7 @@ MakeJsonReadable(jsonobject, "Solution");
     &lt;h3&gt;${identifier}&lt;/h3&gt;
     &lt;p&gt;
     We begin by expressing the original equation
-    &lt;p class="cre"&gt;${record.OriginalInput}&lt;/p&gt;
+    &lt;p class="cre"&gt;${record.OriginalEquationString}&lt;/p&gt;
     in its generalized form
     &lt;p class="cre"&gt;${constructGeneralizedEquation(record)}&lt;/p&gt;
     &lt;/p&gt;
@@ -277,7 +279,7 @@ MakeJsonReadable(jsonobject, "Solution");
             (index) =&gt; (index + 1).toString(),
             () =&gt; "Coefficients"
           );
-          recordDiv.innerHTML += `&lt;/p&gt;For example, ${record.InverseBasedSolution.CombinationSample.Item1} combination of those yields ${tableCombination.outerHTML}&lt;/p&gt;`;
+          recordDiv.innerHTML += `&lt;/p&gt;For example, ${'(' + record.InverseBasedSolution.CombinationSample.Item1.join(", ") + ')'} combination of those yields ${tableCombination.outerHTML}&lt;/p&gt;`;
         }
       } else {
         recordDiv.innerHTML += `&lt;p&gt;Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. &lt;/p&gt;`;
@@ -337,6 +339,7 @@ function createTable(data, rowLabelFunc, columnLabelFunc) {
   table.appendChild(tableHead);
   table.appendChild(tableBody);
   return table;
-}</value>
+}
+</value>
   </data>
 </root>

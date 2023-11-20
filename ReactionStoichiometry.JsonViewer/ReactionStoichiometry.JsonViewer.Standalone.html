@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ReactionStoichiometry.JsonViewer</title>
 	<link rel="stylesheet" type="text/css" href="ReactionStoichiometry.JsonViewer.css">
-    <style type='text/css'>%cssContent%</style>
 </head>
 <body>
-    <script type='text/javascript'>
-        %jsContent%;
-        const jsonobject = %jsonContent%;
-        MakeJsonReadable(jsonobject, "Solution");
-    </script>
-</body>
-</html>
+    <script type="text/javascript" src="ReactionStoichiometry.JsonViewer.js"></script>
+    <script type="text/javascript" src="wrapped_json.js"></script>
+    <script>jsonData.serialized.forEach((record, record_index) => MakeJsonReadable(record, `Equation ${record_index + 1}`));</script>
 </body>
 </html>

@@ -26,7 +26,7 @@ namespace ReactionStoichiometry.Tests
                 var instances = parts[1]
                                 .Split(separator: ';')
                                 .Select(StringOperations.GetParametersFromString)
-                                .Select(selector: parametersSet => equation.EquationWithIntegerCoefficients(equation.Instantiate(parametersSet)));
+                                .Select(selector: parametersSet => equation.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet)));
 
                 Assert.Equal(inverseBased.ToString(OutputFormat.Multiline), String.Join(Environment.NewLine, instances));
             }
@@ -43,7 +43,7 @@ namespace ReactionStoichiometry.Tests
                           , equation.InverseBasedSolution.ToString(OutputFormat.DetailedMultiline));
             Assert.NotEqual(equation.GeneralizedSolution.ToString(OutputFormat.Simple), equation.InverseBasedSolution.ToString(OutputFormat.Simple));
 
-            Assert.Throws<ArgumentOutOfRangeException>(testCode: () => { _ = equation.InverseBasedSolution.ToString((OutputFormat) 15); });
+            Assert.Throws<ArgumentOutOfRangeException>(testCode: () => { _ = equation.InverseBasedSolution.ToString((OutputFormat)15); });
         }
     }
 }

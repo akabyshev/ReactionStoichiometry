@@ -72,7 +72,7 @@ namespace ReactionStoichiometry.GUI
         {
             var s = textBoxInput.Text;
             _equation = new ChemicalReactionEquation(s);
-            txtGeneralForm.Text = _equation.GeneralizedEquation;
+            txtGeneralForm.Text = _equation.InGeneralForm;
 
             if (_equation.GeneralizedSolution.Success)
             {
@@ -94,8 +94,8 @@ namespace ReactionStoichiometry.GUI
                     {
                         gridCoefficients.Rows[i].Cells[columnName: "IsFreeVariable"].Value = true;
                         gridCoefficients.Rows[i].Cells[columnName: "Value"].ReadOnly = false;
-                        gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = _equation.GeneralizedSolution.GuessedSimplestSolution != null ?
-                            _equation.GeneralizedSolution.GuessedSimplestSolution[i] :
+                        gridCoefficients.Rows[i].Cells[columnName: "Value"].Value = _equation.GeneralizedSolution.SimplestSolution != null ?
+                            _equation.GeneralizedSolution.SimplestSolution[i] :
                             0;
                         gridCoefficients.Rows[i].Cells[columnName: "Value"].Style.Font = new Font(gridCoefficients.Font, FontStyle.Bold | FontStyle.Underline);
                     }
@@ -171,7 +171,7 @@ namespace ReactionStoichiometry.GUI
                     parameters.Add(BigInteger.Parse(cv.ToString()!));
                 }
 
-                coefficients = _equation.Instantiate(parameters.ToArray());
+                coefficients = _equation.GeneralizedSolution.Instantiate(parameters.ToArray());
                 txtInstance.Text = _equation.EquationWithIntegerCoefficients(coefficients);
             }
             catch (FormatException)

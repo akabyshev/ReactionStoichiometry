@@ -33,7 +33,7 @@ function MakeJsonReadable(record, identifier) {
     <h3>${identifier}</h3>
     <p>
     We begin by expressing the original equation
-    <p class="cre">${record.OriginalInput}</p>
+    <p class="cre">${record.OriginalEquationString}</p>
     in its generalized form
     <p class="cre">${constructGeneralizedEquation(record)}</p>
     </p>
@@ -102,7 +102,7 @@ function MakeJsonReadable(record, identifier) {
             (index) => (index + 1).toString(),
             () => "Coefficients"
           );
-          recordDiv.innerHTML += `</p>For example, ${record.InverseBasedSolution.CombinationSample.Item1} combination of those yields ${tableCombination.outerHTML}</p>`;
+          recordDiv.innerHTML += `</p>For example, ${'(' + record.InverseBasedSolution.CombinationSample.Item1.join(", ") + ')'} combination of those yields ${tableCombination.outerHTML}</p>`;
         }
       } else {
         recordDiv.innerHTML += `<p>Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. </p>`;
