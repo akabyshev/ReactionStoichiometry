@@ -25,7 +25,7 @@ function MakeJsonReadable(record, identifier) {
 
   const tableRREF = createTable(
     record.RREF,
-    (index) => record.Labels[index],
+    (index) => '0' + ' = ',
     (index) => record.Labels[index]
   );
 
@@ -41,7 +41,7 @@ function MakeJsonReadable(record, identifier) {
     The matrix columns represent the substances involved in the reaction, while the rows indicate the constituent chemical elements: ${
       tableCCM.outerHTML
     }</p>
-    <p>Subsequently, the CCM is transformed into its reduced row echelon form (RREF) using Gaussian elimination: ${
+    <p>The CCM is transformed into its reduced row echelon form (RREF) using Gaussian elimination: ${
       tableRREF.outerHTML
     }</p>`;
 
@@ -53,8 +53,8 @@ function MakeJsonReadable(record, identifier) {
     const tableExpressions = createTable(
       record.GeneralizedSolution.AlgebraicExpressions.filter((item) =>
         item.includes(" = ")
-      ).map((item) => [item]),
-      (index) => (index + 1).toString(),
+      ).map((item) => [item.split('=')[1].trim()]),
+      (index) => record.Labels[index] + ' = ',
       () => "Expression"
     );
 
