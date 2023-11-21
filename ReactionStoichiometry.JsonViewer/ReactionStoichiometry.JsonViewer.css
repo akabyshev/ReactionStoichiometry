@@ -7,27 +7,34 @@ body {
     font-family: monospace;
 }
 
-table {
-  table-layout: fixed;
-  width: auto;
+table.matrix {
+  border: 2px solid #FFFFFF;
+  text-align: center;
+  border-collapse: collapse;
   font-family: monospace;
 }
 
-th {
-  width: auto; 
-  white-space: nowrap;
-  text-align: center;
-  font-weight: normal;
+table.matrix thead {
+  border-bottom: 2px solid #333333;
 }
-
-.vertical-headers th {
-    transform: rotate(180deg);
-    writing-mode: vertical-lr;
-    vertical-align: top;
-  }
-
-thead,
-tbody {
-  vertical-align: middle;
+table.matrix thead th {
+  font-weight: bold;
+  text-align: center;
+  vertical-align: top;
+  padding: 0px 4px;
+}
+table.matrix thead th:first-child {
+  border-left: none;
+}
+table.matrix th {
+  padding: 0px 0px;
+}
+table.matrix td {
+  padding: 0px 4px;
   text-align: right;
+  vertical-align: bottom;
+}
+table.matrix tfoot {
+  font-weight: bold;
+  border-top: 2px solid #333333;
 }

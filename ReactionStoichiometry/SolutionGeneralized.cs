@@ -17,8 +17,6 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "FreeVariableIndices")]
         internal readonly ReadOnlyCollection<Int32>? FreeCoefficientIndices;
 
-        private readonly Dictionary<Int32, BigInteger[]> _dependentCoefficientExpressions = new();
-
         internal SolutionGeneralized(ChemicalReactionEquation equation) : base(equation)
         {
             try
@@ -30,14 +28,6 @@ namespace ReactionStoichiometry
                                                    .ToList()
                                                    .AsReadOnly();
 
-                _dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.RREF.RowCount())
-                                                             .Select(selector: r => Equation.RREF.Row(r)
-                                                                                            .ScaleToIntegers()
-                                                                                            .Select(selector: static i => -i)
-                                                                                            .ToArray())
-                                                             .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
-                                                                         , elementSelector: static row => row);
-
                 SimplestSolution = FreeCoefficientIndices.Count != 1 ?
                     null :
                     Instantiate(new[]
@@ -48,14 +38,8 @@ namespace ReactionStoichiometry
                                 })
                         .AsReadOnly();
 
-                AlgebraicExpressions = Enumerable.Range(start: 0, Equation.Substances.Count)
-                                                 .Select(selector: i => FreeCoefficientIndices.Contains(i) ?
-                                                                       Equation.Labels[i] :
-                                                                       String.Format(format: "{0} = {1}"
-                                                                                   , Equation.Labels[i]
-                                                                                   , AlgebraicExpressionForCoefficient(i)))
-                                                 .ToList()
-                                                 .AsReadOnly();
+                AlgebraicExpressions = GetAllExpressions().AsReadOnly();
+
                 Success = true;
             }
             catch (AppSpecificException e)
@@ -90,44 +74,63 @@ namespace ReactionStoichiometry
                 return array.Count(predicate: static r => !r.IsZero) == 1 && array.Count(predicate: static r => r.IsOne) == 1;
             }
 
-            String AlgebraicExpressionForCoefficient(Int32 index)
+            List<String> GetAllExpressions()
             {
-                if (!_dependentCoefficientExpressions.TryGetValue(index, out var expression))
+                var result = new List<String>();
+
+                var dependentCoefficientExpressions = Enumerable.Range(start: 0, Equation.RREF.RowCount())
+                                                                .Select(selector: r => Equation.RREF.Row(r)
+                                                                                               .ScaleToIntegers()
+                                                                                               .Select(selector: static i => -i)
+                                                                                               .ToArray())
+                                                                .ToDictionary(keySelector: static row => Array.FindIndex(row, match: static i => i != 0)
+                                                                            , elementSelector: static row => row);
+
+                for (var index = 0; index < Equation.Substances.Count; index++)
                 {
-                    return null!;
-                }
-
-                var numeratorParts = Enumerable.Range(index + 1, expression.Length - (index + 1))
-                                               .Where(predicate: i => expression[i] != 0)
-                                               .Select(selector: i =>
-                                                                 {
-                                                                     var coefficient = expression[i] + GlobalConstants.MULTIPLICATION_SYMBOL;
-                                                                     if (expression[i] == 1)
-                                                                     {
-                                                                         coefficient = String.Empty;
-                                                                     }
-                                                                     if (expression[i] == -1)
-                                                                     {
-                                                                         coefficient = "-";
-                                                                     }
-                                                                     return $"{coefficient}{Equation.Labels[i]}";
-                                                                 })
-                                               .ToList();
-
-                var result = String.Join(separator: " + ", numeratorParts).Replace(oldValue: "+ -", newValue: "- ");
-
-                if (expression[index] != -1)
-                {
-                    if (numeratorParts.Count > 1)
+                    if (FreeCoefficientIndices.Contains(index))
                     {
-                        result = $"({result})";
+                        result.Add(Equation.Labels[index]);
                     }
-                    result = $"{result}/{BigInteger.Abs(expression[index])}";
-                }
+                    else
+                    {
+                        var array = dependentCoefficientExpressions[index];
 
-                if (result == String.Empty)
-                {
-                    result = "0";
+                        var numeratorParts = Enumerable.Range(index + 1, array.Length - (index + 1))
+                                                       .Where(predicate: i => array[i] != 0)
+                                                       .Select(selector: i =>
+                                                                         {
+                                                                             var coefficient = array[i] + GlobalConstants.MULTIPLICATION_SYMBOL;
+                                                                             if (array[i] == 1)
+                                                                             {
+                                                                                 coefficient = String.Empty;
+                                                                             }
+                                                                             if (array[i] == -1)
+                                                                             {
+                                                                                 coefficient = "-";
+                                                                             }
+                                                                             return $"{coefficient}{Equation.Labels[i]}";
+                                                                         })
+                                                       .ToList();
+
+                        var expression = String.Join(separator: " + ", numeratorParts).Replace(oldValue: "+ -", newValue: "- ");
+
+                        if (array[index] != -1)
+                        {
+                            if (numeratorParts.Count > 1)
+                            {
+                                expression = $"({expression})";
+                            }
+                            expression = $"{expression}/{BigInteger.Abs(array[index])}";
+                        }
+
+                        if (expression == String.Empty)
+                        {
+                            expression = "0";
+                        }
+
+                        result.Add($"{Equation.Labels[index]} = {expression}");
+                    }
                 }
 
                 return result;

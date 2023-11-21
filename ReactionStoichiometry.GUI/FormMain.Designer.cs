@@ -40,14 +40,13 @@
             webviewResult = new Microsoft.Web.WebView2.WinForms.WebView2();
             tabInstantiate = new TabPage();
             gridCoefficients = new DataGridView();
-            txtInstance = new TextBox();
-            tabPermutate = new TabPage();
-            listPermutator = new ListBox();
-            folderBrowserDialog1 = new FolderBrowserDialog();
             Substance = new DataGridViewTextBoxColumn();
             Coefficient = new DataGridViewTextBoxColumn();
             Value = new DataGridViewTextBoxColumn();
             IsFreeVariable = new DataGridViewCheckBoxColumn();
+            txtInstance = new TextBox();
+            tabPermutate = new TabPage();
+            listPermutator = new ListBox();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
             tabHtml.SuspendLayout();
@@ -79,7 +78,7 @@
             textBoxInput.ScrollBars = ScrollBars.Vertical;
             textBoxInput.Size = new Size(1694, 180);
             textBoxInput.TabIndex = 5;
-            textBoxInput.Text = "C6H5COOH + O2 = CO2 + H2O";
+            textBoxInput.Text = "TiO2 + C + Cl2 = TiCl4 + CO + CO2";
             textBoxInput.TextChanged += On_textBoxInput_TextChanged;
             // 
             // buttonBalance
@@ -201,40 +200,6 @@
             gridCoefficients.TabIndex = 4;
             gridCoefficients.CellEndEdit += OnCellEndEdit;
             // 
-            // txtInstance
-            // 
-            txtInstance.Dock = DockStyle.Bottom;
-            txtInstance.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            txtInstance.Location = new Point(3, 601);
-            txtInstance.Name = "txtInstance";
-            txtInstance.ReadOnly = true;
-            txtInstance.Size = new Size(1862, 47);
-            txtInstance.TabIndex = 5;
-            txtInstance.TextAlign = HorizontalAlignment.Center;
-            // 
-            // tabPermutate
-            // 
-            tabPermutate.Controls.Add(listPermutator);
-            tabPermutate.Location = new Point(10, 58);
-            tabPermutate.Name = "tabPermutate";
-            tabPermutate.Size = new Size(1868, 651);
-            tabPermutate.TabIndex = 3;
-            tabPermutate.Text = "Permutate";
-            tabPermutate.UseVisualStyleBackColor = true;
-            // 
-            // listPermutator
-            // 
-            listPermutator.Dock = DockStyle.Fill;
-            listPermutator.ItemHeight = 41;
-            listPermutator.Items.AddRange(new object[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" });
-            listPermutator.Location = new Point(0, 0);
-            listPermutator.Name = "listPermutator";
-            listPermutator.ScrollAlwaysVisible = true;
-            listPermutator.Size = new Size(1868, 651);
-            listPermutator.TabIndex = 2;
-            listPermutator.TabStop = false;
-            listPermutator.MouseDoubleClick += OnListMouseDoubleClick;
-            // 
             // Substance
             // 
             Substance.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
@@ -273,6 +238,40 @@
             IsFreeVariable.Visible = false;
             IsFreeVariable.Width = 222;
             // 
+            // txtInstance
+            // 
+            txtInstance.Dock = DockStyle.Bottom;
+            txtInstance.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            txtInstance.Location = new Point(3, 601);
+            txtInstance.Name = "txtInstance";
+            txtInstance.ReadOnly = true;
+            txtInstance.Size = new Size(1862, 47);
+            txtInstance.TabIndex = 5;
+            txtInstance.TextAlign = HorizontalAlignment.Center;
+            // 
+            // tabPermutate
+            // 
+            tabPermutate.Controls.Add(listPermutator);
+            tabPermutate.Location = new Point(10, 58);
+            tabPermutate.Name = "tabPermutate";
+            tabPermutate.Size = new Size(1868, 651);
+            tabPermutate.TabIndex = 3;
+            tabPermutate.Text = "Permutate";
+            tabPermutate.UseVisualStyleBackColor = true;
+            // 
+            // listPermutator
+            // 
+            listPermutator.Dock = DockStyle.Fill;
+            listPermutator.ItemHeight = 41;
+            listPermutator.Items.AddRange(new object[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" });
+            listPermutator.Location = new Point(0, 0);
+            listPermutator.Name = "listPermutator";
+            listPermutator.ScrollAlwaysVisible = true;
+            listPermutator.Size = new Size(1868, 651);
+            listPermutator.TabIndex = 2;
+            listPermutator.TabStop = false;
+            listPermutator.MouseDoubleClick += OnListMouseDoubleClick;
+            // 
             // FormMain
             // 
             AutoScaleMode = AutoScaleMode.None;
@@ -308,7 +307,6 @@
         private TextBox txtGeneralForm;
         private TextBox txtInstance;
         private ListBox listPermutator;
-        private FolderBrowserDialog folderBrowserDialog1;
         private Microsoft.Web.WebView2.WinForms.WebView2 webviewResult;
         private DataGridViewTextBoxColumn Substance;
         private DataGridViewTextBoxColumn Coefficient;

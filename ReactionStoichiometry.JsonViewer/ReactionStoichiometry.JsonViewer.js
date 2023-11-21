@@ -6,7 +6,7 @@ function MakeJsonReadable(record, identifier) {
   );
 
   record.Labels = record.Labels.map(
-    (label) => "<i>" + label.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>") + "</i>"
+    (label) => label.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>")
   );
 
   if (record.GeneralizedSolution.AlgebraicExpressions) {
@@ -19,9 +19,9 @@ function MakeJsonReadable(record, identifier) {
   const tableCCM = createTable(
     record.CCM,
     (index) => record.Elements[index],
-    (index) => record.Labels[index]
+    (index) => record.Substances[index],
+    true
   );
-  tableCCM.classList.add("vertical-headers");
 
   const tableRREF = createTable(
     record.RREF,
@@ -74,14 +74,14 @@ function MakeJsonReadable(record, identifier) {
     if (record.GeneralizedSolution.FreeVariableIndices.length === 1) {
       const tableFoundSolution = createTable(
         record.Labels.map((item, index) => [
-          item + " = " + record.GeneralizedSolution.SimplestSolution[index],
+          record.GeneralizedSolution.SimplestSolution[index],
         ]),
-        (index) => (index + 1).toString(),
-        () => "Coefficients"
+        (index) => record.Labels[index] + ' = ',
+        () => "Value"
       );
 
-      recordDiv.innerHTML += `<p>The next step is determining values for the free variable that yields integer coefficients. 
-      Setting it to <u>the least common multiple of all the denominators</u> results in: ${tableFoundSolution.outerHTML}</p>
+      recordDiv.innerHTML += `<p>The next step is determining a value of the free variable that yields integer coefficients - 
+      ${record.Labels[record.GeneralizedSolution.FreeVariableIndices[0]]} equal to <u>the least common multiple of all the denominators</u> results in: ${tableFoundSolution.outerHTML}</p>
       `;
     } else {
       if (record.InverseBasedSolution.Success) {
@@ -95,14 +95,16 @@ function MakeJsonReadable(record, identifier) {
         if (record.InverseBasedSolution.CombinationSample.Item2) {
           const tableCombination = createTable(
             record.Labels.map((item, index) => [
-              item +
-                " = " +
                 record.InverseBasedSolution.CombinationSample.Item2[index],
             ]),
-            (index) => (index + 1).toString(),
-            () => "Coefficients"
+            (index) => record.Labels[index] + ' = ',
+            () => "Value"
           );
-          recordDiv.innerHTML += `</p>For example, ${'(' + record.InverseBasedSolution.CombinationSample.Item1.join(", ") + ')'} combination of those yields ${tableCombination.outerHTML}</p>`;
+          recordDiv.innerHTML += `</p>For example, ${
+            "(" +
+            record.InverseBasedSolution.CombinationSample.Item1.join(", ") +
+            ")"
+          } combination of those yields ${tableCombination.outerHTML}</p>`;
         }
       } else {
         recordDiv.innerHTML += `<p>Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. </p>`;
@@ -128,16 +130,17 @@ function constructGeneralizedEquation(record) {
   return result + " = 0";
 }
 
-function createTable(data, rowLabelFunc, columnLabelFunc) {
+function createTable(data, rowLabelFunc, columnLabelFunc, matrix = true) {
   const table = document.createElement("table");
+  table.classList.add("matrix");
 
   const tableHead = document.createElement("thead");
   const tableRowOfColumnHeaders = document.createElement("tr");
   tableRowOfColumnHeaders.appendChild(document.createElement("th"));
   for (let index = 0; index < data[0].length; index++) {
-    const currentCell = document.createElement("th");
-    currentCell.innerHTML = columnLabelFunc(index);
-    tableRowOfColumnHeaders.appendChild(currentCell);
+    const currentHeader = document.createElement("th");
+    currentHeader.innerHTML = columnLabelFunc(index);
+    tableRowOfColumnHeaders.appendChild(currentHeader);
   }
   tableHead.appendChild(tableRowOfColumnHeaders);
 
