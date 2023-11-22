@@ -187,7 +187,9 @@ table.matrix tfoot th {
 </value>
   </data>
   <data name="jsContent" xml:space="preserve">
-    <value>function MakeJsonReadable(Equation, identifier) {
+    <value>const INTERPUNCT = "\u00B7";
+
+function MakeJsonReadable(Equation, identifier) {
   const recordDiv = document.createElement("div");
 
   Equation.Substances = Equation.Substances.map((substance) =&gt;
@@ -226,8 +228,7 @@ table.matrix tfoot th {
     in its generalized form
     &lt;p class="cre"&gt;${constructGeneralizedEquation(Equation)}&lt;/p&gt;
     &lt;/p&gt;
-    &lt;p&gt;Following this, a chemical composition matrix (CCM) is constructed.
-    The matrix columns represent the substances involved in the reaction, while the rows indicate the constituent chemical elements: ${
+    &lt;p&gt;Following this, a chemical composition matrix (CCM) is constructed: ${
       tableCCM.outerHTML
     }&lt;/p&gt;
     &lt;p&gt;The CCM is transformed into its reduced row echelon form (RREF) using Gaussian elimination: ${
@@ -275,6 +276,10 @@ table.matrix tfoot th {
       }&lt;/b&gt; equal to &lt;u&gt;the least common multiple of all the denominators&lt;/u&gt; results in: ${
         tableFoundSolution.outerHTML
       }&lt;/p&gt;
+      &lt;p&gt;So the final solution is &lt;p class="cre"&gt;${AssembleEquationString(
+        Equation.Substances,
+        Equation.GeneralizedSolution.SimplestSolution
+      )}&lt;/p&gt;&lt;/p&gt;
       `;
     } else {
       if (Equation.InverseBasedSolution.Success) {
@@ -303,8 +308,6 @@ table.matrix tfoot th {
         recordDiv.innerHTML += `&lt;p&gt;Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. &lt;/p&gt;`;
       }
     }
-
-    recordDiv.innerHTML += `Negative coefficients indicate a reactant, positive values denote produced substances. A coefficient of zero signifies that the substance is not a part of the reaction.`;
   }
 
   recordDiv.style.border = "1px solid black";
@@ -314,7 +317,6 @@ table.matrix tfoot th {
 }
 
 function constructGeneralizedEquation(record) {
-  const INTERPUNCT = "\u00B7";
   let result = "";
   result = Array.from(
     { length: record.Substances.length },
@@ -376,6 +378,27 @@ function createTable(
   }
 
   return table;
+}
+
+function AssembleEquationString(substances, coefs) {
+  const lhs = [];
+  const rhs = [];
+
+  for (let i = 0; i &lt; coefs.length; i++) {
+    if (coefs[i] == 0) {
+      continue;
+    }
+
+    console.debug(coefs[i]);
+    let token = coefs[i] == 1 || coefs[i] == -1? "" : Math.abs(coefs[i]);
+    if (token !== "") {
+      token += INTERPUNCT;
+    }
+
+    ((coefs[i] &gt; 0) ? rhs : lhs).push(token + substances[i]);
+  }
+
+  return lhs.join(" + ") + " = " + rhs.join(" + ");
 }
 </value>
   </data>
