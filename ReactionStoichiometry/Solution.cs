@@ -2,7 +2,7 @@
 
 namespace ReactionStoichiometry
 {
-    public abstract class Solution
+    public abstract class Solution(ChemicalReactionEquation equation)
     {
         private const String UNINITIALIZED_STRING = "UNINIT";
 
@@ -11,18 +11,13 @@ namespace ReactionStoichiometry
         private protected String AsSimpleString = UNINITIALIZED_STRING;
 
         [JsonIgnore]
-        private protected readonly ChemicalReactionEquation Equation;
+        private protected readonly ChemicalReactionEquation Equation = equation;
 
-        [JsonProperty(PropertyName = "Failure message")]
+        [JsonProperty(PropertyName = "FailureMessage")]
         private protected String? FailureMessage;
 
         [field: JsonProperty(PropertyName = "Success")]
         public Boolean Success { get; private protected init; }
-
-        protected Solution(ChemicalReactionEquation equation)
-        {
-            Equation = equation;
-        }
 
         public String ToString(OutputFormat format)
         {
