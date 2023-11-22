@@ -127,29 +127,41 @@
     font-family: monospace;
 }
 
-table {
-  table-layout: fixed;
-  width: auto;
-  font-family: monospace;
-}
-
-th {
-  width: auto; 
-  white-space: nowrap;
+table.matrix {
+  margin-left: auto;
+  margin-right: auto;
+  border: 2px solid #FFFFFF;
   text-align: center;
-  font-weight: normal;
+  border-collapse: collapse;
+  font-family: monospace;
+  table-layout: fixed;
 }
 
-.vertical-headers th {
-    transform: rotate(180deg);
-    writing-mode: vertical-lr;
-    vertical-align: top;
-  }
-
-thead,
-tbody {
-  vertical-align: middle;
+table.matrix thead {
+  border-bottom: 2px solid #333333;
+}
+table.matrix thead th {
+  font-weight: bold;
+  text-align: center;
+  vertical-align: top;
+}
+table.matrix thead th:first-child {
+  border-left: none;
+}
+table.matrix th {
+  padding: 0px 4px;
+}
+table.matrix td {
   text-align: right;
+  vertical-align: bottom;
+}
+table.matrix tfoot th {
+  border-top: 2px solid #333333;
+  transform: rotate(180deg);
+  writing-mode: vertical-lr;
+  padding: 3px 3px;
+  text-align: center;
+  vertical-align: bottom;
 }</value>
   </data>
   <data name="htmlContent" xml:space="preserve">
@@ -175,111 +187,117 @@ tbody {
 </value>
   </data>
   <data name="jsContent" xml:space="preserve">
-    <value>function MakeJsonReadable(record, identifier) {
+    <value>function MakeJsonReadable(Equation, identifier) {
   const recordDiv = document.createElement("div");
 
-  record.Substances = record.Substances.map((substance) =&gt;
+  Equation.Substances = Equation.Substances.map((substance) =&gt;
     substance.replace(/(\d+(\.\d+)?)/g, "&lt;sub&gt;$1&lt;/sub&gt;")
   );
 
-  record.Labels = record.Labels.map(
-    (label) =&gt; "&lt;i&gt;" + label.replace(/(\d+(\.\d+)?)/g, "&lt;sub&gt;$1&lt;/sub&gt;") + "&lt;/i&gt;"
+  Equation.Labels = Equation.Labels.map((label) =&gt;
+    label.replace(/(\d+(\.\d+)?)/g, "&lt;sub&gt;$1&lt;/sub&gt;")
   );
 
-  if (record.GeneralizedSolution.AlgebraicExpressions) {
-    record.GeneralizedSolution.AlgebraicExpressions =
-      record.GeneralizedSolution.AlgebraicExpressions.map((expression) =&gt;
+  if (Equation.GeneralizedSolution.AlgebraicExpressions) {
+    Equation.GeneralizedSolution.AlgebraicExpressions =
+      Equation.GeneralizedSolution.AlgebraicExpressions.map((expression) =&gt;
         expression.replace(/(?&lt;=x)\d{2}/g, "&lt;sub&gt;$&amp;&lt;/sub&gt;")
       );
   }
 
   const tableCCM = createTable(
-    record.CCM,
-    (index) =&gt; record.Elements[index],
-    (index) =&gt; record.Labels[index]
+    Equation.CCM,
+    (index) =&gt; Equation.Elements[index],
+    (index) =&gt; Equation.Labels[index],
+    (index) =&gt; Equation.Substances[index]
   );
-  tableCCM.classList.add("vertical-headers");
 
   const tableRREF = createTable(
-    record.RREF,
-    (index) =&gt; record.Labels[index],
-    (index) =&gt; record.Labels[index]
+    Equation.RREF,
+    (index) =&gt; "0" + " = ",
+    (index) =&gt; Equation.Labels[index]
   );
 
   recordDiv.innerHTML = `
     &lt;h3&gt;${identifier}&lt;/h3&gt;
     &lt;p&gt;
     We begin by expressing the original equation
-    &lt;p class="cre"&gt;${record.OriginalEquationString}&lt;/p&gt;
+    &lt;p class="cre"&gt;${Equation.OriginalEquationString}&lt;/p&gt;
     in its generalized form
-    &lt;p class="cre"&gt;${constructGeneralizedEquation(record)}&lt;/p&gt;
+    &lt;p class="cre"&gt;${constructGeneralizedEquation(Equation)}&lt;/p&gt;
     &lt;/p&gt;
     &lt;p&gt;Following this, a chemical composition matrix (CCM) is constructed.
     The matrix columns represent the substances involved in the reaction, while the rows indicate the constituent chemical elements: ${
       tableCCM.outerHTML
     }&lt;/p&gt;
-    &lt;p&gt;Subsequently, the CCM is transformed into its reduced row echelon form (RREF) using Gaussian elimination: ${
+    &lt;p&gt;The CCM is transformed into its reduced row echelon form (RREF) using Gaussian elimination: ${
       tableRREF.outerHTML
     }&lt;/p&gt;`;
 
-  if (record.GeneralizedSolution.Success === false) {
+  if (Equation.GeneralizedSolution.Success === false) {
     recordDiv.innerHTML += `
       &lt;p&gt;That results in an identity matrix, indicating that it's impossible to balance the provided equation.&lt;/p&gt;
       `;
   } else {
     const tableExpressions = createTable(
-      record.GeneralizedSolution.AlgebraicExpressions.filter((item) =&gt;
+      Equation.GeneralizedSolution.AlgebraicExpressions.filter((item) =&gt;
         item.includes(" = ")
-      ).map((item) =&gt; [item]),
-      (index) =&gt; (index + 1).toString(),
+      ).map((item) =&gt; [item.split("=")[1].trim()]),
+      (index) =&gt; Equation.Labels[index] + " = ",
       () =&gt; "Expression"
     );
 
     recordDiv.innerHTML += `
       &lt;p&gt;
       The RREF demonstrates how all coefficients can be expressed as linear functions of &lt;u&gt;${
-        record.GeneralizedSolution.FreeVariableIndices.length &gt; 1
+        Equation.GeneralizedSolution.FreeVariableIndices.length &gt; 1
           ? "free variables"
           : "the free variable"
-      }
-        ${record.GeneralizedSolution.FreeVariableIndices.map(
-          (index) =&gt; record.Labels[index]
-        ).join(", ")}&lt;/u&gt;:
+      }&lt;/u&gt;&lt;b&gt;
+        ${Equation.GeneralizedSolution.FreeVariableIndices.map(
+          (index) =&gt; Equation.Labels[index]
+        ).join(", ")}&lt;/b&gt;:
         ${tableExpressions.outerHTML}
       &lt;/p&gt;`;
 
-    if (record.GeneralizedSolution.FreeVariableIndices.length === 1) {
+    if (Equation.GeneralizedSolution.FreeVariableIndices.length === 1) {
       const tableFoundSolution = createTable(
-        record.Labels.map((item, index) =&gt; [
-          item + " = " + record.GeneralizedSolution.SimplestSolution[index],
+        Equation.Labels.map((item, index) =&gt; [
+          Equation.GeneralizedSolution.SimplestSolution[index],
         ]),
-        (index) =&gt; (index + 1).toString(),
-        () =&gt; "Coefficients"
+        (index) =&gt; Equation.Labels[index] + " = ",
+        () =&gt; "Value"
       );
 
-      recordDiv.innerHTML += `&lt;p&gt;The next step is determining values for the free variable that yields integer coefficients. 
-      Setting it to &lt;u&gt;the least common multiple of all the denominators&lt;/u&gt; results in: ${tableFoundSolution.outerHTML}&lt;/p&gt;
+      recordDiv.innerHTML += `&lt;p&gt;The next step is determining a value of the free variable that yields integer coefficients. Setting 
+      &lt;b&gt;${
+        Equation.Labels[Equation.GeneralizedSolution.FreeVariableIndices[0]]
+      }&lt;/b&gt; equal to &lt;u&gt;the least common multiple of all the denominators&lt;/u&gt; results in: ${
+        tableFoundSolution.outerHTML
+      }&lt;/p&gt;
       `;
     } else {
-      if (record.InverseBasedSolution.Success) {
+      if (Equation.InverseBasedSolution.Success) {
         const tableSubreactions = createTable(
-          record.InverseBasedSolution.IndependentReactions,
-          (index) =&gt; (index + 1).toString(),
-          (index) =&gt; record.Substances[index]
+          Equation.InverseBasedSolution.IndependentReactions,
+          (index) =&gt; "0" + " = ",
+          (index) =&gt; Equation.Substances[index]
         );
         recordDiv.innerHTML += `&lt;p&gt;Any integer solutions will be a linear combination of these 'subreactions': ${tableSubreactions.outerHTML} &lt;/p&gt;`;
 
-        if (record.InverseBasedSolution.CombinationSample.Item2) {
+        if (Equation.InverseBasedSolution.CombinationSample.Item2) {
           const tableCombination = createTable(
-            record.Labels.map((item, index) =&gt; [
-              item +
-                " = " +
-                record.InverseBasedSolution.CombinationSample.Item2[index],
+            Equation.Labels.map((item, index) =&gt; [
+              Equation.InverseBasedSolution.CombinationSample.Item2[index],
             ]),
-            (index) =&gt; (index + 1).toString(),
-            () =&gt; "Coefficients"
+            (index) =&gt; Equation.Labels[index] + " = ",
+            () =&gt; "Value"
           );
-          recordDiv.innerHTML += `&lt;/p&gt;For example, ${'(' + record.InverseBasedSolution.CombinationSample.Item1.join(", ") + ')'} combination of those yields ${tableCombination.outerHTML}&lt;/p&gt;`;
+          recordDiv.innerHTML += `&lt;/p&gt;For example, ${
+            "(" +
+            Equation.InverseBasedSolution.CombinationSample.Item1.join(", ") +
+            ")"
+          } combination of those yields ${tableCombination.outerHTML}&lt;/p&gt;`;
         }
       } else {
         recordDiv.innerHTML += `&lt;p&gt;Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. &lt;/p&gt;`;
@@ -305,18 +323,25 @@ function constructGeneralizedEquation(record) {
   return result + " = 0";
 }
 
-function createTable(data, rowLabelFunc, columnLabelFunc) {
+function createTable(
+  data,
+  rowLabelFunc,
+  labelColumnHeader,
+  labelColumnFooter = null
+) {
   const table = document.createElement("table");
+  table.classList.add("matrix");
 
   const tableHead = document.createElement("thead");
   const tableRowOfColumnHeaders = document.createElement("tr");
   tableRowOfColumnHeaders.appendChild(document.createElement("th"));
   for (let index = 0; index &lt; data[0].length; index++) {
-    const currentCell = document.createElement("th");
-    currentCell.innerHTML = columnLabelFunc(index);
-    tableRowOfColumnHeaders.appendChild(currentCell);
+    const currentHeader = document.createElement("th");
+    currentHeader.innerHTML = labelColumnHeader(index);
+    tableRowOfColumnHeaders.appendChild(currentHeader);
   }
   tableHead.appendChild(tableRowOfColumnHeaders);
+  table.appendChild(tableHead);
 
   const tableBody = document.createElement("tbody");
   data.forEach((dataRow, dataRowIndex) =&gt; {
@@ -335,9 +360,21 @@ function createTable(data, rowLabelFunc, columnLabelFunc) {
     });
     tableBody.appendChild(currentRow);
   });
-
-  table.appendChild(tableHead);
   table.appendChild(tableBody);
+
+  if (labelColumnFooter != null) {
+    const tableFoot = document.createElement("tfoot");
+    const tableRowOfColumnFooters = document.createElement("tr");
+    tableRowOfColumnFooters.appendChild(document.createElement("th"));
+    for (let index = 0; index &lt; data[0].length; index++) {
+      const cell = document.createElement("th");
+      cell.innerHTML = labelColumnFooter(index);
+      tableRowOfColumnFooters.appendChild(cell);
+    }
+    tableFoot.appendChild(tableRowOfColumnFooters);
+    table.appendChild(tableFoot);
+  }
+
   return table;
 }
 </value>

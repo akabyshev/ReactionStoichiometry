@@ -1,108 +1,117 @@
-function MakeJsonReadable(record, identifier) {
+const INTERPUNCT = "\u00B7";
+
+function MakeJsonReadable(Equation, identifier) {
   const recordDiv = document.createElement("div");
 
-  record.Substances = record.Substances.map((substance) =>
+  Equation.Substances = Equation.Substances.map((substance) =>
     substance.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>")
   );
 
-  record.Labels = record.Labels.map(
-    (label) => label.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>")
+  Equation.Labels = Equation.Labels.map((label) =>
+    label.replace(/(\d+(\.\d+)?)/g, "<sub>$1</sub>")
   );
 
-  if (record.GeneralizedSolution.AlgebraicExpressions) {
-    record.GeneralizedSolution.AlgebraicExpressions =
-      record.GeneralizedSolution.AlgebraicExpressions.map((expression) =>
+  if (Equation.GeneralizedSolution.AlgebraicExpressions) {
+    Equation.GeneralizedSolution.AlgebraicExpressions =
+      Equation.GeneralizedSolution.AlgebraicExpressions.map((expression) =>
         expression.replace(/(?<=x)\d{2}/g, "<sub>$&</sub>")
       );
   }
 
   const tableCCM = createTable(
-    record.CCM,
-    (index) => record.Elements[index],
-    (index) => record.Substances[index],
-    true
+    Equation.CCM,
+    (index) => Equation.Elements[index],
+    (index) => Equation.Labels[index],
+    (index) => Equation.Substances[index]
   );
 
   const tableRREF = createTable(
-    record.RREF,
-    (index) => '0' + ' = ',
-    (index) => record.Labels[index]
+    Equation.RREF,
+    (index) => "0" + " = ",
+    (index) => Equation.Labels[index]
   );
 
   recordDiv.innerHTML = `
     <h3>${identifier}</h3>
     <p>
     We begin by expressing the original equation
-    <p class="cre">${record.OriginalEquationString}</p>
+    <p class="cre">${Equation.OriginalEquationString}</p>
     in its generalized form
-    <p class="cre">${constructGeneralizedEquation(record)}</p>
+    <p class="cre">${constructGeneralizedEquation(Equation)}</p>
     </p>
-    <p>Following this, a chemical composition matrix (CCM) is constructed.
-    The matrix columns represent the substances involved in the reaction, while the rows indicate the constituent chemical elements: ${
+    <p>Following this, a chemical composition matrix (CCM) is constructed: ${
       tableCCM.outerHTML
     }</p>
     <p>The CCM is transformed into its reduced row echelon form (RREF) using Gaussian elimination: ${
       tableRREF.outerHTML
     }</p>`;
 
-  if (record.GeneralizedSolution.Success === false) {
+  if (Equation.GeneralizedSolution.Success === false) {
     recordDiv.innerHTML += `
       <p>That results in an identity matrix, indicating that it's impossible to balance the provided equation.</p>
       `;
   } else {
     const tableExpressions = createTable(
-      record.GeneralizedSolution.AlgebraicExpressions.filter((item) =>
+      Equation.GeneralizedSolution.AlgebraicExpressions.filter((item) =>
         item.includes(" = ")
-      ).map((item) => [item.split('=')[1].trim()]),
-      (index) => record.Labels[index] + ' = ',
+      ).map((item) => [item.split("=")[1].trim()]),
+      (index) => Equation.Labels[index] + " = ",
       () => "Expression"
     );
 
     recordDiv.innerHTML += `
       <p>
       The RREF demonstrates how all coefficients can be expressed as linear functions of <u>${
-        record.GeneralizedSolution.FreeVariableIndices.length > 1
+        Equation.GeneralizedSolution.FreeVariableIndices.length > 1
           ? "free variables"
           : "the free variable"
-      }
-        ${record.GeneralizedSolution.FreeVariableIndices.map(
-          (index) => record.Labels[index]
-        ).join(", ")}</u>:
+      }</u><b>
+        ${Equation.GeneralizedSolution.FreeVariableIndices.map(
+          (index) => Equation.Labels[index]
+        ).join(", ")}</b>:
         ${tableExpressions.outerHTML}
       </p>`;
 
-    if (record.GeneralizedSolution.FreeVariableIndices.length === 1) {
+    if (Equation.GeneralizedSolution.FreeVariableIndices.length === 1) {
       const tableFoundSolution = createTable(
-        record.Labels.map((item, index) => [
-          record.GeneralizedSolution.SimplestSolution[index],
+        Equation.Labels.map((item, index) => [
+          Equation.GeneralizedSolution.SimplestSolution[index],
         ]),
-        (index) => record.Labels[index] + ' = ',
+        (index) => Equation.Labels[index] + " = ",
         () => "Value"
       );
 
-      recordDiv.innerHTML += `<p>The next step is determining a value of the free variable that yields integer coefficients - 
-      ${record.Labels[record.GeneralizedSolution.FreeVariableIndices[0]]} equal to <u>the least common multiple of all the denominators</u> results in: ${tableFoundSolution.outerHTML}</p>
+      recordDiv.innerHTML += `<p>The next step is determining a value of the free variable that yields integer coefficients. Setting 
+      <b>${
+        Equation.Labels[Equation.GeneralizedSolution.FreeVariableIndices[0]]
+      }</b> equal to <u>the least common multiple of all the denominators</u> results in: ${
+        tableFoundSolution.outerHTML
+      }</p>
+      <p>So the final solution is <p class="cre">${AssembleEquationString(
+        Equation.Substances,
+        Equation.GeneralizedSolution.SimplestSolution
+      )}</p></p>
       `;
     } else {
-      if (record.InverseBasedSolution.Success) {
+      if (Equation.InverseBasedSolution.Success) {
         const tableSubreactions = createTable(
-          record.InverseBasedSolution.IndependentReactions,
-          (index) => (index + 1).toString(),
-          (index) => record.Substances[index]
+          Equation.InverseBasedSolution.IndependentReactions,
+          (index) => "0" + " = ",
+          (index) => Equation.Substances[index]
         );
         recordDiv.innerHTML += `<p>Any integer solutions will be a linear combination of these 'subreactions': ${tableSubreactions.outerHTML} </p>`;
 
-        if (record.InverseBasedSolution.CombinationSample.Item2) {
+        if (Equation.InverseBasedSolution.CombinationSample.Item2) {
           const tableCombination = createTable(
-            record.Labels.map((item, index) => [
-                record.InverseBasedSolution.CombinationSample.Item2[index],
+            Equation.Labels.map((item, index) => [
+              Equation.InverseBasedSolution.CombinationSample.Item2[index],
             ]),
-            (index) => record.Labels[index] + ' = ',
+            (index) => Equation.Labels[index] + " = ",
             () => "Value"
           );
           recordDiv.innerHTML += `</p>For example, ${
             "(" +
-            record.InverseBasedSolution.CombinationSample.Item1.join(", ") +
+            Equation.InverseBasedSolution.CombinationSample.Item1.join(", ") +
             ")"
           } combination of those yields ${tableCombination.outerHTML}</p>`;
         }
@@ -110,8 +119,6 @@ function MakeJsonReadable(record, identifier) {
         recordDiv.innerHTML += `<p>Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. </p>`;
       }
     }
-
-    recordDiv.innerHTML += `Negative coefficients indicate a reactant, positive values denote produced substances. A coefficient of zero signifies that the substance is not a part of the reaction.`;
   }
 
   recordDiv.style.border = "1px solid black";
@@ -121,7 +128,6 @@ function MakeJsonReadable(record, identifier) {
 }
 
 function constructGeneralizedEquation(record) {
-  const INTERPUNCT = "\u00B7";
   let result = "";
   result = Array.from(
     { length: record.Substances.length },
@@ -130,7 +136,12 @@ function constructGeneralizedEquation(record) {
   return result + " = 0";
 }
 
-function createTable(data, rowLabelFunc, columnLabelFunc, matrix = true) {
+function createTable(
+  data,
+  rowLabelFunc,
+  labelColumnHeader,
+  labelColumnFooter = null
+) {
   const table = document.createElement("table");
   table.classList.add("matrix");
 
@@ -139,10 +150,11 @@ function createTable(data, rowLabelFunc, columnLabelFunc, matrix = true) {
   tableRowOfColumnHeaders.appendChild(document.createElement("th"));
   for (let index = 0; index < data[0].length; index++) {
     const currentHeader = document.createElement("th");
-    currentHeader.innerHTML = columnLabelFunc(index);
+    currentHeader.innerHTML = labelColumnHeader(index);
     tableRowOfColumnHeaders.appendChild(currentHeader);
   }
   tableHead.appendChild(tableRowOfColumnHeaders);
+  table.appendChild(tableHead);
 
   const tableBody = document.createElement("tbody");
   data.forEach((dataRow, dataRowIndex) => {
@@ -161,8 +173,41 @@ function createTable(data, rowLabelFunc, columnLabelFunc, matrix = true) {
     });
     tableBody.appendChild(currentRow);
   });
-
-  table.appendChild(tableHead);
   table.appendChild(tableBody);
+
+  if (labelColumnFooter != null) {
+    const tableFoot = document.createElement("tfoot");
+    const tableRowOfColumnFooters = document.createElement("tr");
+    tableRowOfColumnFooters.appendChild(document.createElement("th"));
+    for (let index = 0; index < data[0].length; index++) {
+      const cell = document.createElement("th");
+      cell.innerHTML = labelColumnFooter(index);
+      tableRowOfColumnFooters.appendChild(cell);
+    }
+    tableFoot.appendChild(tableRowOfColumnFooters);
+    table.appendChild(tableFoot);
+  }
+
   return table;
+}
+
+function AssembleEquationString(substances, coefs) {
+  const lhs = [];
+  const rhs = [];
+
+  for (let i = 0; i < coefs.length; i++) {
+    if (coefs[i] == 0) {
+      continue;
+    }
+
+    console.debug(coefs[i]);
+    let token = coefs[i] == 1 || coefs[i] == -1? "" : Math.abs(coefs[i]);
+    if (token !== "") {
+      token += INTERPUNCT;
+    }
+
+    ((coefs[i] > 0) ? rhs : lhs).push(token + substances[i]);
+  }
+
+  return lhs.join(" + ") + " = " + rhs.join(" + ");
 }
