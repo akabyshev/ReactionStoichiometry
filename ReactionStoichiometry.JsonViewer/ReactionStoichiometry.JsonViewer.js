@@ -34,9 +34,9 @@ function MakeJsonReadable(Equation, identifier) {
   recordDiv.innerHTML = `
     <h3>${identifier}</h3>
     <p>
-    We begin by expressing the original equation
+    We begin by expressing the original input
     <p class="cre">${Equation.OriginalEquationString}</p>
-    in its generalized form
+    in generalized form of
     <p class="cre">${constructGeneralizedEquation(Equation)}</p>
     </p>
     <p>Following this, a chemical composition matrix (CCM) is constructed: ${
@@ -99,7 +99,7 @@ function MakeJsonReadable(Equation, identifier) {
           (index) => "0" + " = ",
           (index) => Equation.Substances[index]
         );
-        recordDiv.innerHTML += `<p>Any integer solutions will be a linear combination of these 'subreactions': ${tableSubreactions.outerHTML} </p>`;
+        recordDiv.innerHTML += `<p>Any integer solution will be a combination of these 'subreactions': ${tableSubreactions.outerHTML} </p>`;
 
         if (Equation.InverseBasedSolution.CombinationSample.Item2) {
           const tableCombination = createTable(
@@ -113,7 +113,11 @@ function MakeJsonReadable(Equation, identifier) {
             "(" +
             Equation.InverseBasedSolution.CombinationSample.Item1.join(", ") +
             ")"
-          } combination of those yields ${tableCombination.outerHTML}</p>`;
+          } combination of those yields ${tableCombination.outerHTML}</p>
+          <p class="cre">${AssembleEquationString(
+            Equation.Substances,
+            Equation.InverseBasedSolution.CombinationSample.Item2
+          )}</p>`;
         }
       } else {
         recordDiv.innerHTML += `<p>Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. </p>`;

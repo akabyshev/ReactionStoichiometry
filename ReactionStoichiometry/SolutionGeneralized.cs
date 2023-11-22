@@ -160,7 +160,7 @@ namespace ReactionStoichiometry
 
                 var row = Equation.RREF.Row(rowIndex);
                 row[Array.FindIndex(row, match: static r => r.IsOne)] = 0; // remove the leading 1
-                var calculated = FreeCoefficientIndices.Aggregate(Rational.Zero, func: (cumulative, c) => cumulative + (row[c] * result[c]).CanonicalForm);
+                var calculated = FreeCoefficientIndices.Aggregate(Rational.Zero, func: (cumulative, c) => cumulative + (row[c] * result[c])).CanonicalForm;
                 AppSpecificException.ThrowIf(calculated.Denominator != 1, message: "Non-integer coefficient, try other SLE params");
                 result[i] = -calculated.Numerator;
             }

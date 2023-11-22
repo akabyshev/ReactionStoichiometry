@@ -122,9 +122,15 @@
   font-family: Arial, sans-serif;
 }
 
-.cre p {
-    width: 100%;
+p.cre {
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
     font-family: monospace;
+    font-size: large;
+    text-align: center;
+    border: 1px solid gray;
+    padding: 10px;
 }
 
 table.matrix {
@@ -223,9 +229,9 @@ function MakeJsonReadable(Equation, identifier) {
   recordDiv.innerHTML = `
     &lt;h3&gt;${identifier}&lt;/h3&gt;
     &lt;p&gt;
-    We begin by expressing the original equation
+    We begin by expressing the original input
     &lt;p class="cre"&gt;${Equation.OriginalEquationString}&lt;/p&gt;
-    in its generalized form
+    in generalized form of
     &lt;p class="cre"&gt;${constructGeneralizedEquation(Equation)}&lt;/p&gt;
     &lt;/p&gt;
     &lt;p&gt;Following this, a chemical composition matrix (CCM) is constructed: ${
@@ -288,7 +294,7 @@ function MakeJsonReadable(Equation, identifier) {
           (index) =&gt; "0" + " = ",
           (index) =&gt; Equation.Substances[index]
         );
-        recordDiv.innerHTML += `&lt;p&gt;Any integer solutions will be a linear combination of these 'subreactions': ${tableSubreactions.outerHTML} &lt;/p&gt;`;
+        recordDiv.innerHTML += `&lt;p&gt;Any integer solution will be a combination of these 'subreactions': ${tableSubreactions.outerHTML} &lt;/p&gt;`;
 
         if (Equation.InverseBasedSolution.CombinationSample.Item2) {
           const tableCombination = createTable(
@@ -302,7 +308,11 @@ function MakeJsonReadable(Equation, identifier) {
             "(" +
             Equation.InverseBasedSolution.CombinationSample.Item1.join(", ") +
             ")"
-          } combination of those yields ${tableCombination.outerHTML}&lt;/p&gt;`;
+          } combination of those yields ${tableCombination.outerHTML}&lt;/p&gt;
+          &lt;p class="cre"&gt;${AssembleEquationString(
+            Equation.Substances,
+            Equation.InverseBasedSolution.CombinationSample.Item2
+          )}&lt;/p&gt;`;
         }
       } else {
         recordDiv.innerHTML += `&lt;p&gt;Discover a solution instance by utilizing a calculator, Excel, or the 'Instantiation' feature in our GUI. &lt;/p&gt;`;

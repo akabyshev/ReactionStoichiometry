@@ -27,7 +27,7 @@ Module Program
     Private Function IsReactionEquationBalanced(eq As String)
         Dim parts = eq.Split("="c, "+"c)
         Dim border = eq.Split("="c)(0).Split("+"c).Length
-        Dim coefficients As List(Of BigInteger) = New List(Of BigInteger)()
+        Dim coefficients = New List(Of BigInteger)()
         For i As Integer = LBound(parts) To UBound(parts) Step 1
             Dim part As String = parts(i)
             Dim coefstr As String = IIf(part.Contains(GlobalConstants.MULTIPLICATION_SYMBOL),

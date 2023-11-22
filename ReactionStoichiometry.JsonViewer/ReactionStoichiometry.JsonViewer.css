@@ -2,9 +2,15 @@ body {
   font-family: Arial, sans-serif;
 }
 
-.cre p {
-    width: 100%;
+p.cre {
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
     font-family: monospace;
+    font-size: large;
+    text-align: center;
+    border: 1px solid gray;
+    padding: 10px;
 }
 
 table.matrix {

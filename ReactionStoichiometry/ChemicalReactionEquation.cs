@@ -7,11 +7,13 @@ namespace ReactionStoichiometry
 {
     public sealed class ChemicalReactionEquation
     {
+        private readonly Lazy<SolutionGeneralized> _lazyGeneralizedSolution;
         [JsonProperty(PropertyName = "GeneralizedSolution")]
-        public readonly SolutionGeneralized GeneralizedSolution;
+        public SolutionGeneralized GeneralizedSolution => _lazyGeneralizedSolution.Value;
 
+        private readonly Lazy<SolutionInverseBased> _lazyInverseBasedSolution;
         [JsonProperty(PropertyName = "InverseBasedSolution")]
-        public readonly SolutionInverseBased InverseBasedSolution;
+        public SolutionInverseBased InverseBasedSolution => _lazyInverseBasedSolution.Value;
 
         [JsonProperty(PropertyName = "Substances")]
         public readonly IReadOnlyList<String> Substances;
@@ -61,8 +63,8 @@ namespace ReactionStoichiometry
             CompositionMatrixRank = RREF.RowCount();
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
 
-            GeneralizedSolution = new SolutionGeneralized(this);
-            InverseBasedSolution = new SolutionInverseBased(this);
+            _lazyGeneralizedSolution = new Lazy<SolutionGeneralized>(new SolutionGeneralized(this));
+            _lazyInverseBasedSolution = new Lazy<SolutionInverseBased>(new SolutionInverseBased(this));
         }
 
         public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
