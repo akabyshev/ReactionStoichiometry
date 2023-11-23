@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
             containerInput = new GroupBox();
             textBoxInput = new TextBox();
             buttonBalance = new Button();
@@ -47,6 +47,8 @@
             txtInstance = new TextBox();
             tabPermutate = new TabPage();
             listPermutator = new ListBox();
+            tabIndependentSets = new TabPage();
+            listIndependentSets = new ListBox();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
             tabHtml.SuspendLayout();
@@ -54,6 +56,7 @@
             tabInstantiate.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).BeginInit();
             tabPermutate.SuspendLayout();
+            tabIndependentSets.SuspendLayout();
             SuspendLayout();
             // 
             // containerInput
@@ -85,7 +88,7 @@
             // 
             buttonBalance.Dock = DockStyle.Right;
             buttonBalance.Enabled = false;
-            buttonBalance.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            buttonBalance.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             buttonBalance.Location = new Point(1697, 43);
             buttonBalance.Name = "buttonBalance";
             buttonBalance.Size = new Size(188, 180);
@@ -97,7 +100,7 @@
             // txtGeneralForm
             // 
             txtGeneralForm.Dock = DockStyle.Bottom;
-            txtGeneralForm.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            txtGeneralForm.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             txtGeneralForm.Location = new Point(3, 223);
             txtGeneralForm.Name = "txtGeneralForm";
             txtGeneralForm.ReadOnly = true;
@@ -110,6 +113,7 @@
             theTabControl.Controls.Add(tabHtml);
             theTabControl.Controls.Add(tabInstantiate);
             theTabControl.Controls.Add(tabPermutate);
+            theTabControl.Controls.Add(tabIndependentSets);
             theTabControl.Dock = DockStyle.Fill;
             theTabControl.Location = new Point(0, 273);
             theTabControl.Name = "theTabControl";
@@ -159,39 +163,38 @@
             gridCoefficients.AllowUserToOrderColumns = true;
             gridCoefficients.AllowUserToResizeRows = false;
             gridCoefficients.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.BackColor = SystemColors.Control;
-            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
-            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
-            gridCoefficients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = SystemColors.Control;
+            dataGridViewCellStyle4.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            dataGridViewCellStyle4.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
+            gridCoefficients.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             gridCoefficients.ColumnHeadersHeight = 58;
             gridCoefficients.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             gridCoefficients.Columns.AddRange(new DataGridViewColumn[] { Substance, Coefficient, Value, IsFreeVariable });
-            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle2.BackColor = SystemColors.Window;
-            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
-            gridCoefficients.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle5.BackColor = SystemColors.Window;
+            dataGridViewCellStyle5.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle5.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = DataGridViewTriState.False;
+            gridCoefficients.DefaultCellStyle = dataGridViewCellStyle5;
             gridCoefficients.Dock = DockStyle.Fill;
             gridCoefficients.Location = new Point(3, 3);
             gridCoefficients.Name = "gridCoefficients";
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle3.BackColor = SystemColors.Control;
-            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
-            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle3.Padding = new Padding(8, 2, 0, 2);
-            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
-            gridCoefficients.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle6.BackColor = SystemColors.Control;
+            dataGridViewCellStyle6.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle6.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle6.Padding = new Padding(8, 2, 0, 2);
+            dataGridViewCellStyle6.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
+            gridCoefficients.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             gridCoefficients.RowHeadersWidth = 58;
             gridCoefficients.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            gridCoefficients.RowTemplate.Height = 49;
             gridCoefficients.ScrollBars = ScrollBars.Vertical;
             gridCoefficients.SelectionMode = DataGridViewSelectionMode.CellSelect;
             gridCoefficients.ShowCellToolTips = false;
@@ -241,7 +244,7 @@
             // txtInstance
             // 
             txtInstance.Dock = DockStyle.Bottom;
-            txtInstance.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            txtInstance.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             txtInstance.Location = new Point(3, 601);
             txtInstance.Name = "txtInstance";
             txtInstance.ReadOnly = true;
@@ -272,6 +275,27 @@
             listPermutator.TabStop = false;
             listPermutator.MouseDoubleClick += OnListMouseDoubleClick;
             // 
+            // tabIndependentSets
+            // 
+            tabIndependentSets.Controls.Add(listIndependentSets);
+            tabIndependentSets.Location = new Point(10, 58);
+            tabIndependentSets.Name = "tabIndependentSets";
+            tabIndependentSets.Padding = new Padding(3);
+            tabIndependentSets.Size = new Size(1868, 651);
+            tabIndependentSets.TabIndex = 4;
+            tabIndependentSets.Text = "Independent sets";
+            tabIndependentSets.UseVisualStyleBackColor = true;
+            // 
+            // listBox1
+            // 
+            listIndependentSets.Dock = DockStyle.Fill;
+            listIndependentSets.FormattingEnabled = true;
+            listIndependentSets.ItemHeight = 41;
+            listIndependentSets.Location = new Point(3, 3);
+            listIndependentSets.Name = "listIndependentSets";
+            listIndependentSets.Size = new Size(1862, 645);
+            listIndependentSets.TabIndex = 0;
+            // 
             // FormMain
             // 
             AutoScaleMode = AutoScaleMode.None;
@@ -291,6 +315,7 @@
             tabInstantiate.PerformLayout();
             ((System.ComponentModel.ISupportInitialize) gridCoefficients).EndInit();
             tabPermutate.ResumeLayout(false);
+            tabIndependentSets.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -312,5 +337,7 @@
         private DataGridViewTextBoxColumn Coefficient;
         private DataGridViewTextBoxColumn Value;
         private DataGridViewCheckBoxColumn IsFreeVariable;
+        private TabPage tabIndependentSets;
+        private ListBox listIndependentSets;
     }
 }

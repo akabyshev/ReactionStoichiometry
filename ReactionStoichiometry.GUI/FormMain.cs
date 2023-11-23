@@ -106,6 +106,14 @@ namespace ReactionStoichiometry.GUI
                 InitPermutation();
                 webviewResult.NavigateToString(GetHtmlContentFromJson(_equation.ToJson()));
                 theTabControl.Enabled = true;
+
+                if (_equation.InverseBasedSolution.Success && _equation.InverseBasedSolution.IndependentSetsOfCoefficients!.Count > 1)
+                {
+                    foreach (var ir in _equation.InverseBasedSolution.IndependentSetsOfCoefficients)
+                    {
+                        listIndependentSets.Items.Add(_equation.EquationWithIntegerCoefficients(ir));
+                    }
+                }
             }
             else
             {
