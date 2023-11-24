@@ -64,6 +64,9 @@ namespace ReactionStoichiometry.GUI
             txtInstance.Text = String.Empty;
             listPermutator.Items.Clear();
             gridCoefficients.Rows.Clear();
+            listIndependentSets.Items.Clear();
+
+            tabIndependentSets.Enabled = false;
 
             buttonBalance.Enabled = ChemicalReactionEquation.IsValidString(textBoxInput.Text);
         }
@@ -113,6 +116,7 @@ namespace ReactionStoichiometry.GUI
                     {
                         listIndependentSets.Items.Add(_equation.EquationWithIntegerCoefficients(ir));
                     }
+                    tabIndependentSets.Enabled = true;
                 }
             }
             else

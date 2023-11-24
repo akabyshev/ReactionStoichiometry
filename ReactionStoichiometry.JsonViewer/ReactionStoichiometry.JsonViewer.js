@@ -1,4 +1,5 @@
 const INTERPUNCT = "\u00B7";
+const EQUILIBRIUM = '\u21CC';
 
 function MakeJsonReadable(Equation, identifier) {
   Equation.Substances = Equation.Substances.map((substance) =>
@@ -51,14 +52,11 @@ function MakeJsonReadable(Equation, identifier) {
     thirdMatrix = `That results in an identity matrix, indicating that <u>it's impossible to balance the equation</u>.`;
   } else {
     Equation.GeneralizedSolution.FreeVariableIndices.forEach((index) => Equation.Labels[index] = `<mark>${Equation.Labels[index]}</mark>`);
-    thirdMatrix = `The RREF shows how all coefficients can be expressed via <u>${
+    thirdMatrix = `The RREF shows how all coefficients can be expressed via <mark>${Equation.GeneralizedSolution.FreeVariableIndices.length} ${
       Equation.GeneralizedSolution.FreeVariableIndices.length > 1
         ? "free variables"
-        : "the free variable"
-    }</u>
-    ${Equation.GeneralizedSolution.FreeVariableIndices.map(
-      (index) => Equation.Labels[index]
-    ).join(", ")}:
+        : "free variable"
+    }</mark>:
     ${
       createTable(
         Equation.GeneralizedSolution.AlgebraicExpressions.map((item) => item.includes('=')?[item.split("=")[1].trim()]:["<i>free</i>"]),
@@ -87,7 +85,7 @@ function MakeJsonReadable(Equation, identifier) {
       recordDiv.innerHTML += `
       <div class="multiple-columns-container">
         <div class="first-column">
-        Establishing the free variable as <u>the lowest common multiple among the denominators of non-zero expressions</u> produces: ${
+        The free variable equal to <u>the lowest common multiple among the denominators of non-zero expressions</u> produces all-integer solution of: ${
         createTable(
           Equation.Labels.map((item, index) => [
             Equation.GeneralizedSolution.SimplestSolution[index],
@@ -106,8 +104,14 @@ function MakeJsonReadable(Equation, identifier) {
       </div>
       `;
     } else {
-      var firstResult, secondResult;
+      var inverseMatrix, firstResult, secondResult;
       if (Equation.InverseBasedSolution.Success) {
+        inverseMatrix = createTable(
+          Equation.InverseBasedSolution.InverseMatrix,
+          (index) => index,
+          (index) => index,
+        ).outerHTML;
+
         tableInverseBasedReactions = createTable(
           Equation.InverseBasedSolution.IndependentSetsOfCoefficients,
           (index) => "0" + " = ",
@@ -115,7 +119,7 @@ function MakeJsonReadable(Equation, identifier) {
         );
         firstResult = `Any balancing solution is a combination of the following 'independent reactions': ${tableInverseBasedReactions.outerHTML}
         ${Equation.InverseBasedSolution.IndependentSetsOfCoefficients.map((vector) =>
-          `<p class="cre">${AssembleEquationString(Equation.Substances, vector)}`)}`;
+          `<p class="cre">${AssembleEquationString(Equation.Substances, vector, true)}`)}`;
 
         if (Equation.InverseBasedSolution.CombinationSample.Item2) {
           const tableCombination = createTable(
@@ -134,15 +138,24 @@ function MakeJsonReadable(Equation, identifier) {
         }
         else
         {
-          secondResult = `Use 'Instantiation tool' of the GUI`
+          secondResult = `We couldn't find a simple combination of those. Use 'Instantiation tool' in the GUI`
         }
+      }
+      else
+      {
+        inverseMatrix = "Determinant of augmented RREF is 0, and RREF<sup>-1</sup> does not exist";
+        firstResult = "WE FAILED";
+        secondResult = "SO SORRY";
       }
       recordDiv.innerHTML += `
       <div class="multiple-columns-container">
         <div class="first-column">
-          ${firstResult}
+          ${inverseMatrix}
         </div>
         <div class="second-column">
+          ${firstResult}
+        </div>
+        <div class="third-column">
           ${secondResult}
         </div>
       </div>
@@ -217,7 +230,7 @@ function createTable(
   return table;
 }
 
-function AssembleEquationString(substances, coefs) {
+function AssembleEquationString(substances, coefs, useEquilibriumSign = false) {
   const lhs = [];
   const rhs = [];
 
@@ -234,5 +247,5 @@ function AssembleEquationString(substances, coefs) {
     (coefs[i] > 0 ? rhs : lhs).push(token + substances[i]);
   }
 
-  return lhs.join(" + ") + " = " + rhs.join(" + ");
+  return lhs.join(" + ") + " " + (useEquilibriumSign?EQUILIBRIUM:"=") + " " + rhs.join(" + ");
 }

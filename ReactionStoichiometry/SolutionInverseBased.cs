@@ -13,17 +13,18 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "IndependentSetsOfCoefficients")]
         public readonly ReadOnlyCollection<BigInteger[]>? IndependentSetsOfCoefficients;
 
+        [JsonProperty(PropertyName = "InverseMatrix")]
+        [JsonConverter(typeof(RationalArrayJsonConverter))]
+        internal readonly Rational[,]? InverseMatrix;
+
         internal SolutionInverseBased(ChemicalReactionEquation equation) : base(equation)
         {
             try
             {
                 AppSpecificException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
+                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount(), message: "The method fails on this kind of equations");
 
-                Rational[,] inverse;
                 {
-                    AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount()
-                                               , message: "The method fails on this kind of equations");
-
                     var square = new Rational[Equation.RREF.ColumnCount(), Equation.RREF.ColumnCount()];
                     Array.Copy(Equation.RREF, square, Equation.RREF.Length);
                     for (var r = Equation.RREF.RowCount(); r < square.RowCount(); r++)
@@ -34,31 +35,26 @@ namespace ReactionStoichiometry
                         }
                     }
 
-                    inverse = square.GetInverse();
+                    InverseMatrix = square.GetInverse();
                 }
 
-                IndependentSetsOfCoefficients = Enumerable.Range(inverse.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
-                                                 .Select(selector: c => inverse.Column(c).ScaleToIntegers())
-                                                 .ToList()
-                                                 .AsReadOnly();
-                if (IndependentSetsOfCoefficients.Count == 1)
+                IndependentSetsOfCoefficients = Enumerable
+                                                .Range(InverseMatrix.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
+                                                .Select(selector: c => InverseMatrix.Column(c).ScaleToIntegers())
+                                                .ToList()
+                                                .AsReadOnly();
+
+                CombinationSample = (null, null);
+                if (IndependentSetsOfCoefficients.Count > 1)
                 {
-                    CombinationSample = (null, null);
-                }
-                else
-                {
-                    var weights = new Int32[IndependentSetsOfCoefficients.Count];
-
-                    for (var i = 0; i < weights.Length; i++)
+                    foreach (var recipe in Helpers.GeneratePermutations(IndependentSetsOfCoefficients.Count, maxValue: 5))
                     {
-                        weights[i] = i + 1; //weights[weights.Length - 1 - i] = i + 1;
-                    }
-
-                    var combination = GetCombinationOfIndependents(weights);
-
-                    if (combination != null)
-                    {
-                        CombinationSample = (weights, combination);
+                        var combination = GetCombinationOfIndependents(recipe);
+                        if (combination != null)
+                        {
+                            CombinationSample = (recipe, combination);
+                            break;
+                        }
                     }
                 }
 

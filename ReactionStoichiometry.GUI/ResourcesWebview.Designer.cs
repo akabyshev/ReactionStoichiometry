@@ -65,35 +65,30 @@ namespace ReactionStoichiometry.GUI {
         ///  font-family: Arial, sans-serif;
         ///}
         ///
-        ///.cre p {
-        ///    width: 100%;
+        ///p.cre {
+        ///    margin-left: auto;
+        ///    margin-right: auto;
+        ///    width: 80%;
         ///    font-family: monospace;
+        ///    font-size: large;
+        ///    text-align: center;
+        ///    border: 1px solid gray;
+        ///    padding: 10px;
+        ///    word-wrap: break-word;
         ///}
         ///
-        ///table {
-        ///  table-layout: fixed;
-        ///  width: auto;
-        ///  font-family: monospace;
-        ///}
-        ///
-        ///th {
-        ///  width: auto; 
-        ///  white-space: nowrap;
+        ///table.matrix {
+        ///  margin-left: auto;
+        ///  margin-right: auto;
+        ///  border: 2px solid #FFFFFF;
         ///  text-align: center;
-        ///  font-weight: normal;
+        ///  border-collapse: collapse;
+        ///  font-family: monospace;
+        ///  table-layout: fixed;
         ///}
         ///
-        ///.vertical-headers th {
-        ///    transform: rotate(180deg);
-        ///    writing-mode: vertical-lr;
-        ///    vertical-align: top;
-        ///  }
-        ///
-        ///thead,
-        ///tbody {
-        ///  vertical-align: middle;
-        ///  text-align: right;
-        ///}.
+        ///table.matrix thead {
+        ///  border [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string cssContent {
             get {
@@ -108,15 +103,13 @@ namespace ReactionStoichiometry.GUI {
         ///	&lt;meta charset=&quot;UTF-8&quot;&gt;
         ///    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
         ///    &lt;title&gt;ReactionStoichiometry.JsonViewer&lt;/title&gt;
-        ///	&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;ReactionStoichiometry.JsonViewer.css&quot;&gt;
+        ///	&lt;link href=&quot;https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;ReactionStoichiometry.JsonViewer.css&quot;&gt;
         ///    &lt;style type=&apos;text/css&apos;&gt;%cssContent%&lt;/style&gt;
         ///&lt;/head&gt;
         ///&lt;body&gt;
         ///    &lt;script type=&apos;text/javascript&apos;&gt;
         ///        %jsContent%;
-        ///        const jsonobject = %jsonContent%;
-        ///        MakeJsonReadable(jsonobject, &quot;Solution&quot;);
-        ///    &lt;/scri [rest of string was truncated]&quot;;.
+        ///        const json [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string htmlContent {
             get {
@@ -125,20 +118,21 @@ namespace ReactionStoichiometry.GUI {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to function MakeJsonReadable(record, identifier) {
-        ///  const recordDiv = document.createElement(&quot;div&quot;);
+        ///   Looks up a localized string similar to const INTERPUNCT = &quot;\u00B7&quot;;
+        ///const EQUILIBRIUM = &apos;\u21CC&apos;;
         ///
-        ///  record.Substances = record.Substances.map((substance) =&gt;
+        ///function MakeJsonReadable(Equation, identifier) {
+        ///  Equation.Substances = Equation.Substances.map((substance) =&gt;
         ///    substance.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;)
         ///  );
         ///
-        ///  record.Labels = record.Labels.map(
-        ///    (label) =&gt; &quot;&lt;i&gt;&quot; + label.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;) + &quot;&lt;/i&gt;&quot;
+        ///  Equation.Labels = Equation.Labels.map((label) =&gt;
+        ///    label.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;)
         ///  );
         ///
-        ///  if (record.GeneralizedSolution.AlgebraicExpressions) {
-        ///    record.GeneralizedSolution.AlgebraicExpressions =
-        ///      record.GeneralizedSolution.Algebraic [rest of string was truncated]&quot;;.
+        ///  if (Equation.GeneralizedSolution.AlgebraicExpressions) {
+        ///    Equation.GeneralizedSolution.AlgebraicExpressions =
+        ///      Equation.GeneralizedSolution.Al [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string jsContent {
             get {

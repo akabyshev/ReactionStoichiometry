@@ -6,8 +6,9 @@ p.cre {
     margin-left: auto;
     margin-right: auto;
     width: 80%;
-    font-family: monospace;
-    font-size: large;
+    /*font-family: monospace;*/
+    font-family: 'IBM Plex Sans';
+    font-size: larger;
     text-align: center;
     border: 1px solid gray;
     padding: 10px;

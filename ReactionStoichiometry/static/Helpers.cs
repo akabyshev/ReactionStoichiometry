@@ -46,5 +46,27 @@ namespace ReactionStoichiometry
             var divisor = wholes.Aggregate(BigInteger.GreatestCommonDivisor);
             return wholes.Select(selector: r => divisor != 0 ? r / divisor : r).ToArray();
         }
+
+        internal static List<Int32[]> GeneratePermutations(Int32 length, Int32 maxValue)
+        {
+            var permutations = new List<Int32[]>();
+            Generate(permutations, new Int32[length], maxValue, index: 0);
+            return permutations;
+
+            static void Generate(ICollection<Int32[]> permutations, Int32[] current, Int32 maxValue, Int32 index)
+            {
+                if (index == current.Length)
+                {
+                    permutations.Add((Int32[]) current.Clone());
+                    return;
+                }
+
+                for (var i = 1; i <= maxValue; i++)
+                {
+                    current[index] = i;
+                    Generate(permutations, current, maxValue, index + 1);
+                }
+            }
+        }
     }
 }

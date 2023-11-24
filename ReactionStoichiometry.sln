@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactionStoichiometry.CLI",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactionStoichiometry.Tests", "ReactionStoichiometry.Tests\ReactionStoichiometry.Tests.csproj", "{AE80049B-2DDE-4245-BF41-C89213ECD4E2}"
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "ReactionStoichiometry.ValidationTool", "ReactionStoichiometry.ValidationTool\ReactionStoichiometry.ValidationTool.vbproj", "{48029622-3556-4B03-A085-6819BF4C16D0}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "ReactionStoichiometry.ValidationTool", "ReactionStoichiometry.ValidationTool\ReactionStoichiometry.ValidationTool.vbproj", "{48029622-3556-4B03-A085-6819BF4C16D0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
