@@ -81,7 +81,7 @@
             textBoxInput.ScrollBars = ScrollBars.Vertical;
             textBoxInput.Size = new Size(1694, 180);
             textBoxInput.TabIndex = 5;
-            textBoxInput.Text = "C6H5C2H5 + O2 = C6H5OH + CO2 + H2O";
+            textBoxInput.Text = "H + H = H2";
             textBoxInput.TextChanged += On_textBoxInput_TextChanged;
             // 
             // buttonBalance

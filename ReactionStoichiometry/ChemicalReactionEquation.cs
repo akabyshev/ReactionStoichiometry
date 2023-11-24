@@ -53,10 +53,10 @@ namespace ReactionStoichiometry
         public ChemicalReactionEquation(String equationString)
         {
             InOriginalForm = equationString.Replace(oldValue: " ", String.Empty);
-
             AppSpecificException.ThrowIf(!IsValidString(InOriginalForm), message: "Invalid string");
 
-            Substances = InOriginalForm.Split('=', '+').Where(predicate: static s => s != "0").ToList();
+            Substances = InOriginalForm.Split('=', '+').Where(predicate: static s => s != "0").Distinct().ToList();
+
             Labels = Enumerable.Range(start: 0, Substances.Count).Select(selector: static i => 'x' + (i + 1).ToString(format: "D2")).ToList();
             FillCompositionMatrix(out CCM, out ChemicalElements);
             RREF = CCM.GetRREF(trim: true);
