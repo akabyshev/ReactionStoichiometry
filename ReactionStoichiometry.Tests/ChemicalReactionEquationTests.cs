@@ -13,6 +13,16 @@ namespace ReactionStoichiometry.Tests
         }
 
         [Fact]
+        public void LazyCalculations_Simple()
+        {
+            Assert.Null(Record.Exception(testCode: () => _ = new ChemicalReactionEquation(equationString: "H+H=H2")));
+            // this does not throw an exception because so Solutions are really calculated on that object
+
+            Assert.Throws<IndexOutOfRangeException>(testCode: () => _ = new ChemicalReactionEquation(equationString: "H+H=H2").GeneralizedSolution);
+            // here ctor throws an exception because GeneralizedSolution is actually created
+        }
+
+        [Fact]
         public void Validation_Simple()
         {
             var equation = new ChemicalReactionEquation(equationString: "H2+O2=H2O");

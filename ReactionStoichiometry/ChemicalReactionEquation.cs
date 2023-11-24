@@ -63,8 +63,8 @@ namespace ReactionStoichiometry
             CompositionMatrixRank = RREF.RowCount();
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
 
-            _lazyGeneralizedSolution = new Lazy<SolutionGeneralized>(new SolutionGeneralized(this));
-            _lazyInverseBasedSolution = new Lazy<SolutionInverseBased>(new SolutionInverseBased(this));
+            _lazyGeneralizedSolution = new Lazy<SolutionGeneralized>(() => new SolutionGeneralized(this));
+            _lazyInverseBasedSolution = new Lazy<SolutionInverseBased>(() => new SolutionInverseBased(this));
         }
 
         public String EquationWithIntegerCoefficients(BigInteger[] coefficients)
