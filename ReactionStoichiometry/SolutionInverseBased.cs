@@ -47,14 +47,25 @@ namespace ReactionStoichiometry
                 CombinationSample = (null, null);
                 if (IndependentSetsOfCoefficients.Count > 1)
                 {
-                    foreach (var recipe in Helpers.GeneratePermutations(IndependentSetsOfCoefficients.Count, maxValue: 5))
+                    var countOfReactantsInOriginal = equation.InOriginalForm.Split(separator: "=")[0].Split(separator: "+").Length;
+
+                    foreach (var combination in Helpers.GeneratePermutations(IndependentSetsOfCoefficients.Count, maxValue: 10))
                     {
-                        var combination = GetCombinationOfIndependents(recipe);
-                        if (combination != null)
+                        var candidate = CombineIndependents(combination);
+                        if (candidate.Any(static i => i == 0))
                         {
-                            CombinationSample = (recipe, combination);
-                            break;
+                            continue;
                         }
+                        if (candidate.Take(countOfReactantsInOriginal).Any(static i => i > 0))
+                        {
+                            continue;
+                        }
+                        if (candidate.Skip(countOfReactantsInOriginal).Any(static i => i < 0))
+                        {
+                            continue;
+                        }
+                        CombinationSample = (combination, candidate);
+                        break;
                     }
                 }
 
@@ -81,7 +92,7 @@ namespace ReactionStoichiometry
             AsDetailedMultilineString = GetAsDetailedMultilineString();
         }
 
-        internal BigInteger[]? GetCombinationOfIndependents(IReadOnlyList<Int32> weights)
+        internal BigInteger[] CombineIndependents(IReadOnlyList<Int32> combination)
         {
             var result = new BigInteger[IndependentSetsOfCoefficients![index: 0].Length];
 
@@ -89,11 +100,11 @@ namespace ReactionStoichiometry
             {
                 for (var c = 0; c < result.Length; c++)
                 {
-                    result[c] += IndependentSetsOfCoefficients[r][c] * weights[r];
+                    result[c] += IndependentSetsOfCoefficients[r][c] * combination[r];
                 }
             }
 
-            return result.Any(predicate: static v => v.IsZero) ? null : result.Select(selector: static i => new Rational(i)).ToArray().ScaleToIntegers();
+            return result.Select(selector: static i => new Rational(i)).ToArray().ScaleToIntegers();    // return 1,2,3 if result is 5,10,15
         }
     }
 }

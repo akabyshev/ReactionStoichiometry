@@ -75,14 +75,13 @@ namespace ReactionStoichiometry.Tests
             Assert.True(solution.Success);
             Assert.NotNull(solution.IndependentSetsOfCoefficients);
             Assert.Equal(expected: 2, solution.IndependentSetsOfCoefficients.Count);
-            Assert.Null(solution.GetCombinationOfIndependents(new[] { 0, 0 }));
-            Assert.Null(solution.GetCombinationOfIndependents(new[] { 1, 1 })); // C6H5C2H5 is -6 and +6
-            Assert.Null(solution.GetCombinationOfIndependents(new[] { 4, 5 })); // C6H5OH is -10*4 and +8*5
-            Assert.NotNull(solution.GetCombinationOfIndependents(new[] { 4, 6 }));
+            Assert.Equal(expected: new BigInteger[] { 6, -7, -10, 12, 0 }, solution.IndependentSetsOfCoefficients[index: 0]);
+            Assert.Equal(expected: new BigInteger[] { -6, -7, 8, 0, 6 }, solution.IndependentSetsOfCoefficients[index: 1]);
 
-            // implementation-specific:
-            Assert.Equal(new[] { 1, 2 }, solution.CombinationSample.weights);
-            Assert.NotNull(solution.CombinationSample.resultingCoefficients);
+            Assert.Equal(expected: new BigInteger[] { 0, 0, 0, 0, 0 }, solution.CombineIndependents(new[] { 0, 0 }));           // all-zero
+            Assert.Equal(expected: new BigInteger[] { 0, -14, -2, 12, 6 }, solution.CombineIndependents(new[] { 1, 1 }));       // C6H5C2H5 is -6 and +6
+            Assert.Equal(expected: new BigInteger[] { -6, -63, 0, 48, 30 }, solution.CombineIndependents(new[] { 4, 5 }));      // C6H5OH is -10*4 and +8*5
+            Assert.Equal(expected: new BigInteger[] { -12, -70, 8, 48, 36 }, solution.CombineIndependents(new[] { 4, 6 }));     // non-zero
         }
 
         [Fact]

@@ -117,7 +117,7 @@ function MakeJsonReadable(Equation, identifier) {
           (index) => "0" + " = ",
           (index) => Equation.Substances[index]
         );
-        firstResult = `Any balancing solution is a combination of the following 'independent reactions': ${tableInverseBasedReactions.outerHTML}
+        firstResult = `Any balancing solution is a combination of the following "reactions": ${tableInverseBasedReactions.outerHTML}
         ${Equation.InverseBasedSolution.IndependentSetsOfCoefficients.map((vector) =>
           `<p class="cre">${AssembleEquationString(Equation.Substances, vector, true)}`)}`;
 
