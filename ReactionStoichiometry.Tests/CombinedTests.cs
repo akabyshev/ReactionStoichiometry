@@ -17,16 +17,16 @@ namespace ReactionStoichiometry.Tests
                 var eq = parts[0];
 
                 var equation = new ChemicalReactionEquation(eq);
-                var inverseBased = equation.InverseBasedSolution;
-                var generalized = equation.GeneralizedSolution;
+                var inverseBased = equation.ColumnsBasedSolution;
+                var rbs = equation.RowsBasedSolution;
 
                 Assert.True(inverseBased.Success);
-                Assert.True(generalized.Success);
+                Assert.True(rbs.Success);
 
                 var instances = parts[1]
                                 .Split(separator: ';')
                                 .Select(StringOperations.GetParametersFromString)
-                                .Select(selector: parametersSet => equation.EquationWithIntegerCoefficients(generalized.Instantiate(parametersSet)));
+                                .Select(selector: parametersSet => equation.EquationWithIntegerCoefficients(rbs.Instantiate(parametersSet)));
 
                 Assert.Equal(inverseBased.ToString(OutputFormat.Multiline), String.Join(Environment.NewLine, instances));
             }
@@ -36,14 +36,14 @@ namespace ReactionStoichiometry.Tests
         public void ToString_Simple()
         {
             var equation = new ChemicalReactionEquation(equationString: "H2+O2=H2O");
-            Assert.True(equation.GeneralizedSolution.Success);
-            Assert.True(equation.InverseBasedSolution.Success);
+            Assert.True(equation.RowsBasedSolution.Success);
+            Assert.True(equation.ColumnsBasedSolution.Success);
 
-            Assert.NotEqual(equation.GeneralizedSolution.ToString(OutputFormat.DetailedMultiline)
-                          , equation.InverseBasedSolution.ToString(OutputFormat.DetailedMultiline));
-            Assert.NotEqual(equation.GeneralizedSolution.ToString(OutputFormat.Simple), equation.InverseBasedSolution.ToString(OutputFormat.Simple));
+            Assert.NotEqual(equation.RowsBasedSolution.ToString(OutputFormat.DetailedMultiline)
+                          , equation.ColumnsBasedSolution.ToString(OutputFormat.DetailedMultiline));
+            Assert.NotEqual(equation.RowsBasedSolution.ToString(OutputFormat.Simple), equation.ColumnsBasedSolution.ToString(OutputFormat.Simple));
 
-            Assert.Throws<ArgumentOutOfRangeException>(testCode: () => { _ = equation.InverseBasedSolution.ToString((OutputFormat)15); });
+            Assert.Throws<ArgumentOutOfRangeException>(testCode: () => { _ = equation.ColumnsBasedSolution.ToString((OutputFormat)15); });
         }
     }
 }

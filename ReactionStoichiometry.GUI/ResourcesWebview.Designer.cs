@@ -69,8 +69,9 @@ namespace ReactionStoichiometry.GUI {
         ///    margin-left: auto;
         ///    margin-right: auto;
         ///    width: 80%;
-        ///    font-family: monospace;
-        ///    font-size: large;
+        ///    /*font-family: monospace;*/
+        ///    font-family: &apos;IBM Plex Sans&apos;;
+        ///    font-size: larger;
         ///    text-align: center;
         ///    border: 1px solid gray;
         ///    padding: 10px;
@@ -84,11 +85,7 @@ namespace ReactionStoichiometry.GUI {
         ///  text-align: center;
         ///  border-collapse: collapse;
         ///  font-family: monospace;
-        ///  table-layout: fixed;
-        ///}
-        ///
-        ///table.matrix thead {
-        ///  border [rest of string was truncated]&quot;;.
+        ///  table-layout: fix [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string cssContent {
             get {
@@ -130,9 +127,9 @@ namespace ReactionStoichiometry.GUI {
         ///    label.replace(/(\d+(\.\d+)?)/g, &quot;&lt;sub&gt;$1&lt;/sub&gt;&quot;)
         ///  );
         ///
-        ///  if (Equation.GeneralizedSolution.AlgebraicExpressions) {
-        ///    Equation.GeneralizedSolution.AlgebraicExpressions =
-        ///      Equation.GeneralizedSolution.Al [rest of string was truncated]&quot;;.
+        ///  if (Equation.RowsBasedSolution.AlgebraicExpressions) {
+        ///    Equation.RowsBasedSolution.AlgebraicExpressions =
+        ///      Equation.RowsBasedSolution.Algebrai [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string jsContent {
             get {

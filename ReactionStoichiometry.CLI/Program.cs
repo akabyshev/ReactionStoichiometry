@@ -23,7 +23,7 @@ var equationString = Console.ReadLine();
 if (equationString != null && ChemicalReactionEquation.IsValidString(equationString))
 {
     var equation = new ChemicalReactionEquation(equationString);
-    var solution = equation.GeneralizedSolution;
+    var solution = equation.RowsBasedSolution;
     Console.WriteLine(solution.ToString(OutputFormat.DetailedMultiline));
     Console.WriteLine(equation.ToJson());
 }

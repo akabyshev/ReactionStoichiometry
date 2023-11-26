@@ -8,8 +8,8 @@
         {
             foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
             {
-                File.WriteAllText(ConstructPath(format.ToString(), str2: "BalancerGeneralized"), String.Empty);
-                File.WriteAllText(ConstructPath(format.ToString(), str2: "BalancerInverseBased"), String.Empty);
+                File.WriteAllText(ConstructPath(format.ToString(), str2: "RowBased"), String.Empty);
+                File.WriteAllText(ConstructPath(format.ToString(), str2: "ColumnsBased"), String.Empty);
             }
 
             using StreamWriter writerJson = new(path: "batch.json");
@@ -28,22 +28,19 @@
 
                 foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
                 {
-                    var filePathGeneralized = ConstructPath(format.ToString(), str2: "BalancerGeneralized");
-                    var filePathInverseBased = ConstructPath(format.ToString(), str2: "BalancerInverseBased");
-
-                    using StreamWriter writerGeneralized = new(filePathGeneralized, append: true);
-                    using StreamWriter writerInverseBased = new(filePathInverseBased, append: true);
+                    using StreamWriter writerRowBasedSolution = new(ConstructPath(format.ToString(), str2: "RowBased"), append: true);
+                    using StreamWriter writerColumnsBasedSolutions = new(ConstructPath(format.ToString(), str2: "ColumnsBased"), append: true);
 
                     if (format != OutputFormat.DetailedMultiline)
                     {
-                        writerGeneralized.WriteLine(line);
-                        writerInverseBased.WriteLine(line);
+                        writerRowBasedSolution.WriteLine(line);
+                        writerColumnsBasedSolutions.WriteLine(line);
                     }
 
-                    writerGeneralized.Write(equation.GeneralizedSolution.ToString(format));
-                    writerGeneralized.WriteLine(Environment.NewLine);
-                    writerInverseBased.Write(equation.InverseBasedSolution.ToString(format));
-                    writerInverseBased.WriteLine(Environment.NewLine);
+                    writerRowBasedSolution.Write(equation.RowsBasedSolution.ToString(format));
+                    writerRowBasedSolution.WriteLine(Environment.NewLine);
+                    writerColumnsBasedSolutions.Write(equation.ColumnsBasedSolution.ToString(format));
+                    writerColumnsBasedSolutions.WriteLine(Environment.NewLine);
                 }
 
                 writerJson.Write(equation.ToJson());

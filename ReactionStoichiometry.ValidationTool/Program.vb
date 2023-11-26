@@ -19,9 +19,8 @@ Module Program
         End If
 
         If Not IsReactionEquationBalanced(equationString) Then
-            Environment.ExitCode = -1
+            Environment.ExitCode = - 1
         End If
-
     End Sub
 
     Private Function IsReactionEquationBalanced(eq As String)
@@ -30,13 +29,14 @@ Module Program
         Dim coefficients = New List(Of BigInteger)()
         For i As Integer = LBound(parts) To UBound(parts) Step 1
             Dim part As String = parts(i)
-            Dim coefstr As String = IIf(part.Contains(GlobalConstants.MULTIPLICATION_SYMBOL),
-                              part.Split(GlobalConstants.MULTIPLICATION_SYMBOL)(0), "1")
-            Dim coefrat As Rational = Rational.ParseDecimal(coefstr) * IIf(i < border, New Rational(-1), New Rational(1))
-            If (coefrat.Denominator <> 1) Then
+            Dim cAsString As String = IIf(part.Contains(GlobalConstants.MULTIPLICATION_SYMBOL),
+                                          part.Split(GlobalConstants.MULTIPLICATION_SYMBOL)(0), "1")
+            Dim cAsRational As Rational = Rational.ParseDecimal(cAsString)*
+                                          IIf(i < border, New Rational(- 1), New Rational(1))
+            If (cAsRational.Denominator <> 1) Then
                 Throw New FormatException
             End If
-            coefficients.Add(coefrat.Numerator)
+            coefficients.Add(cAsRational.Numerator)
         Next
 
         Dim skeletal As String = Regex.Replace(eq, "\d+·", "")

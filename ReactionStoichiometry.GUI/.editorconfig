@@ -2,3 +2,6 @@
 
 # SYSLIB1045: Convert to 'GeneratedRegexAttribute'.
 dotnet_diagnostic.SYSLIB1045.severity = none
+
+# IDE0028: Simplify collection initialization
+dotnet_style_collection_initializer = false

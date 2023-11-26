@@ -5,28 +5,25 @@ using Rationals;
 
 namespace ReactionStoichiometry
 {
-    public sealed class SolutionGeneralized : Solution
+    public sealed class SolutionRowsBased : Solution
     {
         [JsonProperty(PropertyName = "AlgebraicExpressions")]
         public readonly ReadOnlyCollection<String>? AlgebraicExpressions;
 
         [JsonProperty(PropertyName = "SimplestSolution")]
         public readonly ReadOnlyCollection<BigInteger>? SimplestSolution;
-        // this can not be a tuple unlike CombinationSample of SolutionInverseBased, because the parameter is contained already
+        // this can not be a tuple unlike CombinationSample of SolutionColumnsBased, because the parameter is contained already
 
         [JsonProperty(PropertyName = "FreeVariableIndices")]
         internal readonly ReadOnlyCollection<Int32>? FreeCoefficientIndices;
 
-        internal SolutionGeneralized(ChemicalReactionEquation equation) : base(equation)
+        internal SolutionRowsBased(ChemicalReactionEquation equation) : base(equation)
         {
             try
             {
                 AppSpecificException.ThrowIf(Equation.RREF.IsIdentityMatrix(), message: "SLE is unsolvable");
 
-                FreeCoefficientIndices = Enumerable.Range(start: 0, Equation.RREF.ColumnCount())
-                                                   .Where(predicate: c => !ContainsOnlySingleOne(Equation.RREF.Column(c)))
-                                                   .ToList()
-                                                   .AsReadOnly();
+                FreeCoefficientIndices = Equation.SpecialColumnsOfRREF;
 
                 SimplestSolution = FreeCoefficientIndices.Count != 1 ?
                     null :
@@ -68,11 +65,6 @@ namespace ReactionStoichiometry
             AsDetailedMultilineString = GetAsDetailedMultilineString();
 
             return;
-
-            static Boolean ContainsOnlySingleOne(Rational[] array)
-            {
-                return array.Count(predicate: static r => !r.IsZero) == 1 && array.Count(predicate: static r => r.IsOne) == 1;
-            }
 
             List<String> GetAllExpressions()
             {

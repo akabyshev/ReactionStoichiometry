@@ -10,7 +10,7 @@ namespace ReactionStoichiometry.Tests
         {
             const String eq = "H2 + O2 = H2O";
             var equation = new ChemicalReactionEquation(eq);
-            Assert.NotEqual(GlobalConstants.FAILURE_MARK, equation.GeneralizedSolution.ToString(OutputFormat.Simple));
+            Assert.NotEqual(GlobalConstants.FAILURE_MARK, equation.RowsBasedSolution.ToString(OutputFormat.Simple));
             Assert.Null(Record.Exception(testCode: () => _ = equation.ToJson()));
         }
 
@@ -24,7 +24,7 @@ namespace ReactionStoichiometry.Tests
 
             const String eq = "H2 + O2 = H2O";
             var equation = new ChemicalReactionEquation(eq);
-            var converter = new RationalArrayJsonConverter();
+            var converter = new JsonConverterRationalMatrix();
             Assert.Throws<NotImplementedException>(testCode: () =>
                                                              {
                                                                  _ = JsonConvert.DeserializeObject<Rational[,]>(
@@ -38,7 +38,7 @@ namespace ReactionStoichiometry.Tests
         {
             Rational[,] matrix = { { 2, 0, 2 }, { 0, 2, 1 } };
             const String expectedSerialization = "[[\"2\",\"0\",\"2\"],[\"0\",\"2\",\"1\"]]";
-            var json = JsonConvert.SerializeObject(matrix, new RationalArrayJsonConverter());
+            var json = JsonConvert.SerializeObject(matrix, new JsonConverterRationalMatrix());
             Assert.Equal(expectedSerialization, json);
         }
     }

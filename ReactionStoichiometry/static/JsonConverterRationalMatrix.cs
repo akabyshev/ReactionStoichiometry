@@ -4,7 +4,7 @@ using Rationals;
 
 namespace ReactionStoichiometry
 {
-    internal sealed class RationalArrayJsonConverter : JsonConverter<Rational[,]>
+    internal sealed class JsonConverterRationalMatrix : JsonConverter<Rational[,]>
     {
         public override void WriteJson(JsonWriter writer, Rational[,]? data, JsonSerializer serializer)
         {

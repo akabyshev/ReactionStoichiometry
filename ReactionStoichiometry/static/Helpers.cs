@@ -57,7 +57,7 @@ namespace ReactionStoichiometry
             {
                 if (index == current.Length)
                 {
-                    permutations.Add((Int32[]) current.Clone());
+                    permutations.Add((Int32[])current.Clone());
                     return;
                 }
 

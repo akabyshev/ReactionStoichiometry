@@ -5,24 +5,31 @@ using Rationals;
 
 namespace ReactionStoichiometry
 {
-    public sealed class SolutionInverseBased : Solution
+    public sealed class SolutionColumnsBased : Solution
     {
-        [JsonProperty(PropertyName = "CombinationSample")]
-        internal readonly (Int32[]? weights, BigInteger[]? resultingCoefficients) CombinationSample;
-
         [JsonProperty(PropertyName = "IndependentSetsOfCoefficients")]
         public readonly ReadOnlyCollection<BigInteger[]>? IndependentSetsOfCoefficients;
 
+        [JsonProperty(PropertyName = "CombinationSample")]
+        internal readonly (Int32[]? weights, BigInteger[]? resultingCoefficients) CombinationSample;
+
         [JsonProperty(PropertyName = "InverseMatrix")]
-        [JsonConverter(typeof(RationalArrayJsonConverter))]
+        [JsonConverter(typeof(JsonConverterRationalMatrix))]
         internal readonly Rational[,]? InverseMatrix;
 
-        internal SolutionInverseBased(ChemicalReactionEquation equation) : base(equation)
+        internal SolutionColumnsBased(ChemicalReactionEquation equation) : base(equation)
         {
             try
             {
                 AppSpecificException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
-                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount(), message: "The method fails on this kind of equations");
+                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount(), message: "The method fails on equations like this");
+
+                AppSpecificException.ThrowIf(
+                    !Enumerable.Range(Equation.RREF.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
+                               .SequenceEqual(equation.SpecialColumnsOfRREF ?? throw new InvalidOperationException())
+                  , String.Format(format: "Use 'Permutation' tool or manually place {0} at the end of input string"
+                                , String.Join(separator: " and ", equation.SpecialColumnsOfRREF.Select(selector: i => equation.Substances[i]))));
+
 
                 {
                     var square = new Rational[Equation.RREF.ColumnCount(), Equation.RREF.ColumnCount()];
@@ -47,20 +54,10 @@ namespace ReactionStoichiometry
                 CombinationSample = (null, null);
                 if (IndependentSetsOfCoefficients.Count > 1)
                 {
-                    var countOfReactantsInOriginal = equation.InOriginalForm.Split(separator: "=")[0].Split(separator: "+").Length;
-
                     foreach (var combination in Helpers.GeneratePermutations(IndependentSetsOfCoefficients.Count, maxValue: 10))
                     {
                         var candidate = CombineIndependents(combination);
-                        if (candidate.Any(static i => i == 0))
-                        {
-                            continue;
-                        }
-                        if (candidate.Take(countOfReactantsInOriginal).Any(static i => i > 0))
-                        {
-                            continue;
-                        }
-                        if (candidate.Skip(countOfReactantsInOriginal).Any(static i => i < 0))
+                        if (candidate.Any(predicate: static i => i == 0))
                         {
                             continue;
                         }
@@ -92,11 +89,11 @@ namespace ReactionStoichiometry
             AsDetailedMultilineString = GetAsDetailedMultilineString();
         }
 
-        internal BigInteger[] CombineIndependents(IReadOnlyList<Int32> combination)
+        public BigInteger[] CombineIndependents(IReadOnlyList<Int32> combination)
         {
-            var result = new BigInteger[IndependentSetsOfCoefficients![index: 0].Length];
+            var result = new BigInteger[Equation.Substances.Count];
 
-            for (var r = 0; r < IndependentSetsOfCoefficients.Count; r++)
+            for (var r = 0; r < IndependentSetsOfCoefficients!.Count; r++)
             {
                 for (var c = 0; c < result.Length; c++)
                 {
@@ -104,7 +101,7 @@ namespace ReactionStoichiometry
                 }
             }
 
-            return result.Select(selector: static i => new Rational(i)).ToArray().ScaleToIntegers();    // return 1,2,3 if result is 5,10,15
+            return result.Select(selector: static i => new Rational(i)).ToArray().ScaleToIntegers(); // return 1,2,3 if result is 5,10,15
         }
     }
 }
