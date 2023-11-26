@@ -14,22 +14,22 @@ namespace ReactionStoichiometry.GUI
         }
 
         #region Event Handlers
-        private void On_buttonBalance_Click(Object sender, EventArgs e)
+        private void OnClick_buttonBalance(Object sender, EventArgs e)
         {
             Balance();
         }
 
-        private void On_textBoxInput_TextChanged(Object sender, EventArgs e)
+        private void OnTextChanged_txtInput(Object sender, EventArgs e)
         {
             ResetControls();
         }
 
-        private void OnCellEndEdit(Object sender, DataGridViewCellEventArgs e)
+        private void OnCellEndEdit_gridInstantiate(Object sender, DataGridViewCellEventArgs e)
         {
-            Instantiate();
+            RunToolInstantiate();
         }
 
-        private void OnListMouseDoubleClick(Object sender, MouseEventArgs e)
+        private void OnMouseDoubleClick_listPermutator(Object sender, MouseEventArgs e)
         {
             if (listPermutator.SelectedItems.Count != 1)
             {
@@ -44,8 +44,13 @@ namespace ReactionStoichiometry.GUI
             listPermutator.SelectedItems.Clear();
 
             var s = String.Join(separator: " + ", listPermutator.Items.OfType<String>()) + " = 0";
-            textBoxInput.Text = s;
+            txtInput.Text = s;
             Balance();
+        }
+
+        private void OnCellEndEdit_gridCombine(Object sender, DataGridViewCellEventArgs e)
+        {
+            RunToolCombine();
         }
         #endregion
 
@@ -64,44 +69,57 @@ namespace ReactionStoichiometry.GUI
             textboxInstantiate.Text = String.Empty;
             listPermutator.Items.Clear();
             gridInstantiate.Rows.Clear();
+            gridCombine.Rows.Clear();
 
-            buttonBalance.Enabled = ChemicalReactionEquation.IsValidString(textBoxInput.Text);
+            buttonBalance.Enabled = ChemicalReactionEquation.IsValidString(txtInput.Text);
         }
 
         private void Balance()
         {
-            var s = textBoxInput.Text;
+            var s = txtInput.Text;
             _equation = new ChemicalReactionEquation(s);
             txtGeneralForm.Text = _equation.InGeneralForm;
 
             if (_equation.RowsBasedSolution.Success)
             {
-                #region 'Instantiation' tool
+                #region setup 'Instantiate'
                 gridInstantiate.RowCount = _equation.Substances.Count;
                 for (var i = 0; i < _equation.Substances.Count; i++)
                 {
                     gridInstantiate.Rows[i].Cells[gridInstantiateColumnSubstance.Name].Value = _equation.Substances[i];
 
                     var expr = _equation.RowsBasedSolution.AlgebraicExpressions![i];
-                    gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnCoefficient.Name].Value = expr;
+                    gridInstantiate.Rows[i].Cells[gridInstantiateColumnCoefficient.Name].Value = expr;
 
                     if (expr.Contains(value: " = "))
                     {
-                        gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnIsFreeVariable.Name].Value = false;
-                        gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnValue.Name].ReadOnly = true;
+                        gridInstantiate.Rows[i].Cells[gridInstantiateColumnIsFreeVariable.Name].Value = false;
+                        gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].ReadOnly = true;
                     }
                     else
                     {
-                        gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnIsFreeVariable.Name].Value = true;
-                        gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnValue.Name].ReadOnly = false;
-                        gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnValue.Name].Value =
-                            _equation.RowsBasedSolution.SimplestSolution != null ? _equation.RowsBasedSolution.SimplestSolution[i] : 0;
-                        gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnValue.Name].Style.Font =
+                        gridInstantiate.Rows[i].Cells[gridInstantiateColumnIsFreeVariable.Name].Value = true;
+                        gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].ReadOnly = false;
+                        gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].Value = _equation.RowsBasedSolution.SimplestSolution != null ?
+                            _equation.RowsBasedSolution.SimplestSolution[i] :
+                            0;
+                        gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].Style.Font =
                             new Font(gridInstantiate.Font, FontStyle.Bold | FontStyle.Underline);
                     }
                 }
-                Instantiate();
-                # endregion
+                RunToolInstantiate();
+                #endregion
+
+                #region setup 'Combine'
+                gridCombine.RowCount = _equation.ColumnsBasedSolution.IndependentSetsOfCoefficients.Count;
+                for (var i = 0; i < _equation.ColumnsBasedSolution.IndependentSetsOfCoefficients.Count; i++)
+                {
+                    gridCombine.Rows[i].Cells[gridCombineColumnEquilibrium.Name].Value =
+                        _equation.EquationWithIntegerCoefficients(_equation.ColumnsBasedSolution.IndependentSetsOfCoefficients[i]);
+                    gridCombine.Rows[i].Cells[gridCombineColumnCount.Name].Value = 0;
+                }
+                RunToolCombine();
+                #endregion
 
                 InitPermutation();
                 webviewReport.NavigateToString(GetHtmlContentFromJson(_equation.ToJson()));
@@ -137,7 +155,7 @@ namespace ReactionStoichiometry.GUI
             {
                 gridInstantiate.Rows[i].DefaultCellStyle.BackColor = Color.White;
 
-                var cv = gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnValue.Name].Value;
+                var cv = gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].Value;
                 if (cv == null || !BigInteger.TryParse(cv.ToString()!, out var value))
                 {
                     continue;
@@ -154,7 +172,7 @@ namespace ReactionStoichiometry.GUI
             }
         }
 
-        private void Instantiate()
+        private void RunToolInstantiate()
         {
             BigInteger[]? coefficients;
             try
@@ -162,12 +180,12 @@ namespace ReactionStoichiometry.GUI
                 List<BigInteger> parameters = new();
                 for (var i = 0; i < gridInstantiate.Rows.Count; i++)
                 {
-                    if (!Boolean.Parse(gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnIsFreeVariable.Name].Value.ToString()!))
+                    if (!Boolean.Parse(gridInstantiate.Rows[i].Cells[gridInstantiateColumnIsFreeVariable.Name].Value.ToString()!))
                     {
                         continue;
                     }
 
-                    var cv = gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnValue.Name].Value ?? throw new FormatException();
+                    var cv = gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].Value ?? throw new FormatException();
                     parameters.Add(BigInteger.Parse(cv.ToString()!));
                 }
 
@@ -187,14 +205,43 @@ namespace ReactionStoichiometry.GUI
 
             for (var i = 0; i < gridInstantiate.Rows.Count; i++)
             {
-                var cv = gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnIsFreeVariable.Name].Value ?? throw new InvalidOperationException();
-                var isFreeVarRow = Boolean.Parse(cv.ToString()!);
-                if (!isFreeVarRow)
-                {
-                    gridInstantiate.Rows[i].Cells[columnName: gridInstantiateColumnValue.Name].Value = coefficients != null ? coefficients[i] : "#VALUE!";
-                }
+                gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].Value = coefficients != null ? coefficients[i] : "#VALUE!";
             }
 
+            ApplyGridVisuals();
+        }
+
+        private void RunToolCombine()
+        {
+            BigInteger[]? coefficients;
+
+            try
+            {
+                List<Int32> combination = new();
+                for (var i = 0; i < gridCombine.Rows.Count; i++)
+                {
+                    var cv = gridCombine.Rows[i].Cells[gridCombineColumnCount.Name].Value ?? throw new FormatException();
+                    combination.Add(Int32.Parse(cv.ToString()!));
+                }
+
+                coefficients = _equation.ColumnsBasedSolution.CombineIndependents(combination);
+                textboxCombine.Text = _equation.EquationWithIntegerCoefficients(coefficients);
+            }
+            catch (FormatException)
+            {
+                textboxCombine.Text = "Parsing error occurred";
+                coefficients = null;
+            }
+            catch (AppSpecificException)
+            {
+                textboxCombine.Text = "Failed to get valid coefficients";
+                coefficients = null;
+            }
+
+            for (var i = 0; i < gridInstantiate.Rows.Count; i++)
+            {
+                gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].Value = coefficients != null ? coefficients[i] : "#VALUE!";
+            }
             ApplyGridVisuals();
         }
     }

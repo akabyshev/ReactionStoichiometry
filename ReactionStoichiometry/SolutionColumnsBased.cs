@@ -8,7 +8,7 @@ namespace ReactionStoichiometry
     public sealed class SolutionColumnsBased : Solution
     {
         [JsonProperty(PropertyName = "IndependentSetsOfCoefficients")]
-        public readonly ReadOnlyCollection<BigInteger[]>? IndependentSetsOfCoefficients;
+        public readonly ReadOnlyCollection<BigInteger[]> IndependentSetsOfCoefficients;
 
         [JsonProperty(PropertyName = "CombinationSample")]
         internal readonly (Int32[]? weights, BigInteger[]? resultingCoefficients) CombinationSample;
@@ -93,7 +93,7 @@ namespace ReactionStoichiometry
         {
             var result = new BigInteger[Equation.Substances.Count];
 
-            for (var r = 0; r < IndependentSetsOfCoefficients!.Count; r++)
+            for (var r = 0; r < IndependentSetsOfCoefficients.Count; r++)
             {
                 for (var c = 0; c < result.Length; c++)
                 {

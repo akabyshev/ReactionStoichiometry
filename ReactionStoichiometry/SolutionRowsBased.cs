@@ -157,7 +157,7 @@ namespace ReactionStoichiometry
                 result[i] = -calculated.Numerator;
             }
 
-            return result;
+            return result.Select(selector: static i => new Rational(i)).ToArray().ScaleToIntegers(); // return 1,2,3 if result is 5,10,15
         }
     }
 }
