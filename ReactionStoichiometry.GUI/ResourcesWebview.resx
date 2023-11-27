@@ -229,49 +229,68 @@ function MakeJsonReadable(Equation, identifier) {
     (index) =&gt; Equation.Elements[index],
     (index) =&gt; Equation.Labels[index],
     (index) =&gt; Equation.Substances[index]
-  );
+  ).outerHTML;
 
   const tableRREF = createTable(
     Equation.RREF,
-    (index) =&gt; Equation.Elements[index],
+    (index) =&gt; "R" + (index + 1).toString(),
     (index) =&gt; Equation.Labels[index]
-  );
+  ).outerHTML;
 
   const recordDiv = document.createElement("div");
   recordDiv.style.border = "1px solid black";
   recordDiv.style.padding = "10px";
   recordDiv.style.width = "100%";
   recordDiv.innerHTML = `&lt;h2&gt;${identifier}&lt;/h3&gt;`;
-  recordDiv.innerHTML += `&lt;h3&gt;Step 0&lt;/h3&gt;`;
+  recordDiv.innerHTML += `&lt;h3&gt;Generalization&lt;/h3&gt;`;
   recordDiv.innerHTML += `
       We begin by expressing the original input "${
         Equation.OriginalEquationString
       }" in its generalized form:
       &lt;p class="cre"&gt;${constructGeneralizedEquation(Equation)}&lt;/p&gt;
   `;
-  recordDiv.innerHTML += `&lt;h3&gt;Step 1&lt;/h3&gt;`;
+  recordDiv.innerHTML += `&lt;h3&gt;Matrices&lt;/h3&gt;`;
   recordDiv.innerHTML += `
-  &lt;div class="multiple-columns-container"&gt;
-    &lt;div class="first-column"&gt;
-      Following this, a chemical composition matrix (CCM) is constructed: ${tableCCM.outerHTML}
-    &lt;/div&gt;
-    &lt;div class="second-column"&gt;
-      Then we get CCM in reduced row echelon form (RREF) using &lt;u&gt;Gaussian elimination&lt;/u&gt;: ${tableRREF.outerHTML}
-    &lt;/div&gt;
-  &lt;/div&gt;`;
+      &lt;p&gt;A chemical composition matrix (CCM) is constructed: ${tableCCM}&lt;/p&gt;
+      &lt;p&gt;Then we get CCM in reduced row echelon form (RREF) using &lt;u&gt;Gaussian elimination&lt;/u&gt;: ${tableRREF}&lt;/p&gt;
+  `;
 
-  var THE_SOLUTION = "UNDEF";
+  recordDiv.innerHTML += `
+    &lt;div class="multiple-columns-container"&gt;
+      &lt;div class="first-column"&gt;
+        &lt;h3&gt;Rows-based approach&lt;/h3&gt;
+        ${report_RBS(Equation)}
+      &lt;/div&gt;
+      &lt;div class="second-column"&gt;
+        &lt;h3&gt;Columns-based approach&lt;/h3&gt;
+        ${report_CBS(Equation)}
+      &lt;/div&gt;
+    &lt;/div&gt;`;
 
-  recordDiv.innerHTML += `&lt;h3&gt;Step 2A - rows-based solution&lt;/h3&gt;`;
+  if (Equation.RowsBasedSolution.Success) {
+    recordDiv.innerHTML += `&lt;h3&gt;Solution&lt;/h3&gt;`;
+    if (Equation.RowsBasedSolution.FreeVariableIndices.length === 1) {
+      recordDiv.innerHTML += `&lt;p class="cre"&gt;${AssembleEquationString(
+        Equation.Substances,
+        Equation.RowsBasedSolution.InstanceSample
+      )}&lt;/p&gt;`;
+    } else {
+      recordDiv.innerHTML += `There are infinitely many solutions`;
+    }
+  }
+  document.body.appendChild(recordDiv);
+}
 
-  if (Equation.RowsBasedSolution.Success === false) {
-    recordDiv.innerHTML += `&lt;p&gt;${Equation.RowsBasedSolution.FailureMessage}&lt;/p&gt;`;
-    THE_SOLUTION = `RREF is an identity matrix, indicating that &lt;u&gt;it's impossible to balance the equation&lt;/u&gt;.`;
-  } else
-  {
-    recordDiv.innerHTML += `&lt;p&gt;RREF interpretation: no new atoms are created, so each row sum &lt;b&gt;must be&lt;/b&gt; equal to zero.&lt;/p&gt;`;
+function report_RBS(Equation) {
+  solution = Equation.RowsBasedSolution;
 
-    var content2A1, content2A2, content2A3;
+  if (solution.Success === false) {
+    return `&lt;p&gt;${solution.FailureMessage}&lt;/p&gt;`;
+  } else {
+    var result = "";
+    result += `&lt;p&gt;RREF interpretation: no new atoms are created, so each row sum &lt;b&gt;must be&lt;/b&gt; equal to zero.&lt;/p&gt;`;
+
+    var content2A1, content2A2, sample_RBS;
 
     content2A1 = `This interpretation forms a system of linear equations:
     ${
@@ -282,16 +301,16 @@ function MakeJsonReadable(Equation, identifier) {
       ).outerHTML
     }`;
 
-    content2A2 = `We see how all coefficients can be expressed via ${
-      Equation.RowsBasedSolution.FreeVariableIndices.length
+    content2A2 = `We see how all coefficients are a function of ${
+      solution.FreeVariableIndices.length
     } ${
-      Equation.RowsBasedSolution.FreeVariableIndices.length &gt; 1
+      solution.FreeVariableIndices.length &gt; 1
         ? "free variables"
         : "free variable"
     }:
     ${
       createTable(
-        Equation.RowsBasedSolution.AlgebraicExpressions.map((item) =&gt;
+        solution.AlgebraicExpressions.map((item) =&gt;
           item.includes("=") ? [item.split("=")[1].trim()] : ["&lt;i&gt;free&lt;/i&gt;"]
         ),
         (index) =&gt; Equation.Labels[index] + " =",
@@ -299,57 +318,55 @@ function MakeJsonReadable(Equation, identifier) {
       ).outerHTML
     }`;
 
-    if (Equation.RowsBasedSolution.FreeVariableIndices.length === 1) {
-      content2A3 = `The free variable equal to &lt;u&gt;the lowest common multiple among the denominators of non-zero expressions&lt;/u&gt; produces all-integer solution of:
+    if (solution.FreeVariableIndices.length === 1) {
+      content2A2 += `The free variable equal to &lt;u&gt;the lowest common multiple among the denominators of non-zero expressions&lt;/u&gt; produces all-integer solution of:
       ${
         createTable(
-          Equation.Labels.map((_item, index) =&gt; [
-            Equation.RowsBasedSolution.SimplestSolution[index],
-          ]),
-          (index) =&gt; Equation.Labels[index] + " = ",
-          () =&gt; "Value"
+          [solution.InstanceSample],
+          (index) =&gt; 0 + " = ",
+          (index) =&gt; Equation.Substances[index]
         ).outerHTML
       }`;
-
-      THE_SOLUTION = `
+    } else {
+      sample_RBS = `For example, instantiating with mutually equal free variables produces:
+      ${
+        createTable(
+          [solution.InstanceSample],
+          (index) =&gt; "0" + " = ",
+          (index) =&gt; Equation.Substances[index]
+        ).outerHTML
+      }
       &lt;p class="cre"&gt;${AssembleEquationString(
         Equation.Substances,
-        Equation.RowsBasedSolution.SimplestSolution
-      )}
-      `;
-    } else {
-      content2A3 = `There are infinitely many unique solutions. For example: &lt;mark&gt;FREE VARS = (1,1) =&gt; TODO&lt;/mark&gt;`;
-      THE_SOLUTION = `Use Excel or Instantiation tool to search for all-integer solution`;
+        Equation.RowsBasedSolution.InstanceSample
+      )}&lt;/p&gt;`;
     }
 
-    recordDiv.innerHTML += `
-    &lt;div class="multiple-columns-container"&gt;
-      &lt;div class="first-column"&gt;
+    result += `
         ${content2A1}
-      &lt;/div&gt;
-      &lt;div class="second-column"&gt;
         ${content2A2}
-      &lt;/div&gt;
-      &lt;div class="third-column"&gt;
-        ${content2A3}
-      &lt;/div&gt;
-    &lt;/div&gt;`;
+    `;
+
+    if (sample_RBS) result += sample_RBS;
+
+    return result;
   }
+}
 
-  recordDiv.innerHTML += `&lt;h3&gt;Step 2B - columns-based solution&lt;/h3&gt;`;
+function report_CBS(Equation) {
+  solution = Equation.ColumnsBasedSolution;
+  if (solution.Success === false) {
+    return `&lt;p&gt;${solution.FailureMessage}&lt;/p&gt;`;
+  } else {
+    var result = "";
+    result += `&lt;p&gt;RREF interpretation: the reaction &lt;b&gt;must be&lt;/b&gt; a combination of equilibriums&lt;/p&gt;`;
 
-  if (Equation.ColumnsBasedSolution.Success === false) {
-    recordDiv.innerHTML += `&lt;p&gt;${Equation.ColumnsBasedSolution.FailureMessage}&lt;/p&gt;`;
-  } else
-  {
-    recordDiv.innerHTML += `&lt;p&gt;RREF interpretation: the reaction &lt;b&gt;must be&lt;/b&gt; a combination of equilibriums&lt;/p&gt;`;
+    var content2B1, content2B2, sample_CBS;
 
-    var content2B1, content2B2, content2B3;
-
-    content2B1 = `Look at columns of the inverse of augmented RREF:
+    content2B1 = `Look at columns of modified RREF:
     ${
       createTable(
-        Equation.ColumnsBasedSolution.InverseMatrix,
+        solution.InverseMatrix,
         (index) =&gt; Equation.Substances[index],
         (index) =&gt; "&amp;nbsp;&amp;nbsp;&amp;nbsp;",
         (index) =&gt; "0" + " = "
@@ -357,79 +374,43 @@ function MakeJsonReadable(Equation, identifier) {
     }`;
 
     content2B2 = `
-      We find following equilibriums after scaling to integers:
+      Equilibriums after being scaled to integers:
       ${
         createTable(
-          Equation.ColumnsBasedSolution.IndependentSetsOfCoefficients,
+          solution.IndependentSetsOfCoefficients,
           (_index) =&gt; "0" + " = ",
           (index) =&gt; Equation.Substances[index]
         ).outerHTML
       }
-      ${Equation.ColumnsBasedSolution.IndependentSetsOfCoefficients.map(
+      `;
+
+    if (solution.IndependentSetsOfCoefficients.length === 1) {
+      content2B2 += `In this case, this vector uniquely defines the solution to the entire equation`;
+    } else {
+      content2B2 += solution.IndependentSetsOfCoefficients.map(
         (vector) =&gt;
           '&lt;p class="cre"&gt;' +
           AssembleEquationString(Equation.Substances, vector, true) +
           "&lt;/p&gt;"
-      ).join("")}
-      `;
-
-    if (
-      Equation.ColumnsBasedSolution.IndependentSetsOfCoefficients.length === 1
-    ) {
-      content2B3 = null;
-    } else {
-      if (Equation.ColumnsBasedSolution.CombinationSample.Item2) {
-        content2B3 = `There are infinitely many unique solutions. For example, &lt;u&gt;(${
-          Equation.ColumnsBasedSolution.CombinationSample.Item1
-        }) 
-            combination&lt;/u&gt; of those yields a solution: ${
-              createTable(
-                Equation.Labels.map((_item, index) =&gt; [
-                  Equation.ColumnsBasedSolution.CombinationSample.Item2[index],
-                ]),
-                (index) =&gt; Equation.Labels[index] + " = ",
-                () =&gt; "Value"
-              ).outerHTML
-            }
+      ).join("");
+      if (solution.CombinationSample.Item2) {
+        sample_CBS = `For example, &lt;u&gt;(${solution.CombinationSample.Item1}) 
+            combination&lt;/u&gt; of those yields:
             &lt;p class="cre"&gt;${AssembleEquationString(
               Equation.Substances,
-              Equation.ColumnsBasedSolution.CombinationSample.Item2
+              solution.CombinationSample.Item2
             )}`;
-      } else {
-        content2B3 = `We couldn't find a simple combination of those. Use 'Instantiation tool' in the GUI`;
       }
     }
 
-    if (content2B3 === null) {
-      recordDiv.innerHTML += `
-      &lt;div class="multiple-columns-container"&gt;
-        &lt;div class="first-column"&gt;
+    result += `
           ${content2B1}
-        &lt;/div&gt;
-        &lt;div class="second-column"&gt;
           ${content2B2}
-        &lt;/div&gt;
-      &lt;/div&gt;`;
-    }
-    else
-      recordDiv.innerHTML += `
-      &lt;div class="multiple-columns-container"&gt;
-        &lt;div class="first-column"&gt;
-          ${content2B1}
-        &lt;/div&gt;
-        &lt;div class="second-column"&gt;
-          ${content2B2}
-        &lt;/div&gt;
-        &lt;div class="third-column"&gt;
-          ${content2B3}
-        &lt;/div&gt;
-      &lt;/div&gt;`;    
+      `;
+    if (sample_CBS) result += sample_CBS;
+
+    return result;
   }
-
-  recordDiv.innerHTML += `&lt;h3&gt;Solution&lt;/h3&gt;`;
-  recordDiv.innerHTML += THE_SOLUTION;
-
-  document.body.appendChild(recordDiv);
 }
 
 function constructGeneralizedEquation(record) {

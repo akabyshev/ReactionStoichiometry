@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle7 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle8 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle9 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle10 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle11 = new DataGridViewCellStyle();
-            DataGridViewCellStyle dataGridViewCellStyle12 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle6 = new DataGridViewCellStyle();
             containerInput = new GroupBox();
             txtInput = new TextBox();
             buttonBalance = new Button();
@@ -48,13 +48,12 @@
             gridInstantiateColumnCoefficient = new DataGridViewTextBoxColumn();
             gridInstantiateColumnValue = new DataGridViewTextBoxColumn();
             gridInstantiateColumnIsFreeVariable = new DataGridViewCheckBoxColumn();
-            textboxInstantiate = new TextBox();
             gridCombine = new DataGridView();
             gridCombineColumnEquilibrium = new DataGridViewTextBoxColumn();
             gridCombineColumnCount = new DataGridViewTextBoxColumn();
-            textboxCombine = new TextBox();
             tabPermutate = new TabPage();
             listPermutator = new ListBox();
+            textboxFinalResult = new TextBox();
             containerInput.SuspendLayout();
             theTabControl.SuspendLayout();
             tabHtml.SuspendLayout();
@@ -91,7 +90,7 @@
             txtInput.ScrollBars = ScrollBars.Vertical;
             txtInput.Size = new Size(1694, 180);
             txtInput.TabIndex = 5;
-            txtInput.Text = "IO4Qn+IQn=I3Qn+H2O+OHQn+IO3Qn";
+            txtInput.Text = "CO+CO2+H2=CH4+H2O";
             txtInput.TextChanged += OnTextChanged_txtInput;
             // 
             // buttonBalance
@@ -173,12 +172,10 @@
             // splitTools.Panel1
             // 
             splitTools.Panel1.Controls.Add(gridInstantiate);
-            splitTools.Panel1.Controls.Add(textboxInstantiate);
             // 
             // splitTools.Panel2
             // 
             splitTools.Panel2.Controls.Add(gridCombine);
-            splitTools.Panel2.Controls.Add(textboxCombine);
             splitTools.Size = new Size(1868, 651);
             splitTools.SplitterDistance = 375;
             splitTools.TabIndex = 0;
@@ -190,45 +187,46 @@
             gridInstantiate.AllowUserToOrderColumns = true;
             gridInstantiate.AllowUserToResizeRows = false;
             gridInstantiate.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            dataGridViewCellStyle7.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle7.BackColor = SystemColors.Control;
-            dataGridViewCellStyle7.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            dataGridViewCellStyle7.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle7.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = DataGridViewTriState.True;
-            gridInstantiate.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = SystemColors.Control;
+            dataGridViewCellStyle1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            dataGridViewCellStyle1.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.True;
+            gridInstantiate.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             gridInstantiate.ColumnHeadersHeight = 58;
             gridInstantiate.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             gridInstantiate.Columns.AddRange(new DataGridViewColumn[] { gridInstantiateColumnSubstance, gridInstantiateColumnCoefficient, gridInstantiateColumnValue, gridInstantiateColumnIsFreeVariable });
-            dataGridViewCellStyle8.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle8.BackColor = SystemColors.Window;
-            dataGridViewCellStyle8.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle8.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle8.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = DataGridViewTriState.False;
-            gridInstantiate.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle2.BackColor = SystemColors.Window;
+            dataGridViewCellStyle2.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle2.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
+            gridInstantiate.DefaultCellStyle = dataGridViewCellStyle2;
             gridInstantiate.Dock = DockStyle.Fill;
             gridInstantiate.Location = new Point(0, 0);
             gridInstantiate.Name = "gridInstantiate";
-            dataGridViewCellStyle9.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle9.BackColor = SystemColors.Control;
-            dataGridViewCellStyle9.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle9.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle9.Padding = new Padding(8, 2, 0, 2);
-            dataGridViewCellStyle9.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = SystemColors.HighlightText;
-            gridInstantiate.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle3.BackColor = SystemColors.Control;
+            dataGridViewCellStyle3.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle3.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle3.Padding = new Padding(8, 2, 0, 2);
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            gridInstantiate.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             gridInstantiate.RowHeadersWidth = 58;
             gridInstantiate.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             gridInstantiate.ScrollBars = ScrollBars.Vertical;
             gridInstantiate.SelectionMode = DataGridViewSelectionMode.CellSelect;
             gridInstantiate.ShowCellToolTips = false;
             gridInstantiate.ShowEditingIcon = false;
-            gridInstantiate.Size = new Size(1868, 328);
+            gridInstantiate.Size = new Size(1868, 375);
             gridInstantiate.TabIndex = 6;
             gridInstantiate.CellEndEdit += OnCellEndEdit_gridInstantiate;
+            gridInstantiate.SelectionChanged += OnSelectionChanged;
             // 
             // gridInstantiateColumnSubstance
             // 
@@ -268,17 +266,6 @@
             gridInstantiateColumnIsFreeVariable.Visible = false;
             gridInstantiateColumnIsFreeVariable.Width = 222;
             // 
-            // textboxInstantiate
-            // 
-            textboxInstantiate.Dock = DockStyle.Bottom;
-            textboxInstantiate.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point,  204);
-            textboxInstantiate.Location = new Point(0, 328);
-            textboxInstantiate.Name = "textboxInstantiate";
-            textboxInstantiate.ReadOnly = true;
-            textboxInstantiate.Size = new Size(1868, 47);
-            textboxInstantiate.TabIndex = 7;
-            textboxInstantiate.TextAlign = HorizontalAlignment.Center;
-            // 
             // gridCombine
             // 
             gridCombine.AllowUserToAddRows = false;
@@ -286,76 +273,66 @@
             gridCombine.AllowUserToOrderColumns = true;
             gridCombine.AllowUserToResizeRows = false;
             gridCombine.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            dataGridViewCellStyle10.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle10.BackColor = SystemColors.Control;
-            dataGridViewCellStyle10.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            dataGridViewCellStyle10.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle10.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle10.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle10.WrapMode = DataGridViewTriState.True;
-            gridCombine.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.BackColor = SystemColors.Control;
+            dataGridViewCellStyle4.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            dataGridViewCellStyle4.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
+            gridCombine.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             gridCombine.ColumnHeadersHeight = 58;
             gridCombine.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             gridCombine.Columns.AddRange(new DataGridViewColumn[] { gridCombineColumnEquilibrium, gridCombineColumnCount });
-            dataGridViewCellStyle11.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle11.BackColor = SystemColors.Window;
-            dataGridViewCellStyle11.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle11.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle11.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle11.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle11.WrapMode = DataGridViewTriState.False;
-            gridCombine.DefaultCellStyle = dataGridViewCellStyle11;
+            dataGridViewCellStyle5.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle5.BackColor = SystemColors.Window;
+            dataGridViewCellStyle5.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle5.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle5.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = DataGridViewTriState.False;
+            gridCombine.DefaultCellStyle = dataGridViewCellStyle5;
             gridCombine.Dock = DockStyle.Fill;
             gridCombine.Location = new Point(0, 0);
             gridCombine.Name = "gridCombine";
-            dataGridViewCellStyle12.Alignment = DataGridViewContentAlignment.MiddleRight;
-            dataGridViewCellStyle12.BackColor = SystemColors.Control;
-            dataGridViewCellStyle12.Font = new Font("Segoe UI", 9F);
-            dataGridViewCellStyle12.ForeColor = SystemColors.WindowText;
-            dataGridViewCellStyle12.Padding = new Padding(8, 2, 0, 2);
-            dataGridViewCellStyle12.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle12.SelectionForeColor = SystemColors.HighlightText;
-            gridCombine.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
+            dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleRight;
+            dataGridViewCellStyle6.BackColor = SystemColors.Control;
+            dataGridViewCellStyle6.Font = new Font("Segoe UI", 9F);
+            dataGridViewCellStyle6.ForeColor = SystemColors.WindowText;
+            dataGridViewCellStyle6.Padding = new Padding(8, 2, 0, 2);
+            dataGridViewCellStyle6.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = SystemColors.HighlightText;
+            gridCombine.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             gridCombine.RowHeadersWidth = 58;
             gridCombine.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             gridCombine.ScrollBars = ScrollBars.Vertical;
             gridCombine.SelectionMode = DataGridViewSelectionMode.CellSelect;
             gridCombine.ShowCellToolTips = false;
             gridCombine.ShowEditingIcon = false;
-            gridCombine.Size = new Size(1868, 225);
+            gridCombine.Size = new Size(1868, 272);
             gridCombine.TabIndex = 6;
             gridCombine.CellEndEdit += OnCellEndEdit_gridCombine;
+            gridCombine.SelectionChanged += OnSelectionChanged;
             // 
             // gridCombineColumnEquilibrium
             // 
-            gridCombineColumnEquilibrium.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            gridCombineColumnEquilibrium.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             gridCombineColumnEquilibrium.HeaderText = "Equilibrium";
             gridCombineColumnEquilibrium.MinimumWidth = 12;
             gridCombineColumnEquilibrium.Name = "gridCombineColumnEquilibrium";
             gridCombineColumnEquilibrium.ReadOnly = true;
             gridCombineColumnEquilibrium.Resizable = DataGridViewTriState.False;
             gridCombineColumnEquilibrium.SortMode = DataGridViewColumnSortMode.NotSortable;
-            gridCombineColumnEquilibrium.Width = 189;
             // 
             // gridCombineColumnCount
             // 
-            gridCombineColumnCount.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            gridCombineColumnCount.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             gridCombineColumnCount.HeaderText = "Count";
             gridCombineColumnCount.MinimumWidth = 12;
             gridCombineColumnCount.Name = "gridCombineColumnCount";
             gridCombineColumnCount.Resizable = DataGridViewTriState.False;
             gridCombineColumnCount.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // textboxCombine
-            // 
-            textboxCombine.Dock = DockStyle.Bottom;
-            textboxCombine.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point,  204);
-            textboxCombine.Location = new Point(0, 225);
-            textboxCombine.Name = "textboxCombine";
-            textboxCombine.ReadOnly = true;
-            textboxCombine.Size = new Size(1868, 47);
-            textboxCombine.TabIndex = 8;
-            textboxCombine.TextAlign = HorizontalAlignment.Center;
+            gridCombineColumnCount.Width = 109;
             // 
             // tabPermutate
             // 
@@ -380,10 +357,22 @@
             listPermutator.TabStop = false;
             listPermutator.MouseDoubleClick += OnMouseDoubleClick_listPermutator;
             // 
+            // textboxFinalResult
+            // 
+            textboxFinalResult.Dock = DockStyle.Bottom;
+            textboxFinalResult.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point,  204);
+            textboxFinalResult.Location = new Point(0, 945);
+            textboxFinalResult.Name = "textboxFinalResult";
+            textboxFinalResult.ReadOnly = true;
+            textboxFinalResult.Size = new Size(1888, 47);
+            textboxFinalResult.TabIndex = 11;
+            textboxFinalResult.TextAlign = HorizontalAlignment.Center;
+            // 
             // FormMain
             // 
             AutoScaleMode = AutoScaleMode.None;
             ClientSize = new Size(1888, 992);
+            Controls.Add(textboxFinalResult);
             Controls.Add(theTabControl);
             Controls.Add(containerInput);
             DoubleBuffered = true;
@@ -397,15 +386,14 @@
             ((System.ComponentModel.ISupportInitialize) webviewReport).EndInit();
             tabTools.ResumeLayout(false);
             splitTools.Panel1.ResumeLayout(false);
-            splitTools.Panel1.PerformLayout();
             splitTools.Panel2.ResumeLayout(false);
-            splitTools.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize) splitTools).EndInit();
             splitTools.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize) gridInstantiate).EndInit();
             ((System.ComponentModel.ISupportInitialize) gridCombine).EndInit();
             tabPermutate.ResumeLayout(false);
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -426,9 +414,8 @@
         private DataGridViewTextBoxColumn gridInstantiateColumnCoefficient;
         private DataGridViewTextBoxColumn gridInstantiateColumnValue;
         private DataGridViewCheckBoxColumn gridInstantiateColumnIsFreeVariable;
-        private TextBox textboxInstantiate;
         private DataGridView gridCombine;
-        private TextBox textboxCombine;
+        private TextBox textboxFinalResult;
         private DataGridViewTextBoxColumn gridCombineColumnEquilibrium;
         private DataGridViewTextBoxColumn gridCombineColumnCount;
     }

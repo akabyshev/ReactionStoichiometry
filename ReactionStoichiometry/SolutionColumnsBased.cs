@@ -89,7 +89,7 @@ namespace ReactionStoichiometry
             AsDetailedMultilineString = GetAsDetailedMultilineString();
         }
 
-        public BigInteger[] CombineIndependents(IReadOnlyList<Int32> combination)
+        public BigInteger[] CombineIndependents(params Int32[] combination)
         {
             var result = new BigInteger[Equation.Substances.Count];
 

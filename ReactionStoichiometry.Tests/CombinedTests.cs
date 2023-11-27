@@ -17,10 +17,10 @@ namespace ReactionStoichiometry.Tests
                 var eq = parts[0];
 
                 var equation = new ChemicalReactionEquation(eq);
-                var inverseBased = equation.ColumnsBasedSolution;
+                var cbs = equation.ColumnsBasedSolution;
                 var rbs = equation.RowsBasedSolution;
 
-                Assert.True(inverseBased.Success);
+                Assert.True(cbs.Success);
                 Assert.True(rbs.Success);
 
                 var instances = parts[1]
@@ -28,7 +28,7 @@ namespace ReactionStoichiometry.Tests
                                 .Select(StringOperations.GetParametersFromString)
                                 .Select(selector: parametersSet => equation.EquationWithIntegerCoefficients(rbs.Instantiate(parametersSet)));
 
-                Assert.Equal(inverseBased.ToString(OutputFormat.Multiline), String.Join(Environment.NewLine, instances));
+                Assert.Equal(cbs.ToString(OutputFormat.Multiline), String.Join(Environment.NewLine, instances));
             }
         }
 

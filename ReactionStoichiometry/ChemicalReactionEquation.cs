@@ -34,10 +34,15 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "RREF")] [JsonConverter(typeof(JsonConverterRationalMatrix))]
         internal readonly Rational[,] RREF;
 
-        private readonly Lazy<SolutionColumnsBased> _lazyInverseBasedSolution;
-        private readonly Lazy<SolutionRowsBased> _lazyRowsBasedSolution;
+        private readonly Lazy<SolutionColumnsBased> _lazyColumnsBasedSolution;
+
         [JsonProperty(PropertyName = "ColumnsBasedSolution")]
-        public SolutionColumnsBased ColumnsBasedSolution => _lazyInverseBasedSolution.Value;
+        public SolutionColumnsBased ColumnsBasedSolution => _lazyColumnsBasedSolution.Value;
+
+        private readonly Lazy<SolutionRowsBased> _lazyRowsBasedSolution;
+
+        [JsonProperty(PropertyName = "RowsBasedSolution")]
+        public SolutionRowsBased RowsBasedSolution => _lazyRowsBasedSolution.Value;
 
         [JsonIgnore]
         public String InGeneralForm =>
@@ -47,8 +52,6 @@ namespace ReactionStoichiometry
                                                   , adapter: static s => s
                                                   , goesToRhsIf: static _ => false
                                                   , allowEmptyRhs: true);
-        [JsonProperty(PropertyName = "RowsBasedSolution")]
-        public SolutionRowsBased RowsBasedSolution => _lazyRowsBasedSolution.Value;
 
         // ReSharper disable once InconsistentNaming
         [JsonIgnore]
@@ -56,9 +59,9 @@ namespace ReactionStoichiometry
         {
             get
             {
-                return Enumerable.Range(start: 0, RREF.ColumnCount()).Where(predicate: c => !ContainsOnlySingleOne(RREF.Column(c))).ToList().AsReadOnly();
+                return Enumerable.Range(start: 0, RREF.ColumnCount()).Where(predicate: c => !AllZeroesAndSingleOne(RREF.Column(c))).ToList().AsReadOnly();
 
-                static Boolean ContainsOnlySingleOne(Rational[] array)
+                static Boolean AllZeroesAndSingleOne(Rational[] array)
                 {
                     return array.Count(predicate: static r => !r.IsZero) == 1 && array.Count(predicate: static r => r.IsOne) == 1;
                 }
@@ -79,7 +82,7 @@ namespace ReactionStoichiometry
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
 
             _lazyRowsBasedSolution = new Lazy<SolutionRowsBased>(valueFactory: () => new SolutionRowsBased(this));
-            _lazyInverseBasedSolution = new Lazy<SolutionColumnsBased>(valueFactory: () => new SolutionColumnsBased(this));
+            _lazyColumnsBasedSolution = new Lazy<SolutionColumnsBased>(valueFactory: () => new SolutionColumnsBased(this));
         }
 
         public String EquationWithIntegerCoefficients(BigInteger[] coefficients)

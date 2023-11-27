@@ -28,16 +28,16 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.DetailedMultiline));
 
-            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(new BigInteger[] { 0, 0 })));
+            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(0, 0)));
             Assert.Throws<AppSpecificException>(
-                testCode: () => equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(new BigInteger[] { 0, 0 })));
+                testCode: () => equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(0, 0)));
 
-            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(new BigInteger[] { 2, 0 })));
-            Assert.Equal(expected: "3·O2 = 2·O3", equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(new BigInteger[] { 2, 0 })));
+            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(2, 0)));
+            Assert.Equal(expected: "3·O2 = 2·O3", equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(2, 0)));
 
-            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(new BigInteger[] { 0, 2 })));
+            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(0, 2)));
             Assert.Equal(expected: "2·Na + Cl2 = 2·NaCl"
-                       , equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(new BigInteger[] { 0, 2 })));
+                       , equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(0, 2)));
         }
 
         [Fact]
@@ -77,11 +77,17 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(new BigInteger[] { 6, -7, -10, 12, 0 }, solution.IndependentSetsOfCoefficients[index: 0]);
             Assert.Equal(new BigInteger[] { -6, -7, 8, 0, 6 }, solution.IndependentSetsOfCoefficients[index: 1]);
 
-            Assert.Equal(new BigInteger[] { 0, 0, 0, 0, 0 }, solution.CombineIndependents(new[] { 0, 0 })); // all-zero
-            Assert.Equal(new BigInteger[] { 0, -7, -1, 6, 3 }, solution.CombineIndependents(new[] { 1, 1 })); // C6H5C2H5 is -6 and +6        others reduced /2
-            Assert.Equal(new BigInteger[] { -2, -21, 0, 16, 10 }
-                       , solution.CombineIndependents(new[] { 4, 5 })); // C6H5OH is -10*4 and +8*5     others reduced /3
-            Assert.Equal(new BigInteger[] { -6, -35, 4, 24, 18 }, solution.CombineIndependents(new[] { 4, 6 })); // non-zero                     non-reducible
+            // all-zero
+            Assert.Equal(new BigInteger[] { 0, 0, 0, 0, 0 }, solution.CombineIndependents(0, 0));
+
+            // C6H5C2H5 is -6 and +6        others reduced /2
+            Assert.Equal(new BigInteger[] { 0, -7, -1, 6, 3 }, solution.CombineIndependents(1, 1));
+
+            // C6H5OH is -10*4 and +8*5     others reduced /3 :
+            Assert.Equal(new BigInteger[] { -2, -21, 0, 16, 10 }, solution.CombineIndependents(4, 5));
+
+            // non-zero                     non-reducible
+            Assert.Equal(new BigInteger[] { -6, -35, 4, 24, 18 }, solution.CombineIndependents(4, 6));
         }
 
         [Fact]

@@ -10,9 +10,8 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "AlgebraicExpressions")]
         public readonly ReadOnlyCollection<String>? AlgebraicExpressions;
 
-        [JsonProperty(PropertyName = "SimplestSolution")]
-        public readonly ReadOnlyCollection<BigInteger>? SimplestSolution;
-        // this can not be a tuple unlike CombinationSample of SolutionColumnsBased, because the parameter is contained already
+        [JsonProperty(PropertyName = "InstanceSample")]
+        public readonly ReadOnlyCollection<BigInteger>? InstanceSample;
 
         [JsonProperty(PropertyName = "FreeVariableIndices")]
         internal readonly ReadOnlyCollection<Int32>? FreeCoefficientIndices;
@@ -25,15 +24,9 @@ namespace ReactionStoichiometry
 
                 FreeCoefficientIndices = Equation.SpecialColumnsOfRREF;
 
-                SimplestSolution = FreeCoefficientIndices.Count != 1 ?
-                    null :
-                    Instantiate(new[]
-                                {
-                                    Equation.RREF.Column(FreeCoefficientIndices[index: 0])
-                                            .Select(selector: static r => r.Denominator)
-                                            .Aggregate(Helpers.LeastCommonMultiple)
-                                })
-                        .AsReadOnly();
+                InstanceSample = InstantiateInRationals(Enumerable.Repeat(element: (BigInteger)1, FreeCoefficientIndices.Count).ToArray())
+                                 .ScaleToIntegers()
+                                 .AsReadOnly();
 
                 AlgebraicExpressions = GetAllExpressions().AsReadOnly();
 
@@ -129,16 +122,14 @@ namespace ReactionStoichiometry
             }
         }
 
-        public BigInteger[] Instantiate(BigInteger[] freeCoefficientValues)
+        private Rational[] InstantiateInRationals(params BigInteger[] freeCoefficientValues)
         {
-            AppSpecificException.ThrowIf(FreeCoefficientIndices == null, message: "Invalid call");
-
             if (freeCoefficientValues.Length != FreeCoefficientIndices!.Count)
             {
                 throw new ArgumentException(message: "Array size mismatch", nameof(freeCoefficientValues));
             }
 
-            var result = new BigInteger[Equation.Substances.Count];
+            var result = new Rational[Equation.Substances.Count];
 
             for (var i = 0; i < FreeCoefficientIndices.Count; i++)
             {
@@ -153,11 +144,17 @@ namespace ReactionStoichiometry
                 var row = Equation.RREF.Row(rowIndex);
                 row[Array.FindIndex(row, match: static r => r.IsOne)] = 0; // remove the leading 1
                 var calculated = FreeCoefficientIndices.Aggregate(Rational.Zero, func: (cumulative, c) => cumulative + row[c] * result[c]).CanonicalForm;
-                AppSpecificException.ThrowIf(calculated.Denominator != 1, message: "Non-integer coefficient, try other SLE params");
-                result[i] = -calculated.Numerator;
+                result[i] = -calculated;
             }
 
-            return result.Select(selector: static i => new Rational(i)).ToArray().ScaleToIntegers(); // return 1,2,3 if result is 5,10,15
+            return result;
+        }
+
+        public BigInteger[] Instantiate(params BigInteger[] freeCoefficientValues)
+        {
+            var resultInRationals = InstantiateInRationals(freeCoefficientValues);
+            AppSpecificException.ThrowIf(!resultInRationals.Select(static r => r.Denominator).All(static r => r.IsOne), message: "Non-integer coefficient, try other SLE params");
+            return resultInRationals.ScaleToIntegers(); // return 1,2,3 if result is 5,10,15
         }
     }
 }
