@@ -1,5 +1,4 @@
 using System.Numerics;
-using System.Windows.Forms;
 
 namespace ReactionStoichiometry.GUI
 {
@@ -81,10 +80,15 @@ namespace ReactionStoichiometry.GUI
             var s = txtInput.Text;
             _equation = new ChemicalReactionEquation(s);
             txtGeneralForm.Text = _equation.InGeneralForm;
+            #region setup 'Permute'
+            foreach (var substance in _equation.Substances)
+            {
+                listPermutator.Items.Add(substance);
+            }
+            #endregion
 
             if (_equation.RowsBasedSolution.Success)
             {
-                #region setup 'Instantiate'
                 gridInstantiate.RowCount = _equation.Substances.Count;
                 for (var i = 0; i < _equation.Substances.Count; i++)
                 {
@@ -107,9 +111,11 @@ namespace ReactionStoichiometry.GUI
                             new Font(gridInstantiate.Font, FontStyle.Bold | FontStyle.Underline);
                     }
                 }
-                #endregion
+            }
 
-                #region setup 'Combine'
+            gridCombine.Visible = _equation.ColumnsBasedSolution is { Success: true, IndependentSetsOfCoefficients.Count: > 1 };
+            if (_equation.ColumnsBasedSolution.Success)
+            {
                 gridCombine.RowCount = _equation.ColumnsBasedSolution.IndependentSetsOfCoefficients.Count;
                 for (var i = 0; i < _equation.ColumnsBasedSolution.IndependentSetsOfCoefficients.Count; i++)
                 {
@@ -117,24 +123,11 @@ namespace ReactionStoichiometry.GUI
                         _equation.EquationWithIntegerCoefficients(_equation.ColumnsBasedSolution.IndependentSetsOfCoefficients[i]);
                     gridCombine.Rows[i].Cells[gridCombineColumnCount.Name].Value = 0;
                 }
-                #endregion
-
-                #region setup 'Permute'
-                foreach (var substance in _equation.Substances)
-                {
-                    listPermutator.Items.Add(substance);
-                }
-                #endregion
-
-                webviewReport.NavigateToString(GetHtmlContentFromJson(_equation.ToJson()));
-                theTabControl.Enabled = true;
-
-                RunTools(priorityTool: 1);
             }
-            else
-            {
-                MessageBox.Show(text: "Balancing failed. Check your syntax and try again", caption: "Failed", MessageBoxButtons.OK);
-            }
+
+            webviewReport.NavigateToString(GetHtmlContentFromJson(_equation.ToJson()));
+
+            RunTools(priorityTool: 1);
         }
 
         private static String GetHtmlContentFromJson(String jsonContent)

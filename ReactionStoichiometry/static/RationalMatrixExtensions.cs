@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Rationals;
 
 namespace ReactionStoichiometry
@@ -189,17 +188,7 @@ namespace ReactionStoichiometry
                 }
             }
 
-            try
-            {
-                AppSpecificException.ThrowIf(!leftHalf.IsIdentityMatrix(), message: "Singular matrix");
-                return rightHalf;
-            }
-            catch
-            {
-                Debug.WriteLine($"Exception at {nameof(GetInverse)}");
-                Debug.WriteLine(rref.Readable(nameof(rref)));
-                throw;
-            }
+            return rightHalf;
         }
     }
 }

@@ -234,7 +234,7 @@ function MakeJsonReadable(Equation, identifier) {
   const tableRREF = createTable(
     Equation.RREF,
     (index) =&gt; "R" + (index + 1).toString(),
-    (index) =&gt; Equation.Labels[index]
+    (index) =&gt; "C" + (index + 1).toString()
   ).outerHTML;
 
   const recordDiv = document.createElement("div");
@@ -269,7 +269,7 @@ function MakeJsonReadable(Equation, identifier) {
 
   if (Equation.RowsBasedSolution.Success) {
     recordDiv.innerHTML += `&lt;h3&gt;Solution&lt;/h3&gt;`;
-    if (Equation.RowsBasedSolution.FreeVariableIndices.length === 1) {
+    if (Equation.SpecialColumnsOfRREF.length === 1) {
       recordDiv.innerHTML += `&lt;p class="cre"&gt;${AssembleEquationString(
         Equation.Substances,
         Equation.RowsBasedSolution.InstanceSample
@@ -302,23 +302,25 @@ function report_RBS(Equation) {
     }`;
 
     content2A2 = `We see how all coefficients are a function of ${
-      solution.FreeVariableIndices.length
+      Equation.SpecialColumnsOfRREF.length
     } ${
-      solution.FreeVariableIndices.length &gt; 1
+      Equation.SpecialColumnsOfRREF.length &gt; 1
         ? "free variables"
         : "free variable"
     }:
     ${
       createTable(
         solution.AlgebraicExpressions.map((item) =&gt;
-          item.includes("=") ? [item.split("=")[1].trim()] : ["&lt;i&gt;free&lt;/i&gt;"]
+          item.includes("=") ? [item.split("=")[1].trim()] : ["free"]
         ),
         (index) =&gt; Equation.Labels[index] + " =",
-        () =&gt; "Expression"
+        () =&gt; "Expression",
+        null,
+        (r, c) =&gt; Equation.SpecialColumnsOfRREF.includes(r) 
       ).outerHTML
     }`;
 
-    if (solution.FreeVariableIndices.length === 1) {
+    if (Equation.SpecialColumnsOfRREF.length === 1) {
       content2A2 += `The free variable equal to &lt;u&gt;the lowest common multiple among the denominators of non-zero expressions&lt;/u&gt; produces all-integer solution of:
       ${
         createTable(
@@ -328,7 +330,7 @@ function report_RBS(Equation) {
         ).outerHTML
       }`;
     } else {
-      sample_RBS = `For example, instantiating with mutually equal free variables produces:
+      sample_RBS = `For example, instantiating with &lt;b&gt;mutually equal free variables&lt;/b&gt; produces:
       ${
         createTable(
           [solution.InstanceSample],
@@ -363,13 +365,14 @@ function report_CBS(Equation) {
 
     var content2B1, content2B2, sample_CBS;
 
-    content2B1 = `Look at columns of modified RREF:
+    content2B1 = `Look for them at 'special' columns of slightly modified RREF:
     ${
       createTable(
         solution.InverseMatrix,
         (index) =&gt; Equation.Substances[index],
-        (index) =&gt; "&amp;nbsp;&amp;nbsp;&amp;nbsp;",
-        (index) =&gt; "0" + " = "
+        (index) =&gt; "C" + (index + 1).toString(),
+        (index) =&gt; "0" + " = ",
+        (r, c) =&gt; Equation.SpecialColumnsOfRREF.includes(c)
       ).outerHTML
     }`;
 
@@ -394,8 +397,8 @@ function report_CBS(Equation) {
           "&lt;/p&gt;"
       ).join("");
       if (solution.CombinationSample.Item2) {
-        sample_CBS = `For example, &lt;u&gt;(${solution.CombinationSample.Item1}) 
-            combination&lt;/u&gt; of those yields:
+        sample_CBS = `For example, &lt;b&gt;(${solution.CombinationSample.Item1}) 
+            combination&lt;/b&gt; of those yields:
             &lt;p class="cre"&gt;${AssembleEquationString(
               Equation.Substances,
               solution.CombinationSample.Item2
@@ -423,10 +426,11 @@ function constructGeneralizedEquation(record) {
 }
 
 function createTable(
-  data,
-  rowLabelFunc,
-  labelColumnHeader,
-  labelColumnFooter = null
+  tableData,
+  rowHeaderLabelFunc,
+  colHeaderLabelFunc,
+  colFooterLabelFunc = null,
+  markCellIf = null
 ) {
   const table = document.createElement("table");
   table.classList.add("matrix");
@@ -434,41 +438,54 @@ function createTable(
   const tableHead = document.createElement("thead");
   const tableRowOfColumnHeaders = document.createElement("tr");
   tableRowOfColumnHeaders.appendChild(document.createElement("th"));
-  for (let index = 0; index &lt; data[0].length; index++) {
-    const currentHeader = document.createElement("th");
-    currentHeader.innerHTML = labelColumnHeader(index);
-    tableRowOfColumnHeaders.appendChild(currentHeader);
+  for (let index = 0; index &lt; tableData[0].length; index++) {
+    const columnHeader = document.createElement("th");
+    columnHeader.innerHTML = colHeaderLabelFunc(index);
+    if (markCellIf)
+        if (markCellIf(null, index))
+        columnHeader.innerHTML = `&lt;mark&gt;${columnHeader.innerHTML}&lt;/mark&gt;`;
+    tableRowOfColumnHeaders.appendChild(columnHeader);
   }
   tableHead.appendChild(tableRowOfColumnHeaders);
   table.appendChild(tableHead);
 
   const tableBody = document.createElement("tbody");
-  data.forEach((dataRow, dataRowIndex) =&gt; {
+  tableData.forEach((dataRow, dataRowIndex) =&gt; {
     const currentRow = document.createElement("tr");
-    const currentRowHeaderCell = document.createElement("td");
-    currentRowHeaderCell.innerHTML = rowLabelFunc(dataRowIndex);
-    currentRow.appendChild(currentRowHeaderCell);
-    dataRow.forEach((entry) =&gt; {
-      const currentCell = document.createElement("td");
-      currentCell.innerHTML = entry;
+    const rowHeader = document.createElement("td");
+    rowHeader.innerHTML = rowHeaderLabelFunc(dataRowIndex);
+    if (markCellIf)
+        if (markCellIf(dataRowIndex, null))
+        rowHeader.innerHTML = `&lt;mark&gt;${rowHeader.innerHTML}&lt;/mark&gt;`;
+
+    currentRow.appendChild(rowHeader);
+    dataRow.forEach((entry, entryIndex) =&gt; {
+      const dataCell = document.createElement("td");
+      dataCell.innerHTML = entry;
+      if (markCellIf)
+        if (markCellIf(dataRowIndex, entryIndex))
+          dataCell.innerHTML = `&lt;mark&gt;${dataCell.innerHTML}&lt;/mark&gt;`;
       if (entry === "0") {
-        currentCell.style.color = "lightgrey";
+        dataCell.style.color = "lightgrey";
       }
-      currentCell.style.border = "1px dotted grey";
-      currentRow.appendChild(currentCell);
+      dataCell.style.border = "1px dotted grey";
+      currentRow.appendChild(dataCell);
     });
     tableBody.appendChild(currentRow);
   });
   table.appendChild(tableBody);
 
-  if (labelColumnFooter != null) {
+  if (colFooterLabelFunc != null) {
     const tableFoot = document.createElement("tfoot");
     const tableRowOfColumnFooters = document.createElement("tr");
     tableRowOfColumnFooters.appendChild(document.createElement("th"));
-    for (let index = 0; index &lt; data[0].length; index++) {
-      const cell = document.createElement("th");
-      cell.innerHTML = labelColumnFooter(index);
-      tableRowOfColumnFooters.appendChild(cell);
+    for (let index = 0; index &lt; tableData[0].length; index++) {
+      const columnFooter = document.createElement("th");
+      columnFooter.innerHTML = colFooterLabelFunc(index);
+      if (markCellIf)
+        if (markCellIf(null, index))
+        columnFooter.innerHTML = `&lt;mark&gt;${columnFooter.innerHTML}&lt;/mark&gt;`;
+      tableRowOfColumnFooters.appendChild(columnFooter);
     }
     tableFoot.appendChild(tableRowOfColumnFooters);
     table.appendChild(tableFoot);

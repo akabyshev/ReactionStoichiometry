@@ -13,8 +13,8 @@ namespace ReactionStoichiometry.Tests
             Assert.Equal(GlobalConstants.FAILURE_MARK, solution.ToString(OutputFormat.Simple));
             Assert.Contains(GlobalConstants.FAILURE_MARK, solution.ToString(OutputFormat.DetailedMultiline));
             Assert.Null(solution.IndependentSetsOfCoefficients);
-            Assert.Null(solution.CombinationSample.weights);
-            Assert.Null(solution.CombinationSample.resultingCoefficients);
+            Assert.Null(solution.CombinationSample.recipe);
+            Assert.Null(solution.CombinationSample.coefficients);
         }
 
         [Fact]
@@ -97,8 +97,8 @@ namespace ReactionStoichiometry.Tests
             Assert.True(solution.Success);
             Assert.NotNull(solution.IndependentSetsOfCoefficients);
             Assert.Single(solution.IndependentSetsOfCoefficients);
-            Assert.Null(solution.CombinationSample.weights);
-            Assert.Null(solution.CombinationSample.resultingCoefficients);
+            Assert.Null(solution.CombinationSample.recipe);
+            Assert.Null(solution.CombinationSample.coefficients);
         }
     }
 }

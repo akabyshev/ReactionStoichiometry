@@ -54,7 +54,7 @@ namespace ReactionStoichiometry
                                                   , allowEmptyRhs: true);
 
         // ReSharper disable once InconsistentNaming
-        [JsonIgnore]
+        [JsonProperty(PropertyName = "SpecialColumnsOfRREF")]
         internal ReadOnlyCollection<Int32> SpecialColumnsOfRREF
         {
             get

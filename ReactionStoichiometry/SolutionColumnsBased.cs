@@ -11,7 +11,7 @@ namespace ReactionStoichiometry
         public readonly ReadOnlyCollection<BigInteger[]> IndependentSetsOfCoefficients;
 
         [JsonProperty(PropertyName = "CombinationSample")]
-        internal readonly (Int32[]? weights, BigInteger[]? resultingCoefficients) CombinationSample;
+        internal readonly (Int32[]? recipe, BigInteger[]? coefficients) CombinationSample;
 
         [JsonProperty(PropertyName = "InverseMatrix")]
         [JsonConverter(typeof(JsonConverterRationalMatrix))]
@@ -22,7 +22,7 @@ namespace ReactionStoichiometry
             try
             {
                 AppSpecificException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
-                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount(), message: "The method fails on equations like this");
+                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount(), message: "The method fails on equations like this"); //todo: provoke
 
                 AppSpecificException.ThrowIf(
                     !Enumerable.Range(Equation.RREF.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
