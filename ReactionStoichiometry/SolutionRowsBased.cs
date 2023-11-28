@@ -24,7 +24,7 @@ namespace ReactionStoichiometry
 
                 FreeCoefficientIndices = Equation.SpecialColumnsOfRREF;
 
-                InstanceSample = InstantiateInRationals(Enumerable.Repeat(element: (BigInteger)1, FreeCoefficientIndices.Count).ToArray())
+                InstanceSample = InstantiateInRationals(Enumerable.Repeat((BigInteger)1, FreeCoefficientIndices.Count).ToArray())
                                  .ScaleToIntegers()
                                  .AsReadOnly();
 
@@ -122,6 +122,14 @@ namespace ReactionStoichiometry
             }
         }
 
+        public BigInteger[] Instantiate(params BigInteger[] freeCoefficientValues)
+        {
+            var resultInRationals = InstantiateInRationals(freeCoefficientValues);
+            AppSpecificException.ThrowIf(!resultInRationals.Select(selector: static r => r.Denominator).All(predicate: static r => r.IsOne)
+                                       , message: "Non-integer coefficient, try other SLE params");
+            return resultInRationals.ScaleToIntegers(); // return 1,2,3 if result is 5,10,15
+        }
+
         private Rational[] InstantiateInRationals(params BigInteger[] freeCoefficientValues)
         {
             if (freeCoefficientValues.Length != FreeCoefficientIndices!.Count)
@@ -148,13 +156,6 @@ namespace ReactionStoichiometry
             }
 
             return result;
-        }
-
-        public BigInteger[] Instantiate(params BigInteger[] freeCoefficientValues)
-        {
-            var resultInRationals = InstantiateInRationals(freeCoefficientValues);
-            AppSpecificException.ThrowIf(!resultInRationals.Select(static r => r.Denominator).All(static r => r.IsOne), message: "Non-integer coefficient, try other SLE params");
-            return resultInRationals.ScaleToIntegers(); // return 1,2,3 if result is 5,10,15
         }
     }
 }

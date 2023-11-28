@@ -24,11 +24,6 @@ namespace ReactionStoichiometry.GUI
             ResetControls();
         }
 
-        private void OnCellEndEdit_gridInstantiate(Object sender, DataGridViewCellEventArgs e)
-        {
-            RunTools(priorityTool: 1);
-        }
-
         private void OnMouseDoubleClick_listPermutator(Object sender, MouseEventArgs e)
         {
             if (listPermutator.SelectedItems.Count != 1)
@@ -47,9 +42,26 @@ namespace ReactionStoichiometry.GUI
             Balance();
         }
 
-        private void OnCellEndEdit_gridCombine(Object sender, DataGridViewCellEventArgs e)
+        private void OnClick_buttonInstantiate(Object sender, EventArgs e)
+        {
+            RunTools(priorityTool: 1);
+        }
+
+        private void OnClick_buttonCombine(Object sender, EventArgs e)
         {
             RunTools(priorityTool: 2);
+        }
+
+        private void OnCellEndEdit_gridInstantiate(Object sender, DataGridViewCellEventArgs e)
+        {
+            textboxFinalResult.Clear();
+            gridCombine.ClearSelection();
+        }
+
+        private void OnCellEndEdit_gridCombine(Object sender, DataGridViewCellEventArgs e)
+        {
+            textboxFinalResult.Clear();
+            gridInstantiate.ClearSelection();
         }
         #endregion
 
@@ -80,6 +92,7 @@ namespace ReactionStoichiometry.GUI
             var s = txtInput.Text;
             _equation = new ChemicalReactionEquation(s);
             txtGeneralForm.Text = _equation.InGeneralForm;
+
             #region setup 'Permute'
             foreach (var substance in _equation.Substances)
             {
@@ -241,20 +254,6 @@ namespace ReactionStoichiometry.GUI
             }
 
             ApplyGridVisuals();
-        }
-
-        private void OnSelectionChanged(Object sender, EventArgs e)
-        {
-            var currentGrid = sender as DataGridView;
-
-            if (currentGrid == gridCombine)
-            {
-                gridInstantiate.ClearSelection();
-            }
-            else if (currentGrid == gridInstantiate)
-            {
-                gridCombine.ClearSelection();
-            }
         }
     }
 }

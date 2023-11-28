@@ -188,6 +188,7 @@ namespace ReactionStoichiometry
                 }
             }
 
+            AppSpecificException.ThrowIf(!leftHalf.IsIdentityMatrix(), message: "Singular matrix");
             return rightHalf;
         }
     }

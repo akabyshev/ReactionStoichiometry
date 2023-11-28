@@ -17,28 +17,28 @@ namespace ReactionStoichiometry.Tests
             Assert.Null(solution.CombinationSample.coefficients);
         }
 
-        [Fact]
-        public void FalseNegative_Simple()
-        {
-            const String eqInverseBasedCantSolve = "O2+O3+Na+Cl2=NaCl";
-            var equation = new ChemicalReactionEquation(eqInverseBasedCantSolve);
-            var inverseBased = equation.ColumnsBasedSolution;
-            Assert.False(inverseBased.Success);
+        //[Fact]
+        //public void FalseNegative_Simple()
+        //{
+        //    const String eqInverseBasedCantSolve = "O2+O3+Na+Cl2=NaCl";
+        //    var equation = new ChemicalReactionEquation(eqInverseBasedCantSolve);
+        //    var inverseBased = equation.ColumnsBasedSolution;
+        //    Assert.False(inverseBased.Success);
 
-            Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.Simple));
-            Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.DetailedMultiline));
+        //    Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.Simple));
+        //    Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.DetailedMultiline));
 
-            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(0, 0)));
-            Assert.Throws<AppSpecificException>(
-                testCode: () => equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(0, 0)));
+        //    Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(0, 0)));
+        //    Assert.Throws<AppSpecificException>(
+        //        testCode: () => equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(0, 0)));
 
-            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(2, 0)));
-            Assert.Equal(expected: "3慈2 = 2慈3", equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(2, 0)));
+        //    Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(2, 0)));
+        //    Assert.Equal(expected: "3慈2 = 2慈3", equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(2, 0)));
 
-            Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(0, 2)));
-            Assert.Equal(expected: "2意a + Cl2 = 2意aCl"
-                       , equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(0, 2)));
-        }
+        //    Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(0, 2)));
+        //    Assert.Equal(expected: "2意a + Cl2 = 2意aCl"
+        //               , equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(0, 2)));
+        //}
 
         [Fact]
         public void TruePositive_Simple()

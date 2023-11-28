@@ -68,7 +68,7 @@ function MakeJsonReadable(Equation, identifier) {
         Equation.RowsBasedSolution.InstanceSample
       )}</p>`;
     } else {
-      recordDiv.innerHTML += `There are infinitely many solutions`;
+      recordDiv.innerHTML += `Use GUI to discover rest of infinitely many balancing coefficients sets`;
     }
   }
   document.body.appendChild(recordDiv);

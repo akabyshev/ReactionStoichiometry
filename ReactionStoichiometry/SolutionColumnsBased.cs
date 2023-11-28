@@ -22,7 +22,8 @@ namespace ReactionStoichiometry
             try
             {
                 AppSpecificException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
-                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount(), message: "The method fails on equations like this"); //todo: provoke
+                AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount()
+                                           , message: "The method fails on equations like this"); //todo: provoke
 
                 AppSpecificException.ThrowIf(
                     !Enumerable.Range(Equation.RREF.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)

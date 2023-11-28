@@ -48,9 +48,11 @@
             gridInstantiateColumnCoefficient = new DataGridViewTextBoxColumn();
             gridInstantiateColumnValue = new DataGridViewTextBoxColumn();
             gridInstantiateColumnIsFreeVariable = new DataGridViewCheckBoxColumn();
+            buttonInstantiate = new Button();
             gridCombine = new DataGridView();
             gridCombineColumnEquilibrium = new DataGridViewTextBoxColumn();
             gridCombineColumnCount = new DataGridViewTextBoxColumn();
+            buttonCombine = new Button();
             tabPermutate = new TabPage();
             listPermutator = new ListBox();
             textboxFinalResult = new TextBox();
@@ -126,7 +128,7 @@
             theTabControl.Location = new Point(0, 273);
             theTabControl.Name = "theTabControl";
             theTabControl.SelectedIndex = 0;
-            theTabControl.Size = new Size(1888, 719);
+            theTabControl.Size = new Size(1888, 672);
             theTabControl.TabIndex = 10;
             // 
             // tabHtml
@@ -135,7 +137,7 @@
             tabHtml.Location = new Point(10, 58);
             tabHtml.Name = "tabHtml";
             tabHtml.Padding = new Padding(3);
-            tabHtml.Size = new Size(1868, 651);
+            tabHtml.Size = new Size(1868, 604);
             tabHtml.TabIndex = 0;
             tabHtml.Text = "Report";
             tabHtml.UseVisualStyleBackColor = true;
@@ -148,7 +150,7 @@
             webviewReport.Dock = DockStyle.Fill;
             webviewReport.Location = new Point(3, 3);
             webviewReport.Name = "webviewReport";
-            webviewReport.Size = new Size(1862, 645);
+            webviewReport.Size = new Size(1862, 598);
             webviewReport.TabIndex = 0;
             webviewReport.ZoomFactor = 1D;
             // 
@@ -157,7 +159,7 @@
             tabTools.Controls.Add(splitTools);
             tabTools.Location = new Point(10, 58);
             tabTools.Name = "tabTools";
-            tabTools.Size = new Size(1868, 651);
+            tabTools.Size = new Size(1868, 604);
             tabTools.TabIndex = 5;
             tabTools.Text = "Tools";
             tabTools.UseVisualStyleBackColor = true;
@@ -167,17 +169,18 @@
             splitTools.Dock = DockStyle.Fill;
             splitTools.Location = new Point(0, 0);
             splitTools.Name = "splitTools";
-            splitTools.Orientation = Orientation.Horizontal;
             // 
             // splitTools.Panel1
             // 
             splitTools.Panel1.Controls.Add(gridInstantiate);
+            splitTools.Panel1.Controls.Add(buttonInstantiate);
             // 
             // splitTools.Panel2
             // 
             splitTools.Panel2.Controls.Add(gridCombine);
-            splitTools.Size = new Size(1868, 651);
-            splitTools.SplitterDistance = 375;
+            splitTools.Panel2.Controls.Add(buttonCombine);
+            splitTools.Size = new Size(1868, 604);
+            splitTools.SplitterDistance = 934;
             splitTools.TabIndex = 0;
             // 
             // gridInstantiate
@@ -223,10 +226,9 @@
             gridInstantiate.SelectionMode = DataGridViewSelectionMode.CellSelect;
             gridInstantiate.ShowCellToolTips = false;
             gridInstantiate.ShowEditingIcon = false;
-            gridInstantiate.Size = new Size(1868, 375);
+            gridInstantiate.Size = new Size(934, 546);
             gridInstantiate.TabIndex = 6;
             gridInstantiate.CellEndEdit += OnCellEndEdit_gridInstantiate;
-            gridInstantiate.SelectionChanged += OnSelectionChanged;
             // 
             // gridInstantiateColumnSubstance
             // 
@@ -265,6 +267,17 @@
             gridInstantiateColumnIsFreeVariable.ReadOnly = true;
             gridInstantiateColumnIsFreeVariable.Visible = false;
             gridInstantiateColumnIsFreeVariable.Width = 222;
+            // 
+            // buttonInstantiate
+            // 
+            buttonInstantiate.Dock = DockStyle.Bottom;
+            buttonInstantiate.Location = new Point(0, 546);
+            buttonInstantiate.Name = "buttonInstantiate";
+            buttonInstantiate.Size = new Size(934, 58);
+            buttonInstantiate.TabIndex = 7;
+            buttonInstantiate.Text = "Instantiate";
+            buttonInstantiate.UseVisualStyleBackColor = true;
+            buttonInstantiate.Click += OnClick_buttonInstantiate;
             // 
             // gridCombine
             // 
@@ -309,10 +322,9 @@
             gridCombine.SelectionMode = DataGridViewSelectionMode.CellSelect;
             gridCombine.ShowCellToolTips = false;
             gridCombine.ShowEditingIcon = false;
-            gridCombine.Size = new Size(1868, 272);
+            gridCombine.Size = new Size(930, 546);
             gridCombine.TabIndex = 6;
             gridCombine.CellEndEdit += OnCellEndEdit_gridCombine;
-            gridCombine.SelectionChanged += OnSelectionChanged;
             // 
             // gridCombineColumnEquilibrium
             // 
@@ -334,12 +346,23 @@
             gridCombineColumnCount.SortMode = DataGridViewColumnSortMode.NotSortable;
             gridCombineColumnCount.Width = 109;
             // 
+            // buttonCombine
+            // 
+            buttonCombine.Dock = DockStyle.Bottom;
+            buttonCombine.Location = new Point(0, 546);
+            buttonCombine.Name = "buttonCombine";
+            buttonCombine.Size = new Size(930, 58);
+            buttonCombine.TabIndex = 7;
+            buttonCombine.Text = "Combine";
+            buttonCombine.UseVisualStyleBackColor = true;
+            buttonCombine.Click += OnClick_buttonCombine;
+            // 
             // tabPermutate
             // 
             tabPermutate.Controls.Add(listPermutator);
             tabPermutate.Location = new Point(10, 58);
             tabPermutate.Name = "tabPermutate";
-            tabPermutate.Size = new Size(1868, 651);
+            tabPermutate.Size = new Size(1868, 604);
             tabPermutate.TabIndex = 3;
             tabPermutate.Text = "Permutate";
             tabPermutate.UseVisualStyleBackColor = true;
@@ -352,7 +375,7 @@
             listPermutator.Location = new Point(0, 0);
             listPermutator.Name = "listPermutator";
             listPermutator.ScrollAlwaysVisible = true;
-            listPermutator.Size = new Size(1868, 651);
+            listPermutator.Size = new Size(1868, 604);
             listPermutator.TabIndex = 2;
             listPermutator.TabStop = false;
             listPermutator.MouseDoubleClick += OnMouseDoubleClick_listPermutator;
@@ -372,9 +395,9 @@
             // 
             AutoScaleMode = AutoScaleMode.None;
             ClientSize = new Size(1888, 992);
-            Controls.Add(textboxFinalResult);
             Controls.Add(theTabControl);
             Controls.Add(containerInput);
+            Controls.Add(textboxFinalResult);
             DoubleBuffered = true;
             MinimumSize = new Size(1920, 1080);
             Name = "FormMain";
@@ -418,5 +441,7 @@
         private TextBox textboxFinalResult;
         private DataGridViewTextBoxColumn gridCombineColumnEquilibrium;
         private DataGridViewTextBoxColumn gridCombineColumnCount;
+        private Button buttonInstantiate;
+        private Button buttonCombine;
     }
 }

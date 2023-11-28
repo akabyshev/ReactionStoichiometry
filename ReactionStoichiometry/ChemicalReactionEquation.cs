@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
@@ -24,25 +25,26 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "Rank")]
         internal readonly Int32 CompositionMatrixRank;
 
-        [JsonProperty(PropertyName = "OriginalEquationString")]
-        internal readonly String InOriginalForm;
-
         [JsonProperty(PropertyName = "Labels")]
         internal readonly IReadOnlyList<String> Labels;
+
+        [JsonProperty(PropertyName = "OriginalEquationString")]
+        internal readonly String OriginalString;
 
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "RREF")] [JsonConverter(typeof(JsonConverterRationalMatrix))]
         internal readonly Rational[,] RREF;
 
-        private readonly Lazy<SolutionColumnsBased> _lazyColumnsBasedSolution;
+        // ReSharper disable once InconsistentNaming
+        [JsonProperty(PropertyName = "SubstancesOrderWasAdaptedForCBS")]
+        internal readonly Boolean SubstancesOrderWasAdaptedForCBS;
 
-        [JsonProperty(PropertyName = "ColumnsBasedSolution")]
-        public SolutionColumnsBased ColumnsBasedSolution => _lazyColumnsBasedSolution.Value;
+        private readonly Lazy<SolutionColumnsBased> _lazyColumnsBasedSolution;
 
         private readonly Lazy<SolutionRowsBased> _lazyRowsBasedSolution;
 
-        [JsonProperty(PropertyName = "RowsBasedSolution")]
-        public SolutionRowsBased RowsBasedSolution => _lazyRowsBasedSolution.Value;
+        [JsonProperty(PropertyName = "ColumnsBasedSolution")]
+        public SolutionColumnsBased ColumnsBasedSolution => _lazyColumnsBasedSolution.Value;
 
         [JsonIgnore]
         public String InGeneralForm =>
@@ -52,6 +54,9 @@ namespace ReactionStoichiometry
                                                   , adapter: static s => s
                                                   , goesToRhsIf: static _ => false
                                                   , allowEmptyRhs: true);
+
+        [JsonProperty(PropertyName = "RowsBasedSolution")]
+        public SolutionRowsBased RowsBasedSolution => _lazyRowsBasedSolution.Value;
 
         // ReSharper disable once InconsistentNaming
         [JsonProperty(PropertyName = "SpecialColumnsOfRREF")]
@@ -70,14 +75,36 @@ namespace ReactionStoichiometry
 
         public ChemicalReactionEquation(String equationString)
         {
-            InOriginalForm = equationString.Replace(oldValue: " ", String.Empty);
-            AppSpecificException.ThrowIf(!IsValidString(InOriginalForm), message: "Invalid string");
+            OriginalString = equationString;
+            do
+            {
+                equationString = equationString.Replace(oldValue: " ", String.Empty);
+                AppSpecificException.ThrowIf(!IsValidString(equationString), message: "Invalid string");
+                SubstancesOrderWasAdaptedForCBS = false;
+                Substances = equationString.Split('=', '+').Where(predicate: static s => s != "0").Distinct().ToList();
+                Labels = Enumerable.Range(start: 0, Substances.Count).Select(selector: static i => 'x' + (i + 1).ToString(format: "D2")).ToList();
+                FillCompositionMatrix(equationString, out CCM, out ChemicalElements);
+                RREF = CCM.GetRREF(trim: true);
 
-            Substances = InOriginalForm.Split('=', '+').Where(predicate: static s => s != "0").Distinct().ToList();
+                var misplacedSubstanceIndices =
+                    SpecialColumnsOfRREF.Where(predicate: (t, i) => t != RREF.ColumnCount() - SpecialColumnsOfRREF.Count + i).ToList();
 
-            Labels = Enumerable.Range(start: 0, Substances.Count).Select(selector: static i => 'x' + (i + 1).ToString(format: "D2")).ToList();
-            FillCompositionMatrix(out CCM, out ChemicalElements);
-            RREF = CCM.GetRREF(trim: true);
+                if (misplacedSubstanceIndices.Count == 0)
+                {
+                    break;
+                }
+
+                var substanceToMove = misplacedSubstanceIndices.Select(selector: i => Substances[i]).ToArray();
+                foreach (var misplacedSubstance in substanceToMove)
+                {
+                    var pattern = $@"(?<=[=+]){misplacedSubstance}\+";
+                    Debug.Assert(Regex.IsMatch(equationString, pattern));
+                    equationString = Regex.Replace(equationString, pattern, replacement: "") + "+" + misplacedSubstance;
+                }
+
+                SubstancesOrderWasAdaptedForCBS = true;
+            } while (true);
+
             CompositionMatrixRank = RREF.RowCount();
             CompositionMatrixNullity = CCM.ColumnCount() - CompositionMatrixRank;
 
@@ -129,10 +156,10 @@ namespace ReactionStoichiometry
             return true;
         }
 
-        private void FillCompositionMatrix(out Rational[,] matrix, out IReadOnlyList<String> outElements)
+        private void FillCompositionMatrix(String equationString, out Rational[,] matrix, out IReadOnlyList<String> outElements)
         {
             var pseudoElementsOfCharge = new[] { "{e}", "Qn", "Qp" };
-            var elements = Regex.Matches(InOriginalForm, StringOperations.ELEMENT_SYMBOL)
+            var elements = Regex.Matches(equationString, StringOperations.ELEMENT_SYMBOL)
                                 .Select(selector: static m => m.Value)
                                 .Except(pseudoElementsOfCharge)
                                 .ToList();
