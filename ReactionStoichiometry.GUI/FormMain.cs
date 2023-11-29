@@ -129,7 +129,7 @@ namespace ReactionStoichiometry.GUI
             gridCombine.Visible = _equation.ColumnsBasedSolution is { Success: true, IndependentSetsOfCoefficients.Count: > 1 };
             if (_equation.ColumnsBasedSolution.Success)
             {
-                gridCombine.RowCount = _equation.ColumnsBasedSolution.IndependentSetsOfCoefficients.Count;
+                gridCombine.RowCount = _equation.ColumnsBasedSolution.IndependentSetsOfCoefficients!.Count;
                 for (var i = 0; i < _equation.ColumnsBasedSolution.IndependentSetsOfCoefficients.Count; i++)
                 {
                     gridCombine.Rows[i].Cells[gridCombineColumnEquilibrium.Name].Value =

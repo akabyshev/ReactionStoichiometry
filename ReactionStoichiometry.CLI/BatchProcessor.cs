@@ -19,32 +19,42 @@
             using StreamReader reader = new(ConstructPath(filename: @"input\MyBatch"));
             while (reader.ReadLine() is { } line)
             {
+                line = line.Trim();
+
                 if (line.StartsWith(IGNORED_LINE_MARK) || line.Length == 0)
                 {
                     continue;
                 }
 
-                var equation = new ChemicalReactionEquation(line);
-
-                foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
+                try
                 {
-                    using StreamWriter writerRowBasedSolution = new(ConstructPath(format.ToString(), str2: "RowBased"), append: true);
-                    using StreamWriter writerColumnsBasedSolutions = new(ConstructPath(format.ToString(), str2: "ColumnsBased"), append: true);
+                    var equation = new ChemicalReactionEquation(line);
 
-                    if (format != OutputFormat.DetailedMultiline)
+                    foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
                     {
-                        writerRowBasedSolution.WriteLine(line);
-                        writerColumnsBasedSolutions.WriteLine(line);
+                        using StreamWriter writerRowBasedSolution = new(ConstructPath(format.ToString(), str2: "RowBased"), append: true);
+                        using StreamWriter writerColumnsBasedSolutions = new(ConstructPath(format.ToString(), str2: "ColumnsBased"), append: true);
+
+                        if (format != OutputFormat.DetailedMultiline)
+                        {
+                            writerRowBasedSolution.WriteLine(line);
+                            writerColumnsBasedSolutions.WriteLine(line);
+                        }
+
+                        writerRowBasedSolution.Write(equation.RowsBasedSolution.ToString(format));
+                        writerRowBasedSolution.WriteLine(Environment.NewLine);
+                        writerColumnsBasedSolutions.Write(equation.ColumnsBasedSolution.ToString(format));
+                        writerColumnsBasedSolutions.WriteLine(Environment.NewLine);
                     }
 
-                    writerRowBasedSolution.Write(equation.RowsBasedSolution.ToString(format));
-                    writerRowBasedSolution.WriteLine(Environment.NewLine);
-                    writerColumnsBasedSolutions.Write(equation.ColumnsBasedSolution.ToString(format));
-                    writerColumnsBasedSolutions.WriteLine(Environment.NewLine);
+                    writerJson.Write(equation.ToJson());
+                    writerJson.WriteLine(value: ',');
                 }
-
-                writerJson.Write(equation.ToJson());
-                writerJson.WriteLine(value: ',');
+                catch (Exception e)
+                {
+                    if (e.Message != "Invalid string")
+                        throw;
+                }
             }
 
             writerJson.WriteLine(value: ']');

@@ -14,15 +14,13 @@ namespace ReactionStoichiometry
         public readonly ReadOnlyCollection<BigInteger>? InstanceSample;
 
         [JsonIgnore]
-        internal readonly ReadOnlyCollection<Int32>? FreeCoefficientIndices;
+        internal ReadOnlyCollection<Int32> FreeCoefficientIndices => Equation.SpecialColumnsOfRREF;
 
         internal SolutionRowsBased(ChemicalReactionEquation equation) : base(equation)
         {
             try
             {
                 AppSpecificException.ThrowIf(Equation.RREF.IsIdentityMatrix(), message: "SLE is unsolvable");
-
-                FreeCoefficientIndices = Equation.SpecialColumnsOfRREF;
 
                 InstanceSample = InstantiateInRationals(Enumerable.Repeat((BigInteger)1, FreeCoefficientIndices.Count).ToArray())
                                  .ScaleToIntegers()
@@ -47,7 +45,7 @@ namespace ReactionStoichiometry
                 AsMultilineString = String.Format(format: "{0} with coefficients{3}{1}{3}for any {2}"
                                                 , Equation.InGeneralForm
                                                 , String.Join(Environment.NewLine, AlgebraicExpressions!.Where(predicate: static s => s.Contains(value: " = ")))
-                                                , FreeCoefficientIndices!.Select(selector: i => Equation.Labels[i]).CoefficientsAsString()
+                                                , FreeCoefficientIndices.Select(selector: i => Equation.Labels[i]).CoefficientsAsString()
                                                 , Environment.NewLine);
             }
             else
@@ -55,7 +53,6 @@ namespace ReactionStoichiometry
                 AsSimpleString = GlobalConstants.FAILURE_MARK;
                 AsMultilineString = GlobalConstants.FAILURE_MARK;
             }
-            AsDetailedMultilineString = GetAsDetailedMultilineString();
 
             return;
 
@@ -132,7 +129,7 @@ namespace ReactionStoichiometry
 
         private Rational[] InstantiateInRationals(params BigInteger[] freeCoefficientValues)
         {
-            if (freeCoefficientValues.Length != FreeCoefficientIndices!.Count)
+            if (freeCoefficientValues.Length != FreeCoefficientIndices.Count)
             {
                 throw new ArgumentException(message: "Array size mismatch", nameof(freeCoefficientValues));
             }

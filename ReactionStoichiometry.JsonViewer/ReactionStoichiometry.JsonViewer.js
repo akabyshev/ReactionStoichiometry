@@ -42,6 +42,9 @@ function MakeJsonReadable(Equation, identifier) {
       }" in its generalized form:
       <p class="cre">${constructGeneralizedEquation(Equation)}</p>
   `;
+  if (Equation.SubstancesOrderWasAdaptedForCBS === true) {
+    recordDiv.innerHTML += `The order of substances was modified`;
+  }
   recordDiv.innerHTML += `<h3>Matrices</h3>`;
   recordDiv.innerHTML += `
       <p>A chemical composition matrix (CCM) is constructed: ${tableCCM}</p>
@@ -109,7 +112,7 @@ function report_RBS(Equation) {
         (index) => Equation.Labels[index] + " =",
         () => "Expression",
         null,
-        (r, c) => Equation.SpecialColumnsOfRREF.includes(r) 
+        (r, c) => Equation.SpecialColumnsOfRREF.includes(r)
       ).outerHTML
     }`;
 
@@ -235,7 +238,7 @@ function createTable(
     const columnHeader = document.createElement("th");
     columnHeader.innerHTML = colHeaderLabelFunc(index);
     if (markCellIf)
-        if (markCellIf(null, index))
+      if (markCellIf(null, index))
         columnHeader.innerHTML = `<mark>${columnHeader.innerHTML}</mark>`;
     tableRowOfColumnHeaders.appendChild(columnHeader);
   }
@@ -248,7 +251,7 @@ function createTable(
     const rowHeader = document.createElement("td");
     rowHeader.innerHTML = rowHeaderLabelFunc(dataRowIndex);
     if (markCellIf)
-        if (markCellIf(dataRowIndex, null))
+      if (markCellIf(dataRowIndex, null))
         rowHeader.innerHTML = `<mark>${rowHeader.innerHTML}</mark>`;
 
     currentRow.appendChild(rowHeader);
@@ -277,7 +280,7 @@ function createTable(
       columnFooter.innerHTML = colFooterLabelFunc(index);
       if (markCellIf)
         if (markCellIf(null, index))
-        columnFooter.innerHTML = `<mark>${columnFooter.innerHTML}</mark>`;
+          columnFooter.innerHTML = `<mark>${columnFooter.innerHTML}</mark>`;
       tableRowOfColumnFooters.appendChild(columnFooter);
     }
     tableFoot.appendChild(tableRowOfColumnFooters);

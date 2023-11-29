@@ -8,13 +8,12 @@ namespace ReactionStoichiometry
     public sealed class SolutionColumnsBased : Solution
     {
         [JsonProperty(PropertyName = "IndependentSetsOfCoefficients")]
-        public readonly ReadOnlyCollection<BigInteger[]> IndependentSetsOfCoefficients;
+        public readonly ReadOnlyCollection<BigInteger[]>? IndependentSetsOfCoefficients;
 
         [JsonProperty(PropertyName = "CombinationSample")]
-        internal readonly (Int32[]? recipe, BigInteger[]? coefficients) CombinationSample;
+        public readonly (Int32[]? recipe, BigInteger[]? coefficients) CombinationSample;
 
         [JsonProperty(PropertyName = "InverseMatrix")]
-        [JsonConverter(typeof(JsonConverterRationalMatrix))]
         internal readonly Rational[,]? InverseMatrix;
 
         internal SolutionColumnsBased(ChemicalReactionEquation equation) : base(equation)
@@ -24,13 +23,6 @@ namespace ReactionStoichiometry
                 AppSpecificException.ThrowIf(Equation.CompositionMatrixNullity == 0, message: "Zero null-space");
                 AppSpecificException.ThrowIf(Equation.RREF.RowCount() >= Equation.RREF.ColumnCount()
                                            , message: "The method fails on equations like this"); //todo: provoke
-
-                AppSpecificException.ThrowIf(
-                    !Enumerable.Range(Equation.RREF.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
-                               .SequenceEqual(equation.SpecialColumnsOfRREF ?? throw new InvalidOperationException())
-                  , String.Format(format: "Use 'Permutation' tool or manually place {0} at the end of input string"
-                                , String.Join(separator: " and ", equation.SpecialColumnsOfRREF.Select(selector: i => equation.Substances[i]))));
-
 
                 {
                     var square = new Rational[Equation.RREF.ColumnCount(), Equation.RREF.ColumnCount()];
@@ -87,14 +79,13 @@ namespace ReactionStoichiometry
                 AsSimpleString = GlobalConstants.FAILURE_MARK;
                 AsMultilineString = GlobalConstants.FAILURE_MARK;
             }
-            AsDetailedMultilineString = GetAsDetailedMultilineString();
         }
 
         public BigInteger[] CombineIndependents(params Int32[] combination)
         {
             var result = new BigInteger[Equation.Substances.Count];
 
-            for (var r = 0; r < IndependentSetsOfCoefficients.Count; r++)
+            for (var r = 0; r < IndependentSetsOfCoefficients!.Count; r++)
             {
                 for (var c = 0; c < result.Length; c++)
                 {

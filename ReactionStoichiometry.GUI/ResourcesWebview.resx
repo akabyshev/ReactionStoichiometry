@@ -249,6 +249,9 @@ function MakeJsonReadable(Equation, identifier) {
       }" in its generalized form:
       &lt;p class="cre"&gt;${constructGeneralizedEquation(Equation)}&lt;/p&gt;
   `;
+  if (Equation.SubstancesOrderWasAdaptedForCBS === true) {
+    recordDiv.innerHTML += `The order of substances was modified`;
+  }
   recordDiv.innerHTML += `&lt;h3&gt;Matrices&lt;/h3&gt;`;
   recordDiv.innerHTML += `
       &lt;p&gt;A chemical composition matrix (CCM) is constructed: ${tableCCM}&lt;/p&gt;
@@ -275,7 +278,7 @@ function MakeJsonReadable(Equation, identifier) {
         Equation.RowsBasedSolution.InstanceSample
       )}&lt;/p&gt;`;
     } else {
-      recordDiv.innerHTML += `There are infinitely many solutions`;
+      recordDiv.innerHTML += `Use GUI to discover rest of infinitely many balancing coefficients sets`;
     }
   }
   document.body.appendChild(recordDiv);
@@ -316,7 +319,7 @@ function report_RBS(Equation) {
         (index) =&gt; Equation.Labels[index] + " =",
         () =&gt; "Expression",
         null,
-        (r, c) =&gt; Equation.SpecialColumnsOfRREF.includes(r) 
+        (r, c) =&gt; Equation.SpecialColumnsOfRREF.includes(r)
       ).outerHTML
     }`;
 
@@ -442,7 +445,7 @@ function createTable(
     const columnHeader = document.createElement("th");
     columnHeader.innerHTML = colHeaderLabelFunc(index);
     if (markCellIf)
-        if (markCellIf(null, index))
+      if (markCellIf(null, index))
         columnHeader.innerHTML = `&lt;mark&gt;${columnHeader.innerHTML}&lt;/mark&gt;`;
     tableRowOfColumnHeaders.appendChild(columnHeader);
   }
@@ -455,7 +458,7 @@ function createTable(
     const rowHeader = document.createElement("td");
     rowHeader.innerHTML = rowHeaderLabelFunc(dataRowIndex);
     if (markCellIf)
-        if (markCellIf(dataRowIndex, null))
+      if (markCellIf(dataRowIndex, null))
         rowHeader.innerHTML = `&lt;mark&gt;${rowHeader.innerHTML}&lt;/mark&gt;`;
 
     currentRow.appendChild(rowHeader);
@@ -484,7 +487,7 @@ function createTable(
       columnFooter.innerHTML = colFooterLabelFunc(index);
       if (markCellIf)
         if (markCellIf(null, index))
-        columnFooter.innerHTML = `&lt;mark&gt;${columnFooter.innerHTML}&lt;/mark&gt;`;
+          columnFooter.innerHTML = `&lt;mark&gt;${columnFooter.innerHTML}&lt;/mark&gt;`;
       tableRowOfColumnFooters.appendChild(columnFooter);
     }
     tableFoot.appendChild(tableRowOfColumnFooters);

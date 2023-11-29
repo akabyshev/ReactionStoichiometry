@@ -13,7 +13,7 @@ namespace ReactionStoichiometry
         public readonly IReadOnlyList<String> Substances;
 
         // ReSharper disable once InconsistentNaming
-        [JsonProperty(PropertyName = "CCM")] [JsonConverter(typeof(JsonConverterRationalMatrix))]
+        [JsonProperty(PropertyName = "CCM")]
         internal readonly Rational[,] CCM;
 
         [JsonProperty(PropertyName = "Elements")]
@@ -32,7 +32,7 @@ namespace ReactionStoichiometry
         internal readonly String OriginalString;
 
         // ReSharper disable once InconsistentNaming
-        [JsonProperty(PropertyName = "RREF")] [JsonConverter(typeof(JsonConverterRationalMatrix))]
+        [JsonProperty(PropertyName = "RREF")]
         internal readonly Rational[,] RREF;
 
         // ReSharper disable once InconsistentNaming
@@ -80,7 +80,6 @@ namespace ReactionStoichiometry
             {
                 equationString = equationString.Replace(oldValue: " ", String.Empty);
                 AppSpecificException.ThrowIf(!IsValidString(equationString), message: "Invalid string");
-                SubstancesOrderWasAdaptedForCBS = false;
                 Substances = equationString.Split('=', '+').Where(predicate: static s => s != "0").Distinct().ToList();
                 Labels = Enumerable.Range(start: 0, Substances.Count).Select(selector: static i => 'x' + (i + 1).ToString(format: "D2")).ToList();
                 FillCompositionMatrix(equationString, out CCM, out ChemicalElements);
@@ -93,6 +92,7 @@ namespace ReactionStoichiometry
                 {
                     break;
                 }
+                SubstancesOrderWasAdaptedForCBS = true;
 
                 var substanceToMove = misplacedSubstanceIndices.Select(selector: i => Substances[i]).ToArray();
                 foreach (var misplacedSubstance in substanceToMove)
@@ -101,8 +101,6 @@ namespace ReactionStoichiometry
                     Debug.Assert(Regex.IsMatch(equationString, pattern));
                     equationString = Regex.Replace(equationString, pattern, replacement: "") + "+" + misplacedSubstance;
                 }
-
-                SubstancesOrderWasAdaptedForCBS = true;
             } while (true);
 
             CompositionMatrixRank = RREF.RowCount();
@@ -129,7 +127,7 @@ namespace ReactionStoichiometry
 
         public String ToJson()
         {
-            var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+            var settings = new JsonSerializerSettings { Converters = { new JsonConverterRationalMatrix() }, NullValueHandling = NullValueHandling.Ignore };
             return JsonConvert.SerializeObject(this, settings);
         }
 
