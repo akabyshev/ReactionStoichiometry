@@ -4,8 +4,7 @@ namespace ReactionStoichiometry
 {
     public abstract class Solution
     {
-        [JsonIgnore]
-        private protected readonly ChemicalReactionEquation Equation;
+        [JsonIgnore] private protected readonly ChemicalReactionEquation Equation;
 
         [JsonProperty(PropertyName = "Success")]
         public Boolean Success { get; private protected init; }
@@ -25,22 +24,20 @@ namespace ReactionStoichiometry
             {
                 AppSpecificException.ThrowIf(
                     !Enumerable.Range(Equation.RREF.ColumnCount() - Equation.CompositionMatrixNullity, Equation.CompositionMatrixNullity)
-                               .SequenceEqual(Equation.SpecialColumnsOfRREF ?? throw new InvalidOperationException())
-                  , String.Format(format: "Free variables are misplaced, {0} must be the rightmost"
-                                , String.Join(separator: " and ", Equation.SpecialColumnsOfRREF.Select(selector: i => Equation.Substances[i]))));
+                               .SequenceEqual(Equation.SpecialColumnsOfRREF)
+                  , message: "Free variables are misplaced");
             }
         }
 
         public String ToString(OutputFormat format)
         {
             return format switch
-                   {
-                       OutputFormat.Simple => AsSimpleString
-                     , OutputFormat.Multiline => AsMultilineString
-                     , OutputFormat.DetailedMultiline => AsDetailedMultilineString()
-                     , _ => throw new ArgumentOutOfRangeException(nameof(format))
-                   }
-                ?? throw new NullReferenceException();
+            {
+                OutputFormat.Simple => AsSimpleString!
+              , OutputFormat.Multiline => AsMultilineString!
+              , OutputFormat.DetailedMultiline => AsDetailedMultilineString()
+              , _ => throw new ArgumentOutOfRangeException(nameof(format))
+            };
 
             String AsDetailedMultilineString()
             {

@@ -183,14 +183,16 @@ namespace ReactionStoichiometry.GUI
                 coefficients = toolId switch
                 {
                     1 => _equation.RowsBasedSolution.Instantiate(_equation.RowsBasedSolution.FreeCoefficientIndices
-                                                                          .Select(index => BigInteger.Parse(
-                                                                                      (gridInstantiate.Rows[index].Cells[gridInstantiateColumnValue.Name].Value
-                                                                                    ?? throw new FormatException()).ToString()!))
+                                                                          .Select(selector: index => BigInteger.Parse(
+                                                                                                (gridInstantiate.Rows[index]
+                                                                                                     .Cells[gridInstantiateColumnValue.Name].Value
+                                                                                              ?? throw new FormatException()).ToString()!))
                                                                           .ToArray())
                   , 2 => _equation.ColumnsBasedSolution.CombineIndependents(_equation.ColumnsBasedSolution.IndependentSetsOfCoefficients!
-                                                                                     .Select((_, i) => Int32.Parse(
-                                                                                                 (gridCombine.Rows[i].Cells[gridCombineColumnCount.Name].Value
-                                                                                               ?? throw new FormatException()).ToString()!))
+                                                                                     .Select(selector: (_, i) => Int32.Parse(
+                                                                                                           (gridCombine.Rows[i]
+                                                                                                                   .Cells[gridCombineColumnCount.Name].Value
+                                                                                                            ?? throw new FormatException()).ToString()!))
                                                                                      .ToArray())
                   , _ => throw new InvalidOperationException()
                 };
@@ -211,9 +213,24 @@ namespace ReactionStoichiometry.GUI
             {
                 gridInstantiate.Rows[i].Cells[gridInstantiateColumnValue.Name].Value = coefficients != null ? coefficients[i] : "#VALUE!";
             }
-            for (var i = 0; i < gridCombine.Rows.Count; i++)
+
+            if (toolId == 1)
             {
-                gridCombine.Rows[i].Cells[gridCombineColumnCount.Name].Value = coefficients != null ? _equation.ColumnsBasedSolution.FindCombination(coefficients)[i] : "#VALUE!";
+                // 'instantiate' was used, recalculate 'combine'
+                var strings = Enumerable.Repeat(element: "#VALUE!", gridCombine.RowCount).ToArray();
+                if (coefficients != null)
+                {
+                    var combination = _equation.ColumnsBasedSolution.FindCombination(coefficients);
+                    if (combination != null)
+                    {
+                        strings = combination.Select(selector: static i => i.ToString()).ToArray();
+                    }
+                }
+
+                for (var i = 0; i < gridCombine.Rows.Count; i++)
+                {
+                    gridCombine.Rows[i].Cells[gridCombineColumnCount.Name].Value = strings[i];
+                }
             }
 
             ApplyGridVisuals();

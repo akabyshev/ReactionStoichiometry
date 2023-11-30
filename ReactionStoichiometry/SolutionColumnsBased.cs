@@ -7,14 +7,16 @@ namespace ReactionStoichiometry
 {
     public sealed class SolutionColumnsBased : Solution
     {
-        [JsonProperty(PropertyName = "IndependentSetsOfCoefficients")]
-        public readonly ReadOnlyCollection<BigInteger[]>? IndependentSetsOfCoefficients;
-
         [JsonProperty(PropertyName = "CombinationSample")]
         public readonly (Int32[]? recipe, BigInteger[]? coefficients) CombinationSample;
 
+        [JsonProperty(PropertyName = "IndependentSetsOfCoefficients")]
+        public readonly ReadOnlyCollection<BigInteger[]>? IndependentSetsOfCoefficients;
+
         [JsonProperty(PropertyName = "InverseMatrix")]
         internal readonly Rational[,]? InverseMatrix;
+
+        [JsonIgnore] private readonly Rational[,]? _inverseOfIndependents;
 
         internal SolutionColumnsBased(ChemicalReactionEquation equation) : base(equation)
         {
@@ -43,6 +45,27 @@ namespace ReactionStoichiometry
                                                 .Select(selector: c => InverseMatrix.Column(c).ScaleToIntegers())
                                                 .ToList()
                                                 .AsReadOnly();
+
+                {
+                    var size = Math.Max(IndependentSetsOfCoefficients.Count, Equation.Substances.Count);
+                    var array = new Rational[size, size];
+                    for (var c = 0; c < array.ColumnCount(); c++)
+                    {
+                        for (var r = 0; r < array.RowCount(); r++)
+                        {
+                            if (c < IndependentSetsOfCoefficients.Count)
+                            {
+                                var vector = IndependentSetsOfCoefficients[c];
+                                array[r, c] = new Rational(vector[r]);
+                            }
+                            else
+                            {
+                                array[r, c] = r == c ? 1 : 0;
+                            }
+                        }
+                    }
+                    _inverseOfIndependents = array.GetInverse();
+                }
 
                 CombinationSample = (null, null);
                 if (IndependentSetsOfCoefficients.Count > 1)
@@ -84,16 +107,24 @@ namespace ReactionStoichiometry
         public BigInteger[] CombineIndependents(params Int32[] combination)
         {
             return Equation.Substances
-                           .Select((_, c) => IndependentSetsOfCoefficients!.Select((rowData, r) => rowData[c] * combination[r])
-                                                                           .Aggregate(BigInteger.Zero, static (acc, val) => acc + val))
+                           .Select(selector: (_, c) => IndependentSetsOfCoefficients!.Select(selector: (rowData, r) => rowData[c] * combination[r])
+                                                                                     .Aggregate(BigInteger.Zero, func: static (acc, val) => acc + val))
                            .Select(selector: static i => new Rational(i))
                            .ToArray()
                            .ScaleToIntegers();
         }
 
-        public Int32[] FindCombination(BigInteger[] coefficients)
+        public Int32[]? FindCombination(params BigInteger[] coefficients)
         {
-            return Enumerable.Repeat(element: 1, coefficients.Length).ToArray(); //todo
+            AppSpecificException.ThrowIf(_inverseOfIndependents == null, message: "Unexpected null");
+            var vector = _inverseOfIndependents!.MultiplyByVector(coefficients).ToArray();
+            var count = IndependentSetsOfCoefficients!.Count;
+            if (vector.Skip(count).Any(predicate: static r => r != 0) || vector.Any(predicate: static r => r.Denominator != 1))
+            {
+                return null;
+            }
+
+            return vector.Take(count).Select(selector: static r => (Int32)r.Numerator).ToArray();
         }
     }
 }

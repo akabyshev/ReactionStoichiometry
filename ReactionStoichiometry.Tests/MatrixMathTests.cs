@@ -99,5 +99,17 @@ namespace ReactionStoichiometry.Tests
             Assert.False(new Rational[,] { { 2, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }.IsIdentityMatrix());
             Assert.False(new Rational[,] { { 1, 1, 0 }, { 0, 1, 0 }, { 0, 0, 1 } }.IsIdentityMatrix());
         }
+
+        [Fact]
+        public void MatrixMulti_Simple()
+        {
+            var matrix = new Rational[,] { { 1, 2, 3 }, { 14, 15, 16 }, { 27, 28, 29 } };
+
+            Assert.Throws<ArgumentException>(testCode: () => matrix.MultiplyByVector(new BigInteger[] { 1 }));
+            Assert.Null(Record.Exception((Action)(() => matrix.MultiplyByVector(new BigInteger[] { 1, 1, 1 }))));
+            Assert.Equal(new Rational[] { 0, 0, 0 }, matrix.MultiplyByVector(new BigInteger[] { 0, 0, 0 }));
+            Assert.Equal(new Rational[] { 6, 45, 84 }, matrix.MultiplyByVector(new BigInteger[] { 1, 1, 1 }));
+            Assert.Equal(new Rational[] { 155, 1728, 3301 }, matrix.MultiplyByVector(new BigInteger[] { 103, 2, 16 }));
+        }
     }
 }

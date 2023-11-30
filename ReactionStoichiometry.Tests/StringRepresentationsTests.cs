@@ -3,7 +3,7 @@ using Rationals;
 
 namespace ReactionStoichiometry.Tests
 {
-    public sealed class SerializationTests
+    public sealed class StringRepresentationsTests
     {
         [Fact]
         public void Json_Simple()
@@ -40,6 +40,13 @@ namespace ReactionStoichiometry.Tests
             const String expectedSerialization = "[[\"2\",\"0\",\"2\"],[\"0\",\"2\",\"1\"]]";
             var json = JsonConvert.SerializeObject(matrix, new JsonConverterRationalMatrix());
             Assert.Equal(expectedSerialization, json);
+        }
+
+        [Fact]
+        public void MatrixReadable_Simple()
+        {
+            var equation = new ChemicalReactionEquation(equationString: "H2 + O2 = H2O");
+            Assert.NotEqual(equation.RREF.Readable(title: "Hello"), equation.RREF.Readable(title: "Hello", index => equation.Substances[index]));
         }
     }
 }

@@ -13,8 +13,7 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "InstanceSample")]
         public readonly ReadOnlyCollection<BigInteger>? InstanceSample;
 
-        [JsonIgnore]
-        public ReadOnlyCollection<Int32> FreeCoefficientIndices => Equation.SpecialColumnsOfRREF;
+        [JsonIgnore] public ReadOnlyCollection<Int32> FreeCoefficientIndices => Equation.SpecialColumnsOfRREF;
 
         internal SolutionRowsBased(ChemicalReactionEquation equation) : base(equation)
         {

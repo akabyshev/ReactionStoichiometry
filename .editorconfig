@@ -21,6 +21,9 @@ csharp_style_expression_bodied_local_functions = false:silent
 csharp_style_allow_blank_line_after_colon_in_constructor_initializer_experimental = true:silent
 csharp_space_around_binary_operators = before_and_after
 
+# CA1861: Avoid constant arrays as arguments
+dotnet_diagnostic.CA1861.severity = none
+
 [*.{cs,vb}]
 #### Naming styles ####
 

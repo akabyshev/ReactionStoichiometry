@@ -1,3 +1,4 @@
+using System.Numerics;
 using Rationals;
 
 namespace ReactionStoichiometry
@@ -63,8 +64,6 @@ namespace ReactionStoichiometry
 
         internal static String Readable(this Rational[,] me, String title, Func<Int32, String>? rowHeaders = null, Func<Int32, String>? columnHeaders = null)
         {
-            rowHeaders ??= static i => $"R{i + 1:D2}";
-
             List<String> result = new() { title + ":" };
 
             if (columnHeaders != null)
@@ -76,6 +75,8 @@ namespace ReactionStoichiometry
 
             for (var r = 0; r < me.RowCount(); r++)
             {
+                rowHeaders ??= static i => $"R{i + 1:D2}";
+
                 List<String> line = new() { rowHeaders(r) };
                 line.AddRange(Enumerable.Range(start: 0, me.ColumnCount()).Select(selector: c => me[r, c].ToString()!));
                 result.Add(String.Join(separator: '\t', line));
@@ -190,6 +191,31 @@ namespace ReactionStoichiometry
 
             AppSpecificException.ThrowIf(!leftHalf.IsIdentityMatrix(), message: "Singular matrix");
             return rightHalf;
+        }
+
+        // ReSharper disable once ReturnTypeCanBeEnumerable.Global
+        internal static Rational[] MultiplyByVector(this Rational[,] matrix, BigInteger[] vector)
+        {
+            if (matrix.ColumnCount() != vector.Length)
+            {
+                throw new ArgumentException(message: "Array size mismatch");
+            }
+
+            var result = new Rational[matrix.RowCount()];
+
+            for (var i = 0; i < result.Length; i++)
+            {
+                var sum = new Rational(whole: 0);
+
+                for (var j = 0; j < matrix.ColumnCount(); j++)
+                {
+                    sum += matrix[i, j] * vector[j];
+                }
+
+                result[i] = sum.CanonicalForm;
+            }
+
+            return result;
         }
     }
 }

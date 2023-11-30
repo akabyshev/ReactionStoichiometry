@@ -9,7 +9,7 @@ namespace ReactionStoichiometry.Tests
             var equation = new ChemicalReactionEquation(eq);
             Assert.True(equation.RowsBasedSolution.Success);
             Assert.NotNull(equation.RowsBasedSolution.InstanceSample);
-            Assert.True(equation.RowsBasedSolution.FreeCoefficientIndices is { Count: 1 });
+            Assert.Single(equation.RowsBasedSolution.FreeCoefficientIndices);
             Assert.Equal(expected: 14845224399, equation.RowsBasedSolution.InstanceSample[equation.RowsBasedSolution.FreeCoefficientIndices[index: 0]]);
         }
 

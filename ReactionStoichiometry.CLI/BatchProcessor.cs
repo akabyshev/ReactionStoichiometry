@@ -2,8 +2,6 @@
 {
     internal abstract class BatchProcessor
     {
-        private const String IGNORED_LINE_MARK = "#";
-
         internal static void Run()
         {
             foreach (OutputFormat format in Enum.GetValues(typeof(OutputFormat)))
@@ -21,7 +19,7 @@
             {
                 line = line.Trim();
 
-                if (line.StartsWith(IGNORED_LINE_MARK) || line.Length == 0)
+                if (line.StartsWith(value: '#') || line.Length == 0)
                 {
                     continue;
                 }
@@ -53,7 +51,9 @@
                 catch (Exception e)
                 {
                     if (e.Message != "Invalid string")
+                    {
                         throw;
+                    }
                 }
             }
 
