@@ -17,29 +17,6 @@ namespace ReactionStoichiometry.Tests
             Assert.Null(solution.CombinationSample.coefficients);
         }
 
-        //[Fact]
-        //public void FalseNegative_Simple()
-        //{
-        //    const String eqInverseBasedCantSolve = "O2+O3+Na+Cl2=NaCl";
-        //    var equation = new ChemicalReactionEquation(eqInverseBasedCantSolve);
-        //    var inverseBased = equation.ColumnsBasedSolution;
-        //    Assert.False(inverseBased.Success);
-
-        //    Assert.Equal(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.Simple));
-        //    Assert.Contains(GlobalConstants.FAILURE_MARK, inverseBased.ToString(OutputFormat.DetailedMultiline));
-
-        //    Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(0, 0)));
-        //    Assert.Throws<AppSpecificException>(
-        //        testCode: () => equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(0, 0)));
-
-        //    Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(2, 0)));
-        //    Assert.Equal(expected: "3·O2 = 2·O3", equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(2, 0)));
-
-        //    Assert.True(equation.Validate(equation.RowsBasedSolution.Instantiate(0, 2)));
-        //    Assert.Equal(expected: "2·Na + Cl2 = 2·NaCl"
-        //               , equation.EquationWithIntegerCoefficients(equation.RowsBasedSolution.Instantiate(0, 2)));
-        //}
-
         [Fact]
         public void TruePositive_Simple()
         {

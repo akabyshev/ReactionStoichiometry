@@ -129,6 +129,7 @@
             theTabControl.Name = "theTabControl";
             theTabControl.SelectedIndex = 0;
             theTabControl.Size = new Size(1888, 672);
+            theTabControl.SizeMode = TabSizeMode.Fixed;
             theTabControl.TabIndex = 10;
             // 
             // tabHtml
@@ -210,7 +211,7 @@
             dataGridViewCellStyle2.WrapMode = DataGridViewTriState.False;
             gridInstantiate.DefaultCellStyle = dataGridViewCellStyle2;
             gridInstantiate.Dock = DockStyle.Fill;
-            gridInstantiate.Location = new Point(0, 0);
+            gridInstantiate.Location = new Point(0, 58);
             gridInstantiate.Name = "gridInstantiate";
             dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleRight;
             dataGridViewCellStyle3.BackColor = SystemColors.Control;
@@ -270,8 +271,8 @@
             // 
             // buttonInstantiate
             // 
-            buttonInstantiate.Dock = DockStyle.Bottom;
-            buttonInstantiate.Location = new Point(0, 546);
+            buttonInstantiate.Dock = DockStyle.Top;
+            buttonInstantiate.Location = new Point(0, 0);
             buttonInstantiate.Name = "buttonInstantiate";
             buttonInstantiate.Size = new Size(934, 58);
             buttonInstantiate.TabIndex = 7;
@@ -306,7 +307,7 @@
             dataGridViewCellStyle5.WrapMode = DataGridViewTriState.False;
             gridCombine.DefaultCellStyle = dataGridViewCellStyle5;
             gridCombine.Dock = DockStyle.Fill;
-            gridCombine.Location = new Point(0, 0);
+            gridCombine.Location = new Point(0, 58);
             gridCombine.Name = "gridCombine";
             dataGridViewCellStyle6.Alignment = DataGridViewContentAlignment.MiddleRight;
             dataGridViewCellStyle6.BackColor = SystemColors.Control;
@@ -348,8 +349,8 @@
             // 
             // buttonCombine
             // 
-            buttonCombine.Dock = DockStyle.Bottom;
-            buttonCombine.Location = new Point(0, 546);
+            buttonCombine.Dock = DockStyle.Top;
+            buttonCombine.Location = new Point(0, 0);
             buttonCombine.Name = "buttonCombine";
             buttonCombine.Size = new Size(930, 58);
             buttonCombine.TabIndex = 7;

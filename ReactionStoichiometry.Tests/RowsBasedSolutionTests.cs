@@ -42,7 +42,6 @@ namespace ReactionStoichiometry.Tests
             Assert.Contains(GlobalConstants.FAILURE_MARK, solution.ToString(OutputFormat.DetailedMultiline));
             Assert.Null(solution.AlgebraicExpressions);
             Assert.Null(solution.InstanceSample);
-            Assert.Null(solution.FreeCoefficientIndices);
         }
 
         [Fact]

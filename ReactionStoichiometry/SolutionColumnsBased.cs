@@ -83,17 +83,17 @@ namespace ReactionStoichiometry
 
         public BigInteger[] CombineIndependents(params Int32[] combination)
         {
-            var result = new BigInteger[Equation.Substances.Count];
+            return Equation.Substances
+                           .Select((_, c) => IndependentSetsOfCoefficients!.Select((rowData, r) => rowData[c] * combination[r])
+                                                                           .Aggregate(BigInteger.Zero, static (acc, val) => acc + val))
+                           .Select(selector: static i => new Rational(i))
+                           .ToArray()
+                           .ScaleToIntegers();
+        }
 
-            for (var r = 0; r < IndependentSetsOfCoefficients!.Count; r++)
-            {
-                for (var c = 0; c < result.Length; c++)
-                {
-                    result[c] += IndependentSetsOfCoefficients[r][c] * combination[r];
-                }
-            }
-
-            return result.Select(selector: static i => new Rational(i)).ToArray().ScaleToIntegers(); // return 1,2,3 if result is 5,10,15
+        public Int32[] FindCombination(BigInteger[] coefficients)
+        {
+            return Enumerable.Repeat(element: 1, coefficients.Length).ToArray(); //todo
         }
     }
 }

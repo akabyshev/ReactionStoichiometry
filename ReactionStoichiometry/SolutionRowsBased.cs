@@ -14,7 +14,7 @@ namespace ReactionStoichiometry
         public readonly ReadOnlyCollection<BigInteger>? InstanceSample;
 
         [JsonIgnore]
-        internal ReadOnlyCollection<Int32> FreeCoefficientIndices => Equation.SpecialColumnsOfRREF;
+        public ReadOnlyCollection<Int32> FreeCoefficientIndices => Equation.SpecialColumnsOfRREF;
 
         internal SolutionRowsBased(ChemicalReactionEquation equation) : base(equation)
         {
@@ -122,9 +122,9 @@ namespace ReactionStoichiometry
         public BigInteger[] Instantiate(params BigInteger[] freeCoefficientValues)
         {
             var resultInRationals = InstantiateInRationals(freeCoefficientValues);
-            AppSpecificException.ThrowIf(!resultInRationals.Select(selector: static r => r.Denominator).All(predicate: static r => r.IsOne)
-                                       , message: "Non-integer coefficient, try other SLE params");
-            return resultInRationals.ScaleToIntegers(); // return 1,2,3 if result is 5,10,15
+            AppSpecificException.ThrowIf(resultInRationals.Select(selector: static r => r.Denominator).Any(predicate: static r => !r.IsOne)
+                                       , message: "Non-integer coefficient obtained");
+            return resultInRationals.ScaleToIntegers();
         }
 
         private Rational[] InstantiateInRationals(params BigInteger[] freeCoefficientValues)
