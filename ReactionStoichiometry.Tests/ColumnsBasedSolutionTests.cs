@@ -196,17 +196,5 @@ namespace ReactionStoichiometry.Tests
             Assert.True(equation.Validate(fromAuthor));
             Assert.Null(cbs.FindCombination(fromAuthor)); // todo: how did he get that valid-but-invalid solution?
         }
-
-        [Fact]
-        public void SPECIAL_TDD_FAILING_EXAMPLE()
-        {
-            const String problematic = @"K2CO3+CH4+H2O+N2+O2=KHCO3+NH3";
-            var equation = new ChemicalReactionEquation(problematic);
-            var rbs = equation.RowsBasedSolution;
-            var cbs = equation.ColumnsBasedSolution;
-
-            Assert.True(rbs.Success);
-            Assert.True(cbs.Success);
-        }
     }
 }

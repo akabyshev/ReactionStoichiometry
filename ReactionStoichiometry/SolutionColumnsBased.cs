@@ -16,8 +16,6 @@ namespace ReactionStoichiometry
         [JsonProperty(PropertyName = "InverseMatrix")]
         internal readonly Rational[,]? InverseMatrix;
 
-        [JsonIgnore] private readonly Rational[,]? _inverseOfIndependents;
-
         internal SolutionColumnsBased(ChemicalReactionEquation equation) : base(equation)
         {
             try
@@ -46,37 +44,20 @@ namespace ReactionStoichiometry
                                                 .ToList()
                                                 .AsReadOnly();
 
-                {
-                    var size = Math.Max(IndependentSetsOfCoefficients.Count, Equation.Substances.Count);
-                    var array = new Rational[size, size];
-                    for (var c = 0; c < array.ColumnCount(); c++)
-                    {
-                        for (var r = 0; r < array.RowCount(); r++)
-                        {
-                            if (c < IndependentSetsOfCoefficients.Count)
-                            {
-                                var vector = IndependentSetsOfCoefficients[c];
-                                array[r, c] = new Rational(vector[r]);
-                            }
-                            else
-                            {
-                                array[r, c] = r == c ? 1 : 0;
-                            }
-                        }
-                    }
-                    _inverseOfIndependents = array.GetInverse();
-                }
-
                 CombinationSample = (null, null);
                 if (IndependentSetsOfCoefficients.Count > 1)
                 {
+                    var countOfReactantsInOriginal = equation.OriginalString.Split(separator: "=")[0].Split(separator: "+").Length;
                     foreach (var combination in Helpers.GeneratePermutations(IndependentSetsOfCoefficients.Count, maxValue: 10))
                     {
                         var candidate = CombineIndependents(combination);
-                        if (candidate.Any(predicate: static i => i == 0))
-                        {
+                        if (candidate.Take(countOfReactantsInOriginal).Any(static i => i > 0))
                             continue;
-                        }
+                        if (candidate.Skip(countOfReactantsInOriginal).Any(static i => i < 0))
+                            continue;
+                        if (candidate.Any(predicate: static i => i == 0))
+                            continue;
+
                         CombinationSample = (combination, candidate);
                         break;
                     }
@@ -116,15 +97,38 @@ namespace ReactionStoichiometry
 
         public Int32[]? FindCombination(params BigInteger[] coefficients)
         {
-            AppSpecificException.ThrowIf(_inverseOfIndependents == null, message: "Unexpected null");
-            var vector = _inverseOfIndependents!.MultiplyByVector(coefficients).ToArray();
-            var count = IndependentSetsOfCoefficients!.Count;
-            if (vector.Skip(count).Any(predicate: static r => r != 0) || vector.Any(predicate: static r => r.Denominator != 1))
+            // solving Ax=B
+            // where A is a matrix, x and B are vectors
+            // x is Inv(A)*B
+            ArgumentNullException.ThrowIfNull(IndependentSetsOfCoefficients);
+
+            var matrixA = new Rational[IndependentSetsOfCoefficients.Count, IndependentSetsOfCoefficients.Count];
+            var vectorB = new BigInteger[IndependentSetsOfCoefficients.Count];
+
+            Int32 i = 0, j = 0;
+            while (i < IndependentSetsOfCoefficients.Count)
+            {
+                var candidateRowOfA = IndependentSetsOfCoefficients.Select(v => v[i]).ToArray();
+                if (candidateRowOfA.All(static v => v != 0))
+                {
+                    for (var k = 0; k < candidateRowOfA.Length; k++)
+                    {
+                        matrixA[j, k] = candidateRowOfA[k];
+                    }
+                    vectorB[j] = coefficients[i];
+                    j++;
+                }
+                i++;
+            }
+
+            var vectorX = matrixA.GetInverse().MultiplyByVector(vectorB).ToArray();
+            if (vectorX.Any(predicate: static r => r.Denominator != 1))
             {
                 return null;
             }
+            var candidate = vectorX.Select(selector: static r => (Int32)r.Numerator).ToArray();
 
-            return vector.Take(count).Select(selector: static r => (Int32)r.Numerator).ToArray();
+            return CombineIndependents(candidate).SequenceEqual(coefficients) ? candidate : null;
         }
     }
 }
