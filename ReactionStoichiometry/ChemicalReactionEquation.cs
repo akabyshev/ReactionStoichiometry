@@ -174,7 +174,7 @@ namespace ReactionStoichiometry
 
             for (var r = 0; r < elements.Count; r++)
             {
-                Regex regex = new(StringOperations.ELEMENT_TEMPLATE.Replace(oldValue: "X", elements[r]));
+                Regex regex = new(elements[r] + StringOperations.INDEX);
 
                 for (var c = 0; c < Substances.Count; c++)
                 {

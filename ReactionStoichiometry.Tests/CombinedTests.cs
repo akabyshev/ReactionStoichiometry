@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace ReactionStoichiometry.Tests
 {
     public sealed class CombinedTests
@@ -25,10 +27,16 @@ namespace ReactionStoichiometry.Tests
 
                 var instances = parts[1]
                                 .Split(separator: ';')
-                                .Select(StringOperations.GetParametersFromString)
+                                .Select(GetParametersFromString)
                                 .Select(selector: parametersSet => equation.EquationWithIntegerCoefficients(rbs.Instantiate(parametersSet)));
 
                 Assert.Equal(cbs.ToString(OutputFormat.Multiline), String.Join(Environment.NewLine, instances));
+            }
+
+            return;
+            static BigInteger[] GetParametersFromString(String s)
+            {
+                return s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse).ToArray();
             }
         }
 

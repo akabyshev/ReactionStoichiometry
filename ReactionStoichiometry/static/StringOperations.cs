@@ -1,28 +1,27 @@
-﻿using System.Numerics;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace ReactionStoichiometry
 {
     internal static class StringOperations
     {
         internal const String ELEMENT_SYMBOL = "[A-Z][a-z]|[A-Z]";
-        internal const String ELEMENT_TEMPLATE = @"X(\d+(?:\.\d+)*)";
-        private const String CLOSING_PARENTHESIS = @"\)";
+        internal const String INDEX = @"(\d+(?:\.\d+)*)";
+        private const String ELEMENT_WITH_NO_INDEX = $"({ELEMENT_SYMBOL})(?={ELEMENT_SYMBOL}|{PARENTHESIS_OPENING}|{PARENTHESIS_CLOSING}|$)";
 
-        private const String INNERMOST_PARENTHESES_WITH_INDEX =
-            @$"{OPENING_PARENTHESIS}([^{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+){CLOSING_PARENTHESIS}(\d+)";
+        private const String EQUATION_STRUCTURE = @$"^(?:{SUBSTANCE}\+)*{SUBSTANCE}={SUBSTANCE}(?:\+{SUBSTANCE})*$";
 
-        private const String NO_INDEX_CLOSING_PARENTHESIS = @$"{CLOSING_PARENTHESIS}(?!\d)";
-        private const String NO_INDEX_ELEMENT = $"({ELEMENT_SYMBOL})({ELEMENT_SYMBOL}|{OPENING_PARENTHESIS}|{CLOSING_PARENTHESIS}|$)";
-        private const String OPENING_PARENTHESIS = @"\(";
+        private const String PARENTHESES_INNERMOST_PAIR_WITH_INDEX =
+            $"{PARENTHESIS_OPENING}([^{PARENTHESIS_OPENING}{PARENTHESIS_CLOSING}]+){PARENTHESIS_CLOSING}({INDEX})";
 
-        private const String SKELETAL_STRUCTURE = @$"^(?:{SUBSTANCE_ALPHABET}\+)*{SUBSTANCE_ALPHABET}={SUBSTANCE_ALPHABET}(?:\+{SUBSTANCE_ALPHABET})*$";
+        private const String PARENTHESIS_CLOSING = @"\)";
+        private const String PARENTHESIS_CLOSING_WITH_NO_INDEX = $"{PARENTHESIS_CLOSING}(?!{INDEX})";
+        private const String PARENTHESIS_OPENING = @"\(";
 
-        private const String SUBSTANCE_ALPHABET = @$"[A-Za-z0-9\.{OPENING_PARENTHESIS}{CLOSING_PARENTHESIS}]+";
+        private const String SUBSTANCE = @$"[A-Za-z0-9\.{PARENTHESIS_OPENING}{PARENTHESIS_CLOSING}]+";
 
         internal static Boolean LooksLikeChemicalReactionEquation(String equationString)
         {
-            return Regex.IsMatch(equationString, SKELETAL_STRUCTURE);
+            return Regex.IsMatch(equationString, EQUATION_STRUCTURE);
         }
 
         internal static String UnfoldSubstance(String substance)
@@ -30,7 +29,7 @@ namespace ReactionStoichiometry
             var result = substance;
 
             {
-                Regex regex = new(NO_INDEX_ELEMENT);
+                Regex regex = new(ELEMENT_WITH_NO_INDEX);
                 while (true)
                 {
                     var match = regex.Match(result);
@@ -39,12 +38,11 @@ namespace ReactionStoichiometry
                         break;
                     }
                     var element = match.Groups[groupnum: 1].Value;
-                    var rest = match.Groups[groupnum: 2].Value;
-                    result = regex.Replace(result, element + "1" + rest, count: 1);
+                    result = regex.Replace(result, element + "1", count: 1);
                 }
             }
             {
-                Regex regex = new(NO_INDEX_CLOSING_PARENTHESIS);
+                Regex regex = new(PARENTHESIS_CLOSING_WITH_NO_INDEX);
                 while (true)
                 {
                     var match = regex.Match(result);
@@ -57,7 +55,7 @@ namespace ReactionStoichiometry
                 }
             }
             {
-                Regex regex = new(INNERMOST_PARENTHESES_WITH_INDEX);
+                Regex regex = new(PARENTHESES_INNERMOST_PAIR_WITH_INDEX);
                 while (true)
                 {
                     var match = regex.Match(result);
@@ -67,9 +65,7 @@ namespace ReactionStoichiometry
                     }
                     var token = match.Groups[groupnum: 1].Value;
                     var index = match.Groups[groupnum: 2].Value;
-
-                    var repeated = String.Join(String.Empty, Enumerable.Repeat(token, Int32.Parse(index)));
-                    result = regex.Replace(result, repeated, count: 1);
+                    result = regex.Replace(result, String.Join(String.Empty, Enumerable.Repeat(token, Int32.Parse(index))), count: 1);
                 }
             }
 
@@ -115,11 +111,6 @@ namespace ReactionStoichiometry
         internal static String CoefficientsAsString<T>(this IEnumerable<T> me)
         {
             return "{" + String.Join(separator: ", ", me) + "}";
-        }
-
-        internal static BigInteger[] GetParametersFromString(String s)
-        {
-            return s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse).ToArray();
         }
     }
 }

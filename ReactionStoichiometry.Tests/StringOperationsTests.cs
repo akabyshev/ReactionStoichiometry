@@ -16,9 +16,11 @@ namespace ReactionStoichiometry.Tests
         [Fact]
         public void StringLooksLikeChemicalReactionEquation_Simple()
         {
+            Assert.True(StringOperations.LooksLikeChemicalReactionEquation(equationString: @"C6H5COOH+O2=CO2+H2O"));
+
             Assert.False(StringOperations.LooksLikeChemicalReactionEquation(equationString: @"C6H5COOH + O2 = CO2 + H2O"));
             Assert.False(StringOperations.LooksLikeChemicalReactionEquation(equationString: @"C6H5COOH+O2->CO2+H2O"));
-            Assert.True(StringOperations.LooksLikeChemicalReactionEquation(equationString: @"C6H5COOH+O2=CO2+H2O"));
+            //Assert.False(StringOperations.LooksLikeChemicalReactionEquation(equationString: @"H+H=H2ghkjhjkh")); // todo: better regex
         }
 
         [Fact]
