@@ -34,6 +34,7 @@ namespace ReactionStoichiometry.Tests
             }
 
             return;
+
             static BigInteger[] GetParametersFromString(String s)
             {
                 return s.Trim('(', ')').Split(separator: ',').Select(BigInteger.Parse).ToArray();

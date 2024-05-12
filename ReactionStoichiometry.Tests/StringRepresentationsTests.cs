@@ -46,7 +46,7 @@ namespace ReactionStoichiometry.Tests
         public void MatrixReadable_Simple()
         {
             var equation = new ChemicalReactionEquation(equationString: "H2 + O2 = H2O");
-            Assert.NotEqual(equation.RREF.Readable(title: "Hello"), equation.RREF.Readable(title: "Hello", index => equation.Substances[index]));
+            Assert.NotEqual(equation.RREF.Readable(title: "Hello"), equation.RREF.Readable(title: "Hello", rowHeaders: index => equation.Substances[index]));
         }
     }
 }

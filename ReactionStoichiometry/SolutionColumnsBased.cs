@@ -51,12 +51,18 @@ namespace ReactionStoichiometry
                     foreach (var combination in Helpers.GeneratePermutations(IndependentSetsOfCoefficients.Count, maxValue: 10))
                     {
                         var candidate = CombineIndependents(combination);
-                        if (candidate.Take(countOfReactantsInOriginal).Any(static i => i > 0))
+                        if (candidate.Take(countOfReactantsInOriginal).Any(predicate: static i => i > 0))
+                        {
                             continue;
-                        if (candidate.Skip(countOfReactantsInOriginal).Any(static i => i < 0))
+                        }
+                        if (candidate.Skip(countOfReactantsInOriginal).Any(predicate: static i => i < 0))
+                        {
                             continue;
+                        }
                         if (candidate.Any(predicate: static i => i == 0))
+                        {
                             continue;
+                        }
 
                         CombinationSample = (combination, candidate);
                         break;
@@ -108,8 +114,8 @@ namespace ReactionStoichiometry
             Int32 i = 0, j = 0;
             while (i < IndependentSetsOfCoefficients.Count)
             {
-                var candidateRowOfA = IndependentSetsOfCoefficients.Select(v => v[i]).ToArray();
-                if (candidateRowOfA.All(static v => v != 0))
+                var candidateRowOfA = IndependentSetsOfCoefficients.Select(selector: v => v[i]).ToArray();
+                if (candidateRowOfA.All(predicate: static v => v != 0))
                 {
                     for (var k = 0; k < candidateRowOfA.Length; k++)
                     {

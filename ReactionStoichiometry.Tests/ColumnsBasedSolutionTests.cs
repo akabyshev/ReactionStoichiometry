@@ -34,7 +34,9 @@ namespace ReactionStoichiometry.Tests
             while (reader.ReadLine() is { } line)
             {
                 if (line.StartsWith(value: '#'))
+                {
                     continue;
+                }
 
                 var equation = new ChemicalReactionEquation(line);
                 Assert.True(equation.ColumnsBasedSolution.Success);
